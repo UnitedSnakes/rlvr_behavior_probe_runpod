@@ -1,0 +1,8 @@
+torch>=2.3
+transformers>=4.46
+datasets>=2.20
+accelerate>=0.33
+pandas>=2.2
+numpy>=1.26
+
+huggingface_hub>=0.24

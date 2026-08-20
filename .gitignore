@@ -1,0 +1,7 @@
+results/
+results_*/
+trajectory/
+.venv/
+__pycache__/
+*.pyc
+wandb/

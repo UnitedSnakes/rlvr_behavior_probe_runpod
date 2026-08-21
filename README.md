@@ -1,89 +1,81 @@
 # RLVR Behavioral Probe
 
-Separate repo for the same higher-level research question:
+A small study of what changes during RL post-training. I am mainly looking at whether RLVR improves reasoning by putting more probability on solutions the SFT model can already reach, or by expanding observed solution coverage.
 
-> When RL post-training improves reasoning, does it mainly sharpen probability on
-> solutions already reachable under the SFT policy, or expand observed solution coverage?
+## Preliminary results
 
-This is behavior-first. CKA/SAE/interventions come later, after there is a behavioral
-phenomenon worth explaining.
+On 30 GSM8K test problems with 8 rollouts per problem and a 2048-token budget:
 
-## Default checkpoints
+- Sample accuracy: **55.4% (SFT) -> 72.9% (final RLVR)**.
+- The RL advantage shrinks with larger `k`: **+17.5 pp at pass@1** and **+3.3 pp at pass@8**.
+- Across intermediate checkpoints, about **89–97% of positive gains** come from problems solved at least once by the SFT model.
+- Most of the response-length change happens in the first 100 PPO steps, but accuracy continues to change afterward.
 
-- SFT: `ns-0/qwen-2.5-1.5b-instruct-reasoning-sft`
-- RLVR/PPO: `expx/qwen-2.5-1.5b-rlvr-ppo`
+This is consistent with substantial probability sharpening, but `0/8` under SFT does not mean a solution had zero probability under the SFT policy.
+
+![Pass@k comparison](figures/pass_at_k.png)
+
+![Accuracy trajectory](figures/trajectory_accuracy.png)
+
+![Response-length trajectory](figures/trajectory_length.png)
 
 ## Setup
+
+- Model family: Qwen2.5-1.5B
+- SFT: `ns-0/qwen-2.5-1.5b-instruct-reasoning-sft`
+- RLVR: `expx/qwen-2.5-1.5b-rlvr-ppo`
+- Dataset: fixed 30-problem GSM8K test subset (`seed=42`)
+- 8 rollouts per problem
+- temperature 1.0, top-p 0.95
+- main generation budget: 2048 new tokens
+
+For a problem with `K=8` rollouts, I call a positive gain **already covered** if SFT gets at least one rollout correct and RL gets more correct rollouts. If SFT gets `0/8` and RL gets at least one, I call it **observed coverage expansion**.
+
+## Reproduce the analysis
+
+The raw rollout text is included, so reproducing the analysis does not require running the models again.
 
 ```bash
 uv venv
 source .venv/bin/activate
 uv pip install -r requirements.txt
+
+python summarize_results.py --result-dir results_2048_batched
+python sanity_check_results.py \
+  --result-dir results_2048_batched \
+  --question-file data/gsm8k_subset.jsonl
+python plot_results.py
 ```
 
-If needed:
+For the intermediate checkpoints:
 
 ```bash
-huggingface-cli login
+for d in trajectory/step-*; do
+  python summarize_results.py --result-dir "$d"
+done
 ```
 
-## First M5 Pro run
+If the answer-extraction logic changes, saved rollouts can be rescored without regenerating them:
 
 ```bash
-python run_probe.py \
+python rescore_results.py --result-dir results_2048_batched --in-place
+```
+
+To regenerate rollouts:
+
+```bash
+python run_probe_batched.py \
   --questions 30 \
   --rollouts 8 \
-  --batch-rollouts 4 \
-  --max-new-tokens 384 \
+  --max-new-tokens 2048 \
   --temperature 1.0 \
   --top-p 0.95 \
-  --device mps \
+  --device auto \
   --dtype bfloat16 \
+  --result-dir results_2048_batched \
   --resume
 ```
 
-Then:
+## Notes
 
-```bash
-python summarize_results.py --result-dir results
-```
-
-The run saves each completed question immediately, so `--resume` is safe.
-
-## Definitions
-
-For each problem, let `c_SFT` and `c_RL` be the number correct among K rollouts.
-
-- `c_SFT > 0` and `c_RL > c_SFT`: probability sharpening.
-- `c_SFT == 0` and `c_RL > 0`: observed coverage expansion.
-- `c_RL < c_SFT`: regression.
-
-Observed coverage expansion is **not** proof of a newly created capability; finite
-sampling can miss very low-probability SFT solutions.
-
-Outputs:
-- `results/sft_raw.jsonl`
-- `results/rl_raw.jsonl`
-- `results/per_question.csv`
-- `results/summary.txt`
-- `results/summary.json`
-
-If the 30x8 run shows signal, scale behavior first (100-200 questions, K=16-32,
-intermediate PPO checkpoints) before doing mechanistic analysis.
-
-
-## Important SFT repository detail
-
-The SFT repository's `main` branch is metadata-only; actual SFT checkpoints are
-stored on branches. This v2 code automatically lists the repository refs and
-selects the highest-numbered checkpoint branch.
-
-It also deliberately uses the official
-`Qwen/Qwen2.5-1.5B-Instruct` tokenizer/chat template for both SFT and RL
-checkpoints so the tokenizer itself is not a confound.
-
-If auto-selection prints multiple branches and you want a specific one:
-
-```bash
-python run_probe.py ... --sft-revision <branch-name>
-```
+This is a preliminary result from one model family, one dataset, one fixed 30-problem subset, and 8 rollouts per problem. I am using it as a starting point for larger-scale and more controlled tests of what RL changes during post-training.

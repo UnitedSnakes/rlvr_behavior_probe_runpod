@@ -120,7 +120,7 @@ def main():
     questions=prepare_questions(args.question_file,args.questions,args.seed)
     rd=Path(args.result_dir); rd.mkdir(parents=True,exist_ok=True)
     sft_rev=resolve_checkpoint_revision(args.sft_model,args.sft_revision)
-    # run_one("sft",args.sft_model,sft_rev,questions,rd/"sft_raw.jsonl",args,device,dtype)
+    run_one("sft",args.sft_model,sft_rev,questions,rd/"sft_raw.jsonl",args,device,dtype)
     run_one("rl",args.rl_model,args.rl_revision,questions,rd/"rl_raw.jsonl",args,device,dtype)
     cfg=vars(args).copy(); cfg["effective_sequence_batch"]=args.rollouts*args.question_batch_size
     (rd/"run_config.json").write_text(json.dumps(cfg,indent=2),encoding="utf-8")

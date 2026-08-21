@@ -2,34 +2,34 @@
   "metrics": {
     "n_questions": 30,
     "k": 8,
-    "sft_sample_accuracy": 0.5333333333333333,
-    "rl_sample_accuracy": 0.6916666666666667,
-    "sample_accuracy_delta": 0.15833333333333333,
-    "sft_pass_at_k": 0.8666666666666667,
-    "rl_pass_at_k": 0.9,
-    "pass_at_k_delta": 0.033333333333333326,
-    "sharpening_questions": 15,
-    "observed_expansion_questions": 2,
+    "sft_sample_accuracy": 0.5541666666666667,
+    "rl_sample_accuracy": 0.7208333333333333,
+    "sample_accuracy_delta": 0.16666666666666663,
+    "sft_pass_at_k": 0.9333333333333333,
+    "rl_pass_at_k": 0.9333333333333333,
+    "pass_at_k_delta": 0.0,
+    "sharpening_questions": 16,
+    "observed_expansion_questions": 1,
     "regression_questions": 6,
     "unchanged_questions": 7,
-    "positive_correct_sample_gain_from_sharpening": 36,
-    "positive_correct_sample_gain_from_expansion": 8,
-    "positive_gain_share_sharpening": 0.8181818181818182
+    "positive_correct_sample_gain_from_sharpening": 41,
+    "positive_correct_sample_gain_from_expansion": 5,
+    "positive_gain_share_sharpening": 0.8913043478260869
   },
   "paired_bootstrap": {
     "sample_accuracy_delta": {
-      "mean": 0.1572725,
-      "p2.5": 0.07499999999999996,
-      "p97.5": 0.24583333333333335
+      "mean": 0.16553083333333335,
+      "p2.5": 0.07916666666666661,
+      "p97.5": 0.2583333333333333
     },
     "pass_at_k_delta": {
-      "mean": 0.03254,
-      "p2.5": -0.06666666666666665,
-      "p97.5": 0.13333333333333341
+      "mean": -0.0004933333333333331,
+      "p2.5": -0.09999999999999998,
+      "p97.5": 0.09999999999999998
     },
     "positive_gain_share_sharpening": {
-      "mean": 0.8216275529343802,
-      "p2.5": 0.5714285714285714,
+      "mean": 0.8944177486119892,
+      "p2.5": 0.6666666666666666,
       "p97.5": 1.0
     }
   }

@@ -2,25 +2,25 @@
   "metrics": {
     "n_questions": 30,
     "k": 8,
-    "sft_sample_accuracy": 0.5333333333333333,
-    "rl_sample_accuracy": 0.6833333333333333,
-    "sample_accuracy_delta": 0.15000000000000002,
-    "sft_pass_at_k": 0.8666666666666667,
-    "rl_pass_at_k": 0.8333333333333334,
+    "sft_sample_accuracy": 0.5625,
+    "rl_sample_accuracy": 0.7291666666666666,
+    "sample_accuracy_delta": 0.16666666666666663,
+    "sft_pass_at_k": 0.9333333333333333,
+    "rl_pass_at_k": 0.9,
     "pass_at_k_delta": -0.033333333333333326,
-    "sharpening_questions": 14,
+    "sharpening_questions": 16,
     "observed_expansion_questions": 1,
     "regression_questions": 5,
-    "unchanged_questions": 10,
-    "positive_correct_sample_gain_from_sharpening": 41,
+    "unchanged_questions": 8,
+    "positive_correct_sample_gain_from_sharpening": 45,
     "positive_correct_sample_gain_from_expansion": 3,
-    "positive_gain_share_sharpening": 0.9318181818181818
+    "positive_gain_share_sharpening": 0.9375
   },
   "paired_bootstrap": {
     "sample_accuracy_delta": {
-      "mean": 0.15033916666666666,
-      "p2.5": 0.0625,
-      "p97.5": 0.24166666666666664
+      "mean": 0.1668258333333333,
+      "p2.5": 0.07916666666666661,
+      "p97.5": 0.2541666666666667
     },
     "pass_at_k_delta": {
       "mean": -0.034313333333333335,
@@ -28,8 +28,8 @@
       "p97.5": 0.06666666666666665
     },
     "positive_gain_share_sharpening": {
-      "mean": 0.9321109523905676,
-      "p2.5": 0.775,
+      "mean": 0.9378522467666109,
+      "p2.5": 0.7954545454545454,
       "p97.5": 1.0
     }
   }

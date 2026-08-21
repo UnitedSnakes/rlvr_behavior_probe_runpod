@@ -2,3 +2,8 @@
 __pycache__/
 *.pyc
 wandb/
+*.zip
+.DS_Store
+__MACOSX/
+._*
+*.bak

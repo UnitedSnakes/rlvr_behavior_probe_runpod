@@ -1,0 +1,28 @@
+RLVR BEHAVIORAL DECOMPOSITION
+====================================
+Questions completed: 30 | rollouts/question: 8
+
+SFT sample accuracy: 53.3%
+RL  sample accuracy: 68.3%
+Delta:               15.0%
+  paired bootstrap 95%: [6.2%, 24.2%]
+
+SFT pass@8: 86.7%
+RL  pass@8: 83.3%
+Delta:       -3.3%
+  paired bootstrap 95%: [-16.7%, 6.7%]
+
+Per-question categories:
+  sharpening:         14
+  observed expansion: 1
+  regression:         5
+  unchanged:          10
+
+Positive correct-sample gains:
+  from already-covered questions (sharpening): 41
+  from newly observed coverage: 3
+  sharpening share of positive gains: 93.2%
+    paired bootstrap 95%: [77.5%, 100.0%]
+
+Guardrail: 0/K under SFT and >0/K under RL means OBSERVED coverage expansion.
+It does not prove RL created a capability absent from the SFT policy.

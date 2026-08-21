@@ -1,0 +1,19 @@
+{
+  "sft_model": "ns-0/qwen-2.5-1.5b-instruct-reasoning-sft",
+  "rl_model": "expx/qwen-2.5-1.5b-rlvr-ppo",
+  "sft_revision": "auto",
+  "rl_revision": "step-500",
+  "questions": 30,
+  "rollouts": 8,
+  "question_batch_size": 4,
+  "max_new_tokens": 2048,
+  "temperature": 1.0,
+  "top_p": 0.95,
+  "seed": 42,
+  "device": "cuda",
+  "dtype": "bfloat16",
+  "question_file": "data/gsm8k_subset.jsonl",
+  "result_dir": "trajectory/step-500",
+  "resume": false,
+  "effective_sequence_batch": 32
+}

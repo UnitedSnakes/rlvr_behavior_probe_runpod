@@ -1,22 +1,13 @@
 from __future__ import annotations
 
 import re
+import time
+
 import torch
 from huggingface_hub import HfApi
 from transformers import AutoModelForCausalLM, AutoTokenizer
-import time
 
-
-# Exact system prompt stated on the SFT model card.
-SYSTEM_PROMPT = (
-    "You are a helpful assistant. Think step by step before responding to the user's query. "
-    "Your thought process should be enclosed between <think> and </think> tags. "
-    "Once your thought process is complete, write a response which should end in the final "
-    "answer enclosed in \\boxed{}."
-)
-
-# Use one canonical tokenizer/chat template for BOTH checkpoints.
-TOKENIZER_NAME = "Qwen/Qwen2.5-1.5B-Instruct"
+from probe.prompts import SYSTEM_PROMPT, TOKENIZER_NAME
 
 
 def resolve_checkpoint_revision(repo_id: str, requested_revision: str | None) -> str:
@@ -33,13 +24,11 @@ def resolve_checkpoint_revision(repo_id: str, requested_revision: str | None) ->
     refs = HfApi().list_repo_refs(repo_id)
     branch_names = [b.name for b in refs.branches]
 
-    # If main has actual weights, caller can simply request "main".
-    # For the SFT metadata repo, prefer numbered checkpoint branches.
     numbered = []
     for name in branch_names:
-        m = re.search(r"(\d+)(?!.*\d)", name)
-        if m and name != "main":
-            numbered.append((int(m.group(1)), name))
+        match = re.search(r"(\d+)(?!.*\d)", name)
+        if match and name != "main":
+            numbered.append((int(match.group(1)), name))
 
     if numbered:
         numbered.sort()
@@ -122,7 +111,7 @@ class Sampler:
             max_length=self.max_input_tokens,
             add_special_tokens=False,
         )
-        enc = {k: v.to(self.device) for k, v in enc.items()}
+        enc = {key: value.to(self.device) for key, value in enc.items()}
         prompt_len = enc["input_ids"].shape[1]
 
         texts = []
@@ -160,10 +149,10 @@ class Sampler:
                 f"{elapsed:.1f}s"
             )
 
-            for seq in out:
+            for sequence in out:
                 texts.append(
                     self.tokenizer.decode(
-                        seq[prompt_len:],
+                        sequence[prompt_len:],
                         skip_special_tokens=True,
                     )
                 )

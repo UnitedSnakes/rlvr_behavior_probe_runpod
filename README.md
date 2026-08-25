@@ -31,6 +31,39 @@ This is consistent with substantial probability sharpening, but `0/8` under SFT 
 
 For a problem with `K=8` rollouts, I call a positive gain **already covered** if SFT gets at least one rollout correct and RL gets more correct rollouts. If SFT gets `0/8` and RL gets at least one, I call it **observed coverage expansion**.
 
+## RunPod vLLM image
+
+Create a RunPod template with these settings:
+
+```text
+Container image: ghcr.io/unitedsnakes/rlvr-vllm:0.27.1
+Container disk: 30 GB
+Network volume: none
+HTTP port: 8888
+TCP port: 22
+```
+
+Secrets such as `HF_TOKEN` and the GitHub deploy key are runtime or template concerns. Never add them to the Dockerfile or commit them to this repository.
+
+On a new pod, run this sanity check before cloning and running the probe:
+
+```bash
+which python
+python - <<'PY'
+import os
+import sys
+import torch
+import vllm
+
+print("python:", sys.executable)
+print("torch:", torch.__version__)
+print("cuda:", torch.version.cuda)
+print("vllm:", vllm.__version__)
+print("gpu:", torch.cuda.get_device_name(0))
+print("spawn:", os.environ.get("VLLM_WORKER_MULTIPROC_METHOD"))
+PY
+```
+
 ## Reproduce the analysis
 
 The raw rollout text is included, so reproducing the analysis does not require running the models again.

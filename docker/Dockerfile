@@ -17,7 +17,7 @@ RUN apt-get update --yes && \
         tmux && \
     rm -rf /var/lib/apt/lists/*
 
-RUN python3 -m pip install --no-cache-dir uv==0.8.15
+RUN python3 -m pip install --no-cache-dir uv==0.11.13
 
 RUN uv venv /opt/vllm-env \
         --python 3.12 \

@@ -4,6 +4,7 @@ import re
 import torch
 from huggingface_hub import HfApi
 from transformers import AutoModelForCausalLM, AutoTokenizer
+import time
 
 
 # Exact system prompt stated on the SFT model card.
@@ -126,11 +127,17 @@ class Sampler:
 
         texts = []
         remaining = n
+        batch_index = 0
+        total_batches = (n + batch_rollouts - 1) // batch_rollouts
 
         while remaining > 0:
-            b = min(batch_rollouts, remaining)
-            input_ids = enc["input_ids"].repeat(b, 1)
-            attention_mask = enc["attention_mask"].repeat(b, 1)
+            batch_index += 1
+            batch_size = min(batch_rollouts, remaining)
+
+            input_ids = enc["input_ids"].repeat(batch_size, 1)
+            attention_mask = enc["attention_mask"].repeat(batch_size, 1)
+
+            start_time = time.perf_counter()
 
             out = self.model.generate(
                 input_ids=input_ids,
@@ -145,6 +152,14 @@ class Sampler:
                 use_cache=True,
             )
 
+            elapsed = time.perf_counter() - start_time
+
+            print(
+                f"  batch {batch_index}/{total_batches} "
+                f"({batch_size} rollouts) "
+                f"{elapsed:.1f}s"
+            )
+
             for seq in out:
                 texts.append(
                     self.tokenizer.decode(
@@ -152,6 +167,7 @@ class Sampler:
                         skip_special_tokens=True,
                     )
                 )
-            remaining -= b
+
+            remaining -= batch_size
 
         return texts

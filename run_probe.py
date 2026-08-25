@@ -20,6 +20,7 @@ def parse_args():
     p.add_argument("--dtype",choices=["float32","float16","bfloat16"],default="bfloat16")
     p.add_argument("--question-file",default="data/gsm8k_subset.jsonl"); p.add_argument("--result-dir",default="results")
     p.add_argument("--resume",action="store_true")
+    p.add_argument("--only-sft", action="store_true")
     return p.parse_args()
 
 def completed_qids(path):
@@ -64,7 +65,8 @@ def main():
     print(f"Resolved SFT revision: {sft_revision}")
     print(f"Resolved RL revision:  {rl_revision}")
     run_one_checkpoint("sft",args.sft_model,sft_revision,questions,result_dir/"sft_raw.jsonl",args,device,dtype)
-    run_one_checkpoint("rl",args.rl_model,rl_revision,questions,result_dir/"rl_raw.jsonl",args,device,dtype)
+    if not args.only_sft:
+        run_one_checkpoint("rl",args.rl_model,rl_revision,questions,result_dir/"rl_raw.jsonl",args,device,dtype)
     config=vars(args).copy(); config["device_resolved"]=device; config["dtype_resolved"]=str(dtype)
     (result_dir/"run_config.json").write_text(json.dumps(config,indent=2),encoding="utf-8")
     print("\nGeneration complete.\nRun: python summarize_results.py --result-dir results")

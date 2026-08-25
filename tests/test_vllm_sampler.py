@@ -100,6 +100,7 @@ def test_vllm_sampler_preserves_model_revision_and_dtype(monkeypatch):
     assert FakeLLM.init_kwargs["model"] == "example/model"
     assert FakeLLM.init_kwargs["tokenizer"] == module.TOKENIZER_NAME
     assert FakeLLM.init_kwargs["revision"] == "checkpoint-8-of-10"
+    assert FakeLLM.init_kwargs["tokenizer_revision"] == "main"
     assert FakeLLM.init_kwargs["dtype"] == "bfloat16"
     assert FakeLLM.init_kwargs["gpu_memory_utilization"] == 0.85
 

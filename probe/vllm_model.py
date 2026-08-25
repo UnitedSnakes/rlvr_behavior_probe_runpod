@@ -55,6 +55,7 @@ class VLLMSampler:
             model=model_name,
             tokenizer=TOKENIZER_NAME,
             revision=revision,
+            tokenizer_revision="main",
             dtype=self.dtype,
             gpu_memory_utilization=gpu_memory_utilization,
         )

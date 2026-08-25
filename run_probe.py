@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import gc
 import json
+import os
 from pathlib import Path
 
 from probe.data import prepare_questions
@@ -78,6 +79,11 @@ def parse_args():
     return parser.parse_args()
 
 
+def configure_runtime(args) -> None:
+    if args.engine == "vllm":
+        os.environ.setdefault("VLLM_WORKER_MULTIPROC_METHOD", "spawn")
+
+
 def completed_qids(path):
     return {int(row["qid"]) for row in read_jsonl(path)}
 
@@ -100,6 +106,11 @@ def build_sampler(model_name, revision, args, device, dtype):
         revision=revision,
         gpu_memory_utilization=args.vllm_gpu_memory_utilization,
     )
+
+
+def maybe_empty_device_cache(engine: str) -> None:
+    if engine == "hf":
+        empty_device_cache()
 
 
 def run_one_checkpoint(
@@ -203,16 +214,21 @@ def run_one_checkpoint(
             f"gold={question['gold']}"
         )
 
-        empty_device_cache()
+        maybe_empty_device_cache(args.engine)
 
     del sampler
     gc.collect()
-    empty_device_cache()
+    maybe_empty_device_cache(args.engine)
 
 
 def main():
     args = parse_args()
-    set_seed(args.seed)
+    configure_runtime(args)
+
+    # vLLM receives a per-question seed through SamplingParams. Avoid touching
+    # CUDA in the parent process before its worker subprocesses are created.
+    if args.engine == "hf":
+        set_seed(args.seed)
 
     device = resolve_device(args.device)
     dtype = resolve_dtype(args.dtype)

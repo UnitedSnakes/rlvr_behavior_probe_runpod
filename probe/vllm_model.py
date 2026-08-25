@@ -6,7 +6,7 @@ from transformers import AutoTokenizer
 from vllm import LLM, SamplingParams
 from vllm.inputs import TokensPrompt
 
-from probe.model import SYSTEM_PROMPT, TOKENIZER_NAME
+from probe.prompts import SYSTEM_PROMPT, TOKENIZER_NAME
 
 
 def normalize_vllm_dtype(dtype) -> str:

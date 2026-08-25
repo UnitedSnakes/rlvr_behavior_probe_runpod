@@ -41,11 +41,23 @@ def parse_args():
     parser.add_argument("--seed", type=int, default=42)
 
     # Runtime
+    parser.add_argument(
+        "--engine",
+        choices=["hf", "vllm"],
+        default="hf",
+        help="Inference backend. vLLM ignores --batch-rollouts and schedules requests internally.",
+    )
     parser.add_argument("--device", default="auto")
     parser.add_argument(
         "--dtype",
         choices=["float32", "float16", "bfloat16"],
         default="bfloat16",
+    )
+    parser.add_argument(
+        "--vllm-gpu-memory-utilization",
+        type=float,
+        default=0.90,
+        help="Fraction of GPU memory vLLM may reserve for its executor and KV cache.",
     )
 
     # I/O
@@ -65,6 +77,26 @@ def parse_args():
 
 def completed_qids(path):
     return {int(row["qid"]) for row in read_jsonl(path)}
+
+
+def build_sampler(model_name, revision, args, device, dtype):
+    if args.engine == "hf":
+        return Sampler(
+            model_name,
+            device,
+            dtype,
+            revision=revision,
+        )
+
+    from probe.vllm_model import VLLMSampler
+
+    return VLLMSampler(
+        model_name,
+        device,
+        dtype,
+        revision=revision,
+        gpu_memory_utilization=args.vllm_gpu_memory_utilization,
+    )
 
 
 def run_one_checkpoint(
@@ -88,11 +120,12 @@ def run_one_checkpoint(
         if out_path.exists():
             out_path.unlink()
 
-    sampler = Sampler(
-        model_name,
-        device,
-        dtype,
+    sampler = build_sampler(
+        model_name=model_name,
         revision=revision,
+        args=args,
+        device=device,
+        dtype=dtype,
     )
 
     for question in questions:
@@ -181,12 +214,19 @@ def main():
     device = resolve_device(args.device)
     dtype = resolve_dtype(args.dtype)
 
+    print(f"Engine: {args.engine}")
     print(f"Device: {device}")
     print(f"Dtype: {dtype}")
+
+    if args.engine == "hf":
+        batching = f"batch={args.batch_rollouts}, "
+    else:
+        batching = "batch=vLLM scheduler, "
+
     print(
         "Sampling: "
         f"K={args.rollouts}, "
-        f"batch={args.batch_rollouts}, "
+        f"{batching}"
         f"temperature={args.temperature}, "
         f"top_p={args.top_p}"
     )
@@ -245,10 +285,13 @@ def main():
     )
 
     print("\nGeneration complete.")
-    print(
-        "Summarize with:\n"
-        f"  python summarize_results.py --result-dir {result_dir}"
-    )
+    if args.only_sft:
+        print("SFT-only run complete; paired SFT/RL summarization is not applicable.")
+    else:
+        print(
+            "Summarize with:\n"
+            f"  python summarize_results.py --result-dir {result_dir}"
+        )
 
 
 if __name__ == "__main__":

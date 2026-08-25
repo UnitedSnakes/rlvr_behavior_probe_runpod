@@ -70,7 +70,10 @@ def parse_args():
         default="results",
     )
     parser.add_argument("--resume", action="store_true")
-    parser.add_argument("--only-sft", action="store_true")
+
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument("--only-sft", action="store_true")
+    mode_group.add_argument("--only-rl", action="store_true")
 
     return parser.parse_args()
 
@@ -240,25 +243,29 @@ def main():
     result_dir = Path(args.result_dir)
     result_dir.mkdir(parents=True, exist_ok=True)
 
-    sft_revision = resolve_checkpoint_revision(
-        args.sft_model,
-        args.sft_revision,
-    )
     rl_revision = args.rl_revision
+    sft_revision = None
 
-    print(f"Resolved SFT revision: {sft_revision}")
+    if not args.only_rl:
+        sft_revision = resolve_checkpoint_revision(
+            args.sft_model,
+            args.sft_revision,
+        )
+        print(f"Resolved SFT revision: {sft_revision}")
+
     print(f"Resolved RL revision:  {rl_revision}")
 
-    run_one_checkpoint(
-        alias="sft",
-        model_name=args.sft_model,
-        revision=sft_revision,
-        questions=questions,
-        out_path=result_dir / "sft_raw.jsonl",
-        args=args,
-        device=device,
-        dtype=dtype,
-    )
+    if not args.only_rl:
+        run_one_checkpoint(
+            alias="sft",
+            model_name=args.sft_model,
+            revision=sft_revision,
+            questions=questions,
+            out_path=result_dir / "sft_raw.jsonl",
+            args=args,
+            device=device,
+            dtype=dtype,
+        )
 
     if not args.only_sft:
         run_one_checkpoint(
@@ -287,6 +294,8 @@ def main():
     print("\nGeneration complete.")
     if args.only_sft:
         print("SFT-only run complete; paired SFT/RL summarization is not applicable.")
+    elif args.only_rl:
+        print("RL-only run complete; paired SFT/RL summarization is not applicable.")
     else:
         print(
             "Summarize with:\n"

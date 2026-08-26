@@ -45,6 +45,30 @@ TCP port: 22
 
 Secrets such as `HF_TOKEN` and the GitHub deploy key are runtime or template concerns. Never add them to the Dockerfile or commit them to this repository.
 
+To back up a completed run automatically, expose `HF_TOKEN` through the
+RunPod environment/Secret and pass a pre-existing Hugging Face Dataset repo:
+
+```bash
+export HF_TOKEN="<provided-by-secret>"
+
+python run_probe.py \
+  --engine vllm \
+  --only-rl \
+  --rollouts 256 \
+  --result-dir results_rl256_vllm \
+  --upload-repo UnitedSnakes/rlvr-behavior-probe-results
+```
+
+The local files are written first. A successful backup is stored under a
+run-start timestamped path such as:
+
+```text
+runs/20260825T235312Z-results_rl256_vllm/
+```
+
+The destination Dataset repo must already exist. If backup fails, the local
+result directory is preserved and the command exits unsuccessfully.
+
 On a new pod, run this sanity check before cloning and running the probe:
 
 ```bash

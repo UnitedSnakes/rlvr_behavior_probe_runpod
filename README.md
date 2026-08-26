@@ -45,18 +45,43 @@ TCP port: 22
 
 Secrets such as `HF_TOKEN` and the GitHub deploy key are runtime or template concerns. Never add them to the Dockerfile or commit them to this repository.
 
+Configure these template environment variables:
+
+```text
+HF_TOKEN={{ RUNPOD_SECRET_huggingface_token }}
+GITHUB_DEPLOY_KEY_B64={{ RUNPOD_SECRET_github_rlvr_deploy_key_b64 }}
+RLVR_REPO=git@github.com:UnitedSnakes/rlvr_behavior_probe_runpod.git
+RLVR_BRANCH=difficulty-bin-analysis
+RLVR_REPO_DIR=/workspace/rlvr_behavior_probe_runpod
+```
+
+Use this exact Container start command:
+
+```bash
+/bin/bash -lc '/start.sh & start_pid=$!; rlvr-bootstrap > /workspace/rlvr-bootstrap.log 2>&1; bootstrap_status=$?; if [ "$bootstrap_status" -ne 0 ]; then printf "[rlvr-bootstrap] startup bootstrap failed with exit %s; pod remains available; rerun rlvr-bootstrap manually\n" "$bootstrap_status" >> /workspace/rlvr-bootstrap.log; fi; wait "$start_pid"'
+```
+
+`/start.sh` starts first so RunPod SSH/Jupyter remain available. The bootstrap then
+configures the deploy key and prepares the repository. A bootstrap error is written
+to `/workspace/rlvr-bootstrap.log` but is not allowed to kill the pod. After correcting
+the cause, rerun `rlvr-bootstrap` manually.
+
+Normal Docker-related pushes publish only a `sha-*` image tag. Test that image on a
+fresh pod first. After the fresh-pod bootstrap and one-question vLLM smoke test pass,
+manually dispatch the image workflow with `publish_stable=true` to promote the tested
+build to `0.27.1`.
+
 To back up a completed run automatically, expose `HF_TOKEN` through the
 RunPod environment/Secret and pass a pre-existing Hugging Face Dataset repo:
 
 ```bash
-export HF_TOKEN="<provided-by-secret>"
 
 python run_probe.py \
   --engine vllm \
   --only-rl \
   --rollouts 256 \
   --result-dir results_rl256_vllm \
-  --upload-repo UnitedSnakes/rlvr-behavior-probe-results
+  --upload-repo HKReporter/rlvr-behavior-probe-results
 ```
 
 The local files are written first. A successful backup is stored under a
@@ -69,7 +94,7 @@ runs/20260825T235312Z-results_rl256_vllm/
 The destination Dataset repo must already exist. If backup fails, the local
 result directory is preserved and the command exits unsuccessfully.
 
-On a new pod, run this sanity check before cloning and running the probe:
+After bootstrap completes on a new pod, run this sanity check before running the probe:
 
 ```bash
 which python

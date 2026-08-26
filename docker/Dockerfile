@@ -35,6 +35,10 @@ RUN uv pip install \
         -r /tmp/requirements-vllm.txt && \
     rm /tmp/requirements-vllm.txt
 
+COPY --chmod=0755 docker/rlvr-bootstrap.sh /usr/local/bin/rlvr-bootstrap
+
+RUN test -x /usr/local/bin/rlvr-bootstrap
+
 RUN /opt/vllm-env/bin/python - <<'PY'
 import sys
 import torch

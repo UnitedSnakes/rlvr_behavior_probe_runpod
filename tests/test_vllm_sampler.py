@@ -31,8 +31,8 @@ class FakeAutoTokenizer:
     calls = []
 
     @classmethod
-    def from_pretrained(cls, name):
-        cls.calls.append(name)
+    def from_pretrained(cls, name, **kwargs):
+        cls.calls.append((name, kwargs))
         return FakeTokenizer()
 
 
@@ -96,11 +96,13 @@ def test_vllm_sampler_preserves_model_revision_and_dtype(monkeypatch):
         gpu_memory_utilization=0.85,
     )
 
-    assert FakeAutoTokenizer.calls[-1] == module.TOKENIZER_NAME
+    tokenizer_name, tokenizer_kwargs = FakeAutoTokenizer.calls[-1]
+    assert tokenizer_name == module.TOKENIZER_NAME
+    assert tokenizer_kwargs["revision"] == module.TOKENIZER_REVISION
     assert FakeLLM.init_kwargs["model"] == "example/model"
     assert FakeLLM.init_kwargs["tokenizer"] == module.TOKENIZER_NAME
     assert FakeLLM.init_kwargs["revision"] == "checkpoint-8-of-10"
-    assert FakeLLM.init_kwargs["tokenizer_revision"] == "main"
+    assert FakeLLM.init_kwargs["tokenizer_revision"] == module.TOKENIZER_REVISION
     assert FakeLLM.init_kwargs["dtype"] == "bfloat16"
     assert FakeLLM.init_kwargs["gpu_memory_utilization"] == 0.85
 
@@ -123,6 +125,8 @@ def test_vllm_sampler_uses_one_request_with_n_completions(monkeypatch):
         max_new_tokens=2048,
         temperature=1.0,
         top_p=0.95,
+        top_k=20,
+        repetition_penalty=1.1,
         seed=4200000,
     )
 
@@ -136,6 +140,8 @@ def test_vllm_sampler_uses_one_request_with_n_completions(monkeypatch):
         "n": 3,
         "temperature": 1.0,
         "top_p": 0.95,
+        "top_k": 20,
+        "repetition_penalty": 1.1,
         "max_tokens": 2048,
         "seed": 4200000,
     }

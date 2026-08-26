@@ -1,12 +1,18 @@
 from __future__ import annotations
 
 import time
+from pathlib import Path
 
+from huggingface_hub import snapshot_download
 from transformers import AutoTokenizer
 from vllm import LLM, SamplingParams
 from vllm.inputs import TokensPrompt
 
-from probe.prompts import SYSTEM_PROMPT, TOKENIZER_NAME
+from probe.prompts import (
+    SYSTEM_PROMPT,
+    TOKENIZER_NAME,
+    TOKENIZER_REVISION,
+)
 
 
 def normalize_vllm_dtype(dtype) -> str:
@@ -31,9 +37,10 @@ class VLLMSampler:
         max_input_tokens: int = 1024,
         gpu_memory_utilization: float = 0.90,
     ):
-        if not str(device).startswith("cuda"):
+        device_name = str(device)
+        if not (device_name.startswith("cuda") or device_name == "mps"):
             raise ValueError(
-                "The vLLM backend currently requires a CUDA device. "
+                "The vLLM backend requires CUDA or Apple Silicon Metal. "
                 f"Resolved device was {device!r}."
             )
 
@@ -45,17 +52,34 @@ class VLLMSampler:
         self.gpu_memory_utilization = gpu_memory_utilization
 
         print(f"Loading tokenizer from {TOKENIZER_NAME}")
-        self.tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_NAME)
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            TOKENIZER_NAME,
+            revision=TOKENIZER_REVISION,
+        )
 
         if self.tokenizer.pad_token_id is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
 
+        load_model_name = model_name
+        load_revision = revision
+        if device_name == "mps":
+            if not Path(model_name).is_dir():
+                print(
+                    "Resolving Metal model to exact local snapshot: "
+                    f"{model_name} @ {revision}"
+                )
+                load_model_name = snapshot_download(
+                    model_name,
+                    revision=revision,
+                )
+            load_revision = None
+
         print(f"Loading vLLM model {model_name} @ revision={revision}")
         self.model = LLM(
-            model=model_name,
+            model=load_model_name,
             tokenizer=TOKENIZER_NAME,
-            revision=revision,
-            tokenizer_revision="main",
+            revision=load_revision,
+            tokenizer_revision=TOKENIZER_REVISION,
             dtype=self.dtype,
             gpu_memory_utilization=gpu_memory_utilization,
         )
@@ -89,6 +113,8 @@ class VLLMSampler:
         max_new_tokens: int,
         temperature: float,
         top_p: float,
+        top_k: int,
+        repetition_penalty: float,
         seed: int,
     ) -> list[str]:
         del batch_rollouts
@@ -99,6 +125,8 @@ class VLLMSampler:
             n=n,
             temperature=temperature,
             top_p=top_p,
+            top_k=top_k,
+            repetition_penalty=repetition_penalty,
             max_tokens=max_new_tokens,
             seed=seed,
         )

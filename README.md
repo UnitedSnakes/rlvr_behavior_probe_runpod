@@ -26,10 +26,91 @@ This is consistent with substantial probability sharpening, but `0/8` under SFT 
 - RLVR: `expx/qwen-2.5-1.5b-rlvr-ppo`
 - Dataset: fixed 30-problem GSM8K test subset (`seed=42`)
 - 8 rollouts per problem
-- temperature 1.0, top-p 0.95
+- temperature 1.0, top-p 0.95, top-k 0, repetition penalty 1.0
 - main generation budget: 2048 new tokens
 
 For a problem with `K=8` rollouts, I call a positive gain **already covered** if SFT gets at least one rollout correct and RL gets more correct rollouts. If SFT gets `0/8` and RL gets at least one, I call it **observed coverage expansion**.
+
+## Apple Silicon vLLM-Metal development runtime
+
+The same public command uses `--engine vllm` on both CUDA and Apple Silicon. On macOS, `--device auto` should resolve to `mps`, and the installed vLLM-Metal plugin supplies the Metal runtime.
+
+Requirements for the current official vLLM-Metal installer are macOS 15+, Apple Silicon, and native arm64 Python 3.12. Rosetta/x86_64 Python is not supported.
+
+Check the host before installing:
+
+```bash
+sw_vers -productVersion
+uname -m
+python3 -c 'import platform; print(platform.machine())'
+file "$(which python3)"
+```
+
+Install the official runtime into its default `~/.venv-vllm-metal` environment:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/vllm-project/vllm-metal/main/install.sh | bash
+```
+
+Then install only this project's extra dependencies. Do not install `requirements.txt` or `docker/requirements-vllm.txt` into this environment because those files may replace packages owned by the vLLM-Metal stack.
+
+```bash
+uv pip install \
+  --python ~/.venv-vllm-metal/bin/python \
+  -r requirements-macos-vllm.txt
+```
+
+Inspect the installed runtime without importing a model:
+
+```bash
+~/.venv-vllm-metal/bin/python - <<'PY'
+import importlib.metadata
+import platform
+import sys
+
+print("python:", sys.executable)
+print("python version:", platform.python_version())
+print("machine:", platform.machine())
+for package in ["vllm", "vllm-metal", "transformers", "mlx"]:
+    try:
+        version = importlib.metadata.version(package)
+    except importlib.metadata.PackageNotFoundError:
+        version = "not installed"
+    print(f"{package}: {version}")
+PY
+```
+
+Metal results are for development, smoke tests, and small exploratory runs. CUDA vLLM remains the canonical measurement backend. Do not merge Metal rollouts into canonical CUDA probability estimates unless the experiment explicitly studies backend sensitivity.
+
+The first Metal compatibility check must use the exact SFT checkpoint rather than silently replacing it with an MLX-community conversion. Create a one-question file from the canonical subset:
+
+```bash
+head -n 1 data/gsm8k_subset.jsonl > /tmp/gsm8k_subset_q0.jsonl
+```
+
+Then run:
+
+```bash
+~/.venv-vllm-metal/bin/python run_probe.py \
+  --engine vllm \
+  --device auto \
+  --only-sft \
+  --questions 1 \
+  --rollouts 2 \
+  --question-file /tmp/gsm8k_subset_q0.jsonl \
+  --max-new-tokens 256 \
+  --temperature 1.0 \
+  --top-p 0.95 \
+  --top-k 0 \
+  --repetition-penalty 1.0 \
+  --dtype bfloat16 \
+  --sft-revision checkpoint-8-of-10 \
+  --result-dir results_m5_smoke
+```
+
+If vLLM-Metal cannot load `ns-0/qwen-2.5-1.5b-instruct-reasoning-sft` at `checkpoint-8-of-10`, stop there and treat model conversion as a separate design decision. Do not substitute another checkpoint inside this smoke test.
+
+A successful run should record `device_resolved` as `mps`, `runtime.platform` as `metal`, and `runtime.implementation` as `vllm-metal` in `results_m5_smoke/run_config.json`.
 
 ## RunPod vLLM image
 
@@ -75,7 +156,6 @@ To back up a completed run automatically, expose `HF_TOKEN` through the
 RunPod environment/Secret and pass a pre-existing Hugging Face Dataset repo:
 
 ```bash
-
 python run_probe.py \
   --engine vllm \
   --only-rl \
@@ -112,6 +192,34 @@ print("gpu:", torch.cuda.get_device_name(0))
 print("spawn:", os.environ.get("VLLM_WORKER_MULTIPROC_METHOD"))
 PY
 ```
+
+For the fresh SHA-image top-k/JIT acceptance test, derive one canonical question:
+
+```bash
+head -n 1 data/gsm8k_subset.jsonl > /tmp/gsm8k_subset_q0.jsonl
+```
+
+Then run the non-canonical audit configuration that previously exercised the missing `ninja` path:
+
+```bash
+python run_probe.py \
+  --engine vllm \
+  --device cuda \
+  --only-sft \
+  --questions 1 \
+  --rollouts 2 \
+  --question-file /tmp/gsm8k_subset_q0.jsonl \
+  --max-new-tokens 256 \
+  --temperature 1.0 \
+  --top-p 0.95 \
+  --top-k 20 \
+  --repetition-penalty 1.1 \
+  --dtype bfloat16 \
+  --sft-revision checkpoint-8-of-10 \
+  --result-dir results_topk_smoke
+```
+
+This command is an infrastructure smoke test, not the canonical science protocol. Promote the SHA image to `0.27.1` only after both the canonical smoke and this top-k smoke pass on a fresh Pod.
 
 ## Reproduce the analysis
 

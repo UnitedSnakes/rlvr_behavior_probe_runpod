@@ -1,0 +1,6 @@
+datasets>=2.20
+pandas>=2.2
+numpy>=1.26
+huggingface_hub>=0.24
+matplotlib>=3.8.3,<3.10
+pytest>=8.3

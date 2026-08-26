@@ -7,7 +7,11 @@ import torch
 from huggingface_hub import HfApi
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from probe.prompts import SYSTEM_PROMPT, TOKENIZER_NAME
+from probe.prompts import (
+    SYSTEM_PROMPT,
+    TOKENIZER_NAME,
+    TOKENIZER_REVISION,
+)
 
 
 def resolve_checkpoint_revision(repo_id: str, requested_revision: str | None) -> str:
@@ -62,7 +66,10 @@ class Sampler:
         self.max_input_tokens = max_input_tokens
 
         print(f"Loading tokenizer from {TOKENIZER_NAME}")
-        self.tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_NAME)
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            TOKENIZER_NAME,
+            revision=TOKENIZER_REVISION,
+        )
 
         if self.tokenizer.pad_token_id is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
@@ -97,6 +104,8 @@ class Sampler:
         max_new_tokens: int,
         temperature: float,
         top_p: float,
+        top_k: int,
+        repetition_penalty: float,
         seed: int,
     ):
         torch.manual_seed(seed)
@@ -134,6 +143,8 @@ class Sampler:
                 do_sample=True,
                 temperature=temperature,
                 top_p=top_p,
+                top_k=top_k,
+                repetition_penalty=repetition_penalty,
                 max_new_tokens=max_new_tokens,
                 num_return_sequences=1,
                 pad_token_id=self.tokenizer.pad_token_id,

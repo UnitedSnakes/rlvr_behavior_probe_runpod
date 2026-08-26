@@ -13,6 +13,7 @@ RUN apt-get update --yes && \
         curl \
         git \
         jq \
+        ninja-build \
         openssh-client \
         tmux && \
     rm -rf /var/lib/apt/lists/*

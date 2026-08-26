@@ -14,6 +14,7 @@ from probe.results_upload import (
     format_run_started_at,
     upload_result_dir,
 )
+from probe.runtime import collect_runtime_metadata
 from probe.scoring import extract_numeric_answer, numeric_equal, _to_number
 from probe.utils import (
     append_jsonl,
@@ -49,6 +50,8 @@ def parse_args():
     parser.add_argument("--max-new-tokens", type=int, default=384)
     parser.add_argument("--temperature", type=float, default=1.0)
     parser.add_argument("--top-p", type=float, default=0.95)
+    parser.add_argument("--top-k", type=int, default=0)
+    parser.add_argument("--repetition-penalty", type=float, default=1.0)
     parser.add_argument("--seed", type=int, default=42)
 
     # Runtime
@@ -177,6 +180,8 @@ def run_one_checkpoint(
             max_new_tokens=args.max_new_tokens,
             temperature=args.temperature,
             top_p=args.top_p,
+            top_k=getattr(args, "top_k", 0),
+            repetition_penalty=getattr(args, "repetition_penalty", 1.0),
             seed=question_seed,
         )
 
@@ -251,10 +256,12 @@ def main():
 
     device = resolve_device(args.device)
     dtype = resolve_dtype(args.dtype)
+    runtime_metadata = collect_runtime_metadata(args.engine, device)
 
     print(f"Engine: {args.engine}")
     print(f"Device: {device}")
     print(f"Dtype: {dtype}")
+    print(f"Runtime: {runtime_metadata['implementation']}")
 
     if args.engine == "hf":
         batching = f"batch={args.batch_rollouts}, "
@@ -266,7 +273,9 @@ def main():
         f"K={args.rollouts}, "
         f"{batching}"
         f"temperature={args.temperature}, "
-        f"top_p={args.top_p}"
+        f"top_p={args.top_p}, "
+        f"top_k={args.top_k}, "
+        f"repetition_penalty={args.repetition_penalty}"
     )
 
     questions = prepare_questions(
@@ -326,6 +335,7 @@ def main():
     config["run_started_at"] = format_run_started_at(run_started_at)
     config["upload_repo"] = args.upload_repo
     config["upload_path"] = upload_path
+    config["runtime"] = runtime_metadata
 
     config_path = result_dir / "run_config.json"
     config_path.write_text(

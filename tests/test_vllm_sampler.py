@@ -2,6 +2,8 @@ import importlib
 import sys
 from types import ModuleType, SimpleNamespace
 
+import pytest
+
 
 class FakeTokenizer:
     pad_token_id = 0
@@ -31,8 +33,8 @@ class FakeAutoTokenizer:
     calls = []
 
     @classmethod
-    def from_pretrained(cls, name):
-        cls.calls.append(name)
+    def from_pretrained(cls, name, **kwargs):
+        cls.calls.append((name, kwargs))
         return FakeTokenizer()
 
 
@@ -96,13 +98,76 @@ def test_vllm_sampler_preserves_model_revision_and_dtype(monkeypatch):
         gpu_memory_utilization=0.85,
     )
 
-    assert FakeAutoTokenizer.calls[-1] == module.TOKENIZER_NAME
+    tokenizer_name, tokenizer_kwargs = FakeAutoTokenizer.calls[-1]
+    assert tokenizer_name == module.TOKENIZER_NAME
+    assert tokenizer_kwargs["revision"] == module.TOKENIZER_REVISION
     assert FakeLLM.init_kwargs["model"] == "example/model"
     assert FakeLLM.init_kwargs["tokenizer"] == module.TOKENIZER_NAME
     assert FakeLLM.init_kwargs["revision"] == "checkpoint-8-of-10"
-    assert FakeLLM.init_kwargs["tokenizer_revision"] == "main"
+    assert FakeLLM.init_kwargs["tokenizer_revision"] == module.TOKENIZER_REVISION
     assert FakeLLM.init_kwargs["dtype"] == "bfloat16"
     assert FakeLLM.init_kwargs["gpu_memory_utilization"] == 0.85
+
+
+def test_vllm_sampler_resolves_metal_revision_to_exact_local_snapshot(monkeypatch):
+    module = import_vllm_model(monkeypatch)
+    snapshot_calls = []
+
+    def fake_snapshot_download(repo_id, revision):
+        snapshot_calls.append((repo_id, revision))
+        return "/tmp/exact-sft-snapshot"
+
+    monkeypatch.setattr(module, "snapshot_download", fake_snapshot_download)
+
+    sampler = module.VLLMSampler(
+        model_name="example/model",
+        device="mps",
+        dtype="bfloat16",
+        revision="checkpoint-8-of-10",
+    )
+
+    assert snapshot_calls == [("example/model", "checkpoint-8-of-10")]
+    assert sampler.model_name == "example/model"
+    assert sampler.revision == "checkpoint-8-of-10"
+    assert FakeLLM.init_kwargs["model"] == "/tmp/exact-sft-snapshot"
+    assert FakeLLM.init_kwargs["revision"] is None
+
+
+def test_vllm_sampler_accepts_local_metal_snapshot_without_redownloading(
+    monkeypatch,
+    tmp_path,
+):
+    module = import_vllm_model(monkeypatch)
+    snapshot_calls = []
+    monkeypatch.setattr(
+        module,
+        "snapshot_download",
+        lambda *args, **kwargs: snapshot_calls.append((args, kwargs)),
+    )
+    local_snapshot = tmp_path / "snapshot"
+    local_snapshot.mkdir()
+
+    module.VLLMSampler(
+        model_name=str(local_snapshot),
+        device="mps",
+        dtype="bfloat16",
+        revision="main",
+    )
+
+    assert snapshot_calls == []
+    assert FakeLLM.init_kwargs["model"] == str(local_snapshot)
+    assert FakeLLM.init_kwargs["revision"] is None
+
+
+def test_vllm_sampler_rejects_unsupported_cpu_device(monkeypatch):
+    module = import_vllm_model(monkeypatch)
+
+    with pytest.raises(ValueError, match="CUDA or Apple Silicon Metal"):
+        module.VLLMSampler(
+            model_name="example/model",
+            device="cpu",
+            dtype="bfloat16",
+        )
 
 
 def test_vllm_sampler_uses_one_request_with_n_completions(monkeypatch):
@@ -123,6 +188,8 @@ def test_vllm_sampler_uses_one_request_with_n_completions(monkeypatch):
         max_new_tokens=2048,
         temperature=1.0,
         top_p=0.95,
+        top_k=20,
+        repetition_penalty=1.1,
         seed=4200000,
     )
 
@@ -136,6 +203,8 @@ def test_vllm_sampler_uses_one_request_with_n_completions(monkeypatch):
         "n": 3,
         "temperature": 1.0,
         "top_p": 0.95,
+        "top_k": 20,
+        "repetition_penalty": 1.1,
         "max_tokens": 2048,
         "seed": 4200000,
     }

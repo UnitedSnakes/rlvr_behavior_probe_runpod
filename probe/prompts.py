@@ -8,3 +8,4 @@ SYSTEM_PROMPT = (
 
 # Use one canonical tokenizer/chat template for BOTH checkpoints and backends.
 TOKENIZER_NAME = "Qwen/Qwen2.5-1.5B-Instruct"
+TOKENIZER_REVISION = "main"

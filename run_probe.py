@@ -49,6 +49,8 @@ def parse_args():
     parser.add_argument("--max-new-tokens", type=int, default=384)
     parser.add_argument("--temperature", type=float, default=1.0)
     parser.add_argument("--top-p", type=float, default=0.95)
+    parser.add_argument("--top-k", type=int, default=0)
+    parser.add_argument("--repetition-penalty", type=float, default=1.0)
     parser.add_argument("--seed", type=int, default=42)
 
     # Runtime
@@ -177,6 +179,8 @@ def run_one_checkpoint(
             max_new_tokens=args.max_new_tokens,
             temperature=args.temperature,
             top_p=args.top_p,
+            top_k=args.top_k,
+            repetition_penalty=args.repetition_penalty,
             seed=question_seed,
         )
 
@@ -266,7 +270,9 @@ def main():
         f"K={args.rollouts}, "
         f"{batching}"
         f"temperature={args.temperature}, "
-        f"top_p={args.top_p}"
+        f"top_p={args.top_p}, "
+        f"top_k={args.top_k}, "
+        f"repetition_penalty={args.repetition_penalty}"
     )
 
     questions = prepare_questions(

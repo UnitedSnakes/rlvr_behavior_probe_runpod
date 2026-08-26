@@ -6,7 +6,11 @@ from transformers import AutoTokenizer
 from vllm import LLM, SamplingParams
 from vllm.inputs import TokensPrompt
 
-from probe.prompts import SYSTEM_PROMPT, TOKENIZER_NAME
+from probe.prompts import (
+    SYSTEM_PROMPT,
+    TOKENIZER_NAME,
+    TOKENIZER_REVISION,
+)
 
 
 def normalize_vllm_dtype(dtype) -> str:
@@ -45,7 +49,10 @@ class VLLMSampler:
         self.gpu_memory_utilization = gpu_memory_utilization
 
         print(f"Loading tokenizer from {TOKENIZER_NAME}")
-        self.tokenizer = AutoTokenizer.from_pretrained(TOKENIZER_NAME)
+        self.tokenizer = AutoTokenizer.from_pretrained(
+            TOKENIZER_NAME,
+            revision=TOKENIZER_REVISION,
+        )
 
         if self.tokenizer.pad_token_id is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
@@ -55,7 +62,7 @@ class VLLMSampler:
             model=model_name,
             tokenizer=TOKENIZER_NAME,
             revision=revision,
-            tokenizer_revision="main",
+            tokenizer_revision=TOKENIZER_REVISION,
             dtype=self.dtype,
             gpu_memory_utilization=gpu_memory_utilization,
         )
@@ -89,6 +96,8 @@ class VLLMSampler:
         max_new_tokens: int,
         temperature: float,
         top_p: float,
+        top_k: int,
+        repetition_penalty: float,
         seed: int,
     ) -> list[str]:
         del batch_rollouts
@@ -99,6 +108,8 @@ class VLLMSampler:
             n=n,
             temperature=temperature,
             top_p=top_p,
+            top_k=top_k,
+            repetition_penalty=repetition_penalty,
             max_tokens=max_new_tokens,
             seed=seed,
         )

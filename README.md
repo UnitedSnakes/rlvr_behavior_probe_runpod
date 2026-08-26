@@ -75,7 +75,6 @@ To back up a completed run automatically, expose `HF_TOKEN` through the
 RunPod environment/Secret and pass a pre-existing Hugging Face Dataset repo:
 
 ```bash
-export HF_TOKEN="<provided-by-secret>"
 
 python run_probe.py \
   --engine vllm \
@@ -95,7 +94,7 @@ runs/20260825T235312Z-results_rl256_vllm/
 The destination Dataset repo must already exist. If backup fails, the local
 result directory is preserved and the command exits unsuccessfully.
 
-On a new pod, run this sanity check before cloning and running the probe:
+After bootstrap completes on a new pod, run this sanity check before running the probe:
 
 ```bash
 which python

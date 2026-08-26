@@ -14,6 +14,12 @@ def test_dockerfile_installs_executable_bootstrap():
     assert "RUN test -x /usr/local/bin/rlvr-bootstrap" in dockerfile
 
 
+def test_dockerfile_installs_ninja_for_flashinfer_topk_jit():
+    dockerfile = (REPO_ROOT / "docker" / "Dockerfile").read_text(encoding="utf-8")
+
+    assert "ninja-build" in dockerfile
+
+
 def test_normal_push_does_not_automatically_replace_stable_image_tag():
     workflow = (
         REPO_ROOT / ".github" / "workflows" / "build-runpod-image.yml"
@@ -39,6 +45,8 @@ def test_readme_documents_bootstrap_template_and_correct_hf_repo():
         "/workspace/rlvr-bootstrap.log",
         "rlvr-bootstrap",
         "HKReporter/rlvr-behavior-probe-results",
+        "--top-k 20",
+        "--repetition-penalty 1.1",
     ]
     for text in required:
         assert text in readme

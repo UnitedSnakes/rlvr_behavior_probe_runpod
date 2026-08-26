@@ -2,6 +2,8 @@ import importlib
 import sys
 from types import ModuleType, SimpleNamespace
 
+import pytest
+
 
 class FakeTokenizer:
     pad_token_id = 0
@@ -105,6 +107,29 @@ def test_vllm_sampler_preserves_model_revision_and_dtype(monkeypatch):
     assert FakeLLM.init_kwargs["tokenizer_revision"] == module.TOKENIZER_REVISION
     assert FakeLLM.init_kwargs["dtype"] == "bfloat16"
     assert FakeLLM.init_kwargs["gpu_memory_utilization"] == 0.85
+
+
+def test_vllm_sampler_accepts_metal_device(monkeypatch):
+    module = import_vllm_model(monkeypatch)
+
+    sampler = module.VLLMSampler(
+        model_name="example/model",
+        device="mps",
+        dtype="bfloat16",
+    )
+
+    assert sampler.device == "mps"
+
+
+def test_vllm_sampler_rejects_unsupported_cpu_device(monkeypatch):
+    module = import_vllm_model(monkeypatch)
+
+    with pytest.raises(ValueError, match="CUDA or Apple Silicon Metal"):
+        module.VLLMSampler(
+            model_name="example/model",
+            device="cpu",
+            dtype="bfloat16",
+        )
 
 
 def test_vllm_sampler_uses_one_request_with_n_completions(monkeypatch):

@@ -2,6 +2,12 @@ name: Build RunPod vLLM image
 
 on:
   workflow_dispatch:
+    inputs:
+      publish_stable:
+        description: Publish the tested 0.27.1 stable tag
+        required: false
+        default: false
+        type: boolean
   push:
     branches:
       - difficulty-bin-analysis
@@ -37,8 +43,8 @@ jobs:
         with:
           images: ghcr.io/unitedsnakes/rlvr-vllm
           tags: |
-            type=raw,value=0.27.1
             type=sha,prefix=sha-
+            type=raw,value=0.27.1,enable=${{ github.event_name == 'workflow_dispatch' && inputs.publish_stable }}
 
       - name: Build and push image
         uses: docker/build-push-action@v6

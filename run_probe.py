@@ -4,10 +4,16 @@ import argparse
 import gc
 import json
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 
 from probe.data import prepare_questions
 from probe.model import Sampler, resolve_checkpoint_revision
+from probe.results_upload import (
+    build_remote_run_path,
+    format_run_started_at,
+    upload_result_dir,
+)
 from probe.scoring import extract_numeric_answer, numeric_equal, _to_number
 from probe.utils import (
     append_jsonl,
@@ -21,6 +27,10 @@ from probe.utils import (
 
 DEFAULT_SFT = "ns-0/qwen-2.5-1.5b-instruct-reasoning-sft"
 DEFAULT_RL = "expx/qwen-2.5-1.5b-rlvr-ppo"
+
+
+def utc_now() -> datetime:
+    return datetime.now(timezone.utc).replace(microsecond=0)
 
 
 def parse_args():
@@ -71,6 +81,14 @@ def parse_args():
         default="results",
     )
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument(
+        "--upload-repo",
+        default=None,
+        help=(
+            "Optional pre-existing Hugging Face Dataset repo to receive the "
+            "completed result directory. Authentication uses HF_TOKEN."
+        ),
+    )
 
     mode_group = parser.add_mutually_exclusive_group()
     mode_group.add_argument("--only-sft", action="store_true")
@@ -223,6 +241,7 @@ def run_one_checkpoint(
 
 def main():
     args = parse_args()
+    run_started_at = utc_now()
     configure_runtime(args)
 
     # vLLM receives a per-question seed through SamplingParams. Avoid touching
@@ -258,6 +277,10 @@ def main():
 
     result_dir = Path(args.result_dir)
     result_dir.mkdir(parents=True, exist_ok=True)
+    if args.upload_repo:
+        upload_path = build_remote_run_path(result_dir, run_started_at)
+    else:
+        upload_path = None
 
     rl_revision = args.rl_revision
     sft_revision = None
@@ -300,12 +323,28 @@ def main():
     config["dtype_resolved"] = str(dtype)
     config["sft_revision_resolved"] = sft_revision
     config["rl_revision_resolved"] = rl_revision
+    config["run_started_at"] = format_run_started_at(run_started_at)
+    config["upload_repo"] = args.upload_repo
+    config["upload_path"] = upload_path
 
     config_path = result_dir / "run_config.json"
     config_path.write_text(
         json.dumps(config, indent=2),
         encoding="utf-8",
     )
+
+    if args.upload_repo:
+        try:
+            upload_result_dir(
+                result_dir=result_dir,
+                repo_id=args.upload_repo,
+                remote_path=upload_path,
+            )
+        except Exception as error:
+            raise RuntimeError(
+                f"Experiment completed and local results are in {result_dir}, "
+                f"but Hugging Face backup failed: {error}"
+            ) from error
 
     print("\nGeneration complete.")
     if args.only_sft:

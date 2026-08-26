@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import time
+from pathlib import Path
 
+from huggingface_hub import snapshot_download
 from transformers import AutoTokenizer
 from vllm import LLM, SamplingParams
 from vllm.inputs import TokensPrompt
@@ -58,11 +60,25 @@ class VLLMSampler:
         if self.tokenizer.pad_token_id is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
 
+        load_model_name = model_name
+        load_revision = revision
+        if device_name == "mps":
+            if not Path(model_name).is_dir():
+                print(
+                    "Resolving Metal model to exact local snapshot: "
+                    f"{model_name} @ {revision}"
+                )
+                load_model_name = snapshot_download(
+                    model_name,
+                    revision=revision,
+                )
+            load_revision = None
+
         print(f"Loading vLLM model {model_name} @ revision={revision}")
         self.model = LLM(
-            model=model_name,
+            model=load_model_name,
             tokenizer=TOKENIZER_NAME,
-            revision=revision,
+            revision=load_revision,
             tokenizer_revision=TOKENIZER_REVISION,
             dtype=self.dtype,
             gpu_memory_utilization=gpu_memory_utilization,

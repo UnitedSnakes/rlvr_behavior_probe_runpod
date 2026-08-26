@@ -35,9 +35,10 @@ class VLLMSampler:
         max_input_tokens: int = 1024,
         gpu_memory_utilization: float = 0.90,
     ):
-        if not str(device).startswith("cuda"):
+        device_name = str(device)
+        if not (device_name.startswith("cuda") or device_name == "mps"):
             raise ValueError(
-                "The vLLM backend currently requires a CUDA device. "
+                "The vLLM backend requires CUDA or Apple Silicon Metal. "
                 f"Resolved device was {device!r}."
             )
 

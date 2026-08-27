@@ -35,13 +35,14 @@ GRPO_INVARIANTS = {
     "dataset_split": "train",
     "num_train_epochs": 1,
     "reward": "binary_final_answer_correctness",
-    "num_generations": 8,
+    "num_generations": 16,
     "temperature": 0.8,
     "top_p": 0.95,
     "top_k": 0,
     "repetition_penalty": 1.0,
     "max_prompt_tokens": 512,
     "max_completion_length": 1024,
+    "mask_truncated_completions": True,
     "vllm_max_model_length": 1536,
     "learning_rate": 1e-6,
     "lr_scheduler_type": "cosine",
@@ -58,10 +59,9 @@ GRPO_INVARIANTS = {
     "epsilon": 0.2,
     "num_iterations": 1,
     "loss_type": "dapo",
-    "scale_rewards": "group",
     "per_device_train_batch_size": 8,
-    "gradient_accumulation_steps": 1,
-    "generation_batch_size": 8,
+    "gradient_accumulation_steps": 4,
+    "generation_batch_size": 32,
     "vllm_importance_sampling_correction": True,
     "vllm_importance_sampling_mode": "sequence_mask",
     "vllm_importance_sampling_cap": 3.0,
@@ -95,6 +95,11 @@ def validate_sft_config(config: dict) -> None:
 def validate_grpo_config(config: dict) -> None:
     _validate_exact(config, GRPO_INVARIANTS, "GRPO")
 
+    if config.get("scale_rewards") not in {True, False, "group", "batch", "none"}:
+        raise ValueError(
+            "GRPO scale_rewards must be one of True, False, 'group', 'batch', or 'none'"
+        )
+
     if config["vllm_max_model_length"] != (
         config["max_prompt_tokens"] + config["max_completion_length"]
     ):
@@ -106,4 +111,10 @@ def validate_grpo_config(config: dict) -> None:
     if config["generation_batch_size"] % config["num_generations"] != 0:
         raise ValueError(
             "GRPO generation_batch_size must be divisible by num_generations"
+        )
+
+    if config["generation_batch_size"] // config["num_generations"] < 2:
+        raise ValueError(
+            "Controlled behavior study requires at least two independent prompts "
+            "per generation batch"
         )

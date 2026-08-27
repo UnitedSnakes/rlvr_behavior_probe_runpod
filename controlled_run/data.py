@@ -148,6 +148,42 @@ def _formatted_token_count(tokenizer, problem: str, completion: str) -> int:
     return len(encoded)
 
 
+def _length_audit(lengths: list[int]) -> dict:
+    values = np.asarray(lengths, dtype=np.int64)
+    if values.size == 0:
+        return {
+            "pre_length_filter_count": 0,
+            "formatted_token_percentiles": {
+                "p50": None,
+                "p75": None,
+                "p90": None,
+                "p95": None,
+                "p99": None,
+            },
+            "formatted_token_tail_fractions": {
+                "gt_2048": 0.0,
+                "gt_4096": 0.0,
+                "gt_8192": 0.0,
+            },
+        }
+
+    return {
+        "pre_length_filter_count": int(values.size),
+        "formatted_token_percentiles": {
+            "p50": float(np.percentile(values, 50)),
+            "p75": float(np.percentile(values, 75)),
+            "p90": float(np.percentile(values, 90)),
+            "p95": float(np.percentile(values, 95)),
+            "p99": float(np.percentile(values, 99)),
+        },
+        "formatted_token_tail_fractions": {
+            "gt_2048": float(np.mean(values > 2048)),
+            "gt_4096": float(np.mean(values > 4096)),
+            "gt_8192": float(np.mean(values > 8192)),
+        },
+    }
+
+
 def build_sft_manifest(
     openr1_rows,
     gsm8k_reference_rows,
@@ -203,6 +239,7 @@ def build_sft_manifest(
     }
 
     eligible: list[dict] = []
+    pre_length_filter_lengths: list[int] = []
 
     for row in ordered:
         selected = select_verified_trace(row)
@@ -229,6 +266,7 @@ def build_sft_manifest(
 
         generation_index, completion = selected
         token_count = _formatted_token_count(tokenizer, problem, completion)
+        pre_length_filter_lengths.append(token_count)
         if token_count > MAX_SFT_TOKENS:
             audit["removed_too_long"] += 1
             continue
@@ -244,6 +282,7 @@ def build_sft_manifest(
             }
         )
 
+    audit.update(_length_audit(pre_length_filter_lengths))
     audit["eligible_after_filters"] = len(eligible)
 
     if len(eligible) < target_size:

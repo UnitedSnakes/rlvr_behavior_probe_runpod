@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 from pathlib import Path
 
@@ -10,10 +11,15 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from controlled_run.checkpointing import freeze_pi0
 from controlled_run.config import load_config, validate_sft_config
 from controlled_run.constants import BASE_MODEL
-from controlled_run.provenance import sha256_file
+from controlled_run.provenance import sha256_file, write_json
 
 
 CANONICAL_SFT_RECORDS = 10_000
+DEFAULT_CONFIG = Path("controlled_run/configs/sft_qwen3_0_6b.yaml")
+DEFAULT_RECORDS = Path("data/controlled_run/generated/sft_10k_records.jsonl")
+DEFAULT_SOURCE_REVISIONS = Path("data/controlled_run/manifests/source_revisions.json")
+DEFAULT_SFT_MANIFEST = Path("data/controlled_run/manifests/sft_10k_manifest.jsonl")
+DEFAULT_OUTPUT_DIR = Path("controlled_run_outputs/sft")
 
 
 def _load_sft_classes():
@@ -144,6 +150,27 @@ def build_sft_lineage(
     }
 
 
+def _write_run_manifest(
+    destination: Path,
+    *,
+    mode: str,
+    record_count: int,
+    smoke_steps: int | None,
+    config: dict,
+    lineage: dict,
+) -> None:
+    write_json(
+        destination / "sft_run_manifest.json",
+        {
+            "mode": mode,
+            "record_count": record_count,
+            "smoke_steps": smoke_steps,
+            "config": config,
+            "lineage": lineage,
+        },
+    )
+
+
 def run_sft(
     *,
     config_path: Path,
@@ -204,6 +231,15 @@ def run_sft(
         sft_manifest_path,
         config_path,
     )
+    mode = "canonical" if canonical else "smoke"
+    _write_run_manifest(
+        destination,
+        mode=mode,
+        record_count=record_count,
+        smoke_steps=smoke_steps,
+        config=config,
+        lineage=lineage,
+    )
 
     if canonical:
         manifest = freeze_pi0(
@@ -226,3 +262,38 @@ def run_sft(
         "record_count": record_count,
         "smoke_steps": int(smoke_steps),
     }
+
+
+def main(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(
+        description="Run controlled Qwen3 reasoning SFT and freeze exact pi_0."
+    )
+    parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
+    parser.add_argument("--records", type=Path, default=DEFAULT_RECORDS)
+    parser.add_argument(
+        "--source-revisions",
+        type=Path,
+        default=DEFAULT_SOURCE_REVISIONS,
+    )
+    parser.add_argument(
+        "--sft-manifest",
+        type=Path,
+        default=DEFAULT_SFT_MANIFEST,
+    )
+    parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
+    parser.add_argument("--smoke-steps", type=int, default=None)
+    args = parser.parse_args(argv)
+
+    result = run_sft(
+        config_path=args.config,
+        records_path=args.records,
+        source_revisions_path=args.source_revisions,
+        sft_manifest_path=args.sft_manifest,
+        output_dir=args.output_dir,
+        smoke_steps=args.smoke_steps,
+    )
+    print(json.dumps(result, indent=2, sort_keys=True))
+
+
+if __name__ == "__main__":
+    main()

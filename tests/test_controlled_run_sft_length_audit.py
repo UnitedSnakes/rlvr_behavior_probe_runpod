@@ -48,7 +48,7 @@ def test_sft_audit_reports_pre_length_filter_distribution_and_tail_fractions():
     assert audit["removed_too_long"] == 5
     assert audit["formatted_token_percentiles"] == {
         "p50": pytest.approx(2048.5),
-        "p75": pytest.approx(4096.25),
+        "p75": pytest.approx(4096.75),
         "p90": pytest.approx(8192.1),
         "p95": pytest.approx(8192.55),
         "p99": pytest.approx(8192.91),

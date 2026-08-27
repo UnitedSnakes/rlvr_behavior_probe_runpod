@@ -9,3 +9,5 @@ __MACOSX/
 *.bak
 # Experiment outputs
 results*/
+controlled_run_outputs/
+data/controlled_run/generated/

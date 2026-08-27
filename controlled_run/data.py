@@ -5,7 +5,10 @@ import re
 import unicodedata
 from collections import defaultdict
 
+import numpy as np
+
 from controlled_run.constants import CONTROLLED_SYSTEM_PROMPT
+from probe.data import extract_gsm8k_gold
 
 
 MAX_SFT_TOKENS = 2048
@@ -300,3 +303,71 @@ def materialize_sft_records(manifest: list[dict], openr1_rows) -> list[dict]:
         )
 
     return records
+
+
+def build_gsm8k_rl_rows(dataset_rows) -> list[dict]:
+    rows: list[dict] = []
+    for index, item in enumerate(dataset_rows):
+        if "question" not in item or "answer" not in item:
+            raise ValueError(
+                f"GSM8K row {index} must contain question and answer fields"
+            )
+        question = str(item["question"])
+        gold = extract_gsm8k_gold(str(item["answer"]))
+        rows.append(
+            {
+                "prompt": [
+                    {"role": "system", "content": CONTROLLED_SYSTEM_PROMPT},
+                    {"role": "user", "content": question},
+                ],
+                "answer": gold,
+            }
+        )
+    return rows
+
+
+def _token_count(encoded) -> int:
+    if isinstance(encoded, dict):
+        encoded = encoded["input_ids"]
+    if hasattr(encoded, "shape"):
+        shape = getattr(encoded, "shape")
+        if len(shape) >= 1:
+            return int(shape[-1])
+    return len(encoded)
+
+
+def assert_prompt_token_limit(
+    rows: list[dict],
+    tokenizer,
+    max_tokens: int = 512,
+) -> dict:
+    if max_tokens <= 0:
+        raise ValueError("max_tokens must be positive")
+    if not rows:
+        raise ValueError("Cannot run prompt-token preflight on an empty dataset")
+
+    lengths: list[int] = []
+    for index, row in enumerate(rows):
+        prompt = row.get("prompt")
+        if not isinstance(prompt, list) or not prompt:
+            raise ValueError(f"RL row {index} must contain a non-empty prompt list")
+
+        encoded = tokenizer.apply_chat_template(
+            prompt,
+            tokenize=True,
+            add_generation_prompt=True,
+        )
+        length = _token_count(encoded)
+        lengths.append(length)
+        if length > max_tokens:
+            raise ValueError(
+                f"RL prompt row {index} has {length} tokens, exceeding hard "
+                f"limit {max_tokens}; prompts are not truncated"
+            )
+
+    return {
+        "count": len(lengths),
+        "max_tokens": max(lengths),
+        "p95_tokens": float(np.percentile(lengths, 95)),
+        "limit": max_tokens,
+    }

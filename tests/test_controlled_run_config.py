@@ -25,18 +25,21 @@ def test_sft_config_matches_precommitted_recipe():
     assert cfg["gradient_accumulation_steps"] == 8
 
 
-def test_grpo_config_matches_precommitted_recipe_and_api_clarifications():
+def test_grpo_config_matches_precommitted_behavior_study_recipe():
     cfg = load_config(ROOT / "controlled_run/configs/grpo_qwen3_0_6b.yaml")
     validate_grpo_config(cfg)
 
-    assert cfg["num_generations"] == 8
+    assert cfg["num_generations"] == 16
     assert cfg["temperature"] == 0.8
     assert cfg["max_prompt_tokens"] == 512
     assert cfg["max_completion_length"] == 1024
+    assert cfg["mask_truncated_completions"] is True
     assert cfg["vllm_max_model_length"] == 1536
     assert cfg["per_device_train_batch_size"] == 8
-    assert cfg["gradient_accumulation_steps"] == 1
-    assert cfg["generation_batch_size"] == 8
+    assert cfg["gradient_accumulation_steps"] == 4
+    assert cfg["generation_batch_size"] == 32
+    assert cfg["generation_batch_size"] // cfg["num_generations"] == 2
+    assert cfg["learning_rate"] == 1e-6
     assert cfg["beta"] == 0.0
     assert cfg["loss_type"] == "dapo"
     assert cfg["scale_rewards"] == "group"

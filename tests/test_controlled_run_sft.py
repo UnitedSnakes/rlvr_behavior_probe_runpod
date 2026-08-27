@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 import pytest
+import torch
 
 import controlled_run.train_sft as train_sft
 from controlled_run.config import load_config
@@ -229,7 +230,7 @@ def test_run_sft_loads_exact_base_sha_and_freezes_pi0_only_in_canonical_mode(
 
     assert model_calls[0][0] == "Qwen/Qwen3-0.6B-Base"
     assert model_calls[0][1]["revision"] == "base-sha"
-    assert model_calls[0][1]["dtype"].name == "bfloat16"
+    assert model_calls[0][1]["dtype"] is torch.bfloat16
     assert model_calls[0][1]["attn_implementation"] == "flash_attention_2"
     assert tokenizer_calls[0] == (
         "Qwen/Qwen3-0.6B-Base",

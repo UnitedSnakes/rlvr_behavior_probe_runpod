@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib
+from pathlib import Path
 
 import pytest
 
@@ -101,6 +102,18 @@ def test_collect_runtime_status_reports_missing_optional_training_packages(monke
 
     assert status["packages"]["trl"] is None
     assert status["packages"]["vllm"] is None
+
+
+def test_a40_dockerfile_builds_flash_attention_for_sm80_with_bounded_parallelism():
+    dockerfile = (
+        Path(__file__).resolve().parents[1] / "docker" / "Dockerfile"
+    ).read_text(encoding="utf-8")
+
+    assert "FLASH_ATTN_CUDA_ARCHS=80" in dockerfile
+    assert "FLASH_ATTENTION_FORCE_BUILD=TRUE" in dockerfile
+    assert "MAX_JOBS=1" in dockerfile
+    assert "NVCC_THREADS=1" in dockerfile
+    assert "MAX_JOBS=4" not in dockerfile
 
 
 def test_validate_model_probe_result_requires_real_fa2_forward_backward():

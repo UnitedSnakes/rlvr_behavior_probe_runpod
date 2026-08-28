@@ -41,6 +41,7 @@ def test_prepare_data_audit_only_writes_diagnostics_without_canonical_records(
 
     def fake_build(rows, refs, tokenizer, *, target_size, seed):
         calls.append((target_size, seed))
+        tokenizer.formatted_lengths.extend([100] * 64_968)
         return [
             {
                 "source_index": 0,
@@ -89,6 +90,12 @@ def test_prepare_data_audit_only_writes_diagnostics_without_canonical_records(
     assert audit["train_count"] == 0
     assert audit["validation_count"] == 0
     assert audit["eligible_after_filters"] == 6709
+    assert audit["formatted_token_percentiles"]["p99_5"] == 100.0
+    assert audit["formatted_token_percentiles"]["p99_9"] == 100.0
+    assert audit["formatted_token_percentiles"]["max"] == 100
+    assert audit["formatted_token_tail_fractions"]["gt_12288"] == 0.0
+    assert audit["formatted_token_tail_fractions"]["gt_16384"] == 0.0
+    assert audit["formatted_token_tail_fractions"]["gt_32768"] == 0.0
     assert revisions["target_size"] == 10_000
     assert revisions["validation_size"] == 512
     assert result == {"source_revisions": revisions, "audit": audit}

@@ -1,16 +1,19 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 import pytest
 
-from controlled_run.config import validate_sft_runtime_batch
+from controlled_run.config import load_config, validate_sft_runtime_batch
+
+
+ROOT = Path(__file__).resolve().parents[1]
 
 
 def _config():
-    return {
-        "global_batch_size": 64,
-        "per_device_train_batch_size": 1,
-        "gradient_accumulation_steps": 32,
-    }
+    return load_config(
+        ROOT / "controlled_run/configs/sft_qwen3_0_6b.yaml"
+    )
 
 
 def test_canonical_two_gpu_sft_preserves_global_batch_64():

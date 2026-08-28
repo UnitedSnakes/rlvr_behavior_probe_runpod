@@ -19,8 +19,9 @@ def _status(**overrides):
             "transformers": "5.15.0",
             "datasets": "5.0.1",
             "accelerate": "1.14.0",
-            "trl": "0.28.0",
+            "trl": "1.12.0",
             "vllm": "0.27.1",
+            "flash-attn": "2.8.3.post1",
         },
     }
     status.update(overrides)
@@ -32,6 +33,22 @@ def test_validate_a40_runtime_accepts_flash_attention_2_runtime():
 
     assert status["gpu_name"] == "NVIDIA A40"
     assert status["flash_attention_2_available"] is True
+
+
+def test_validate_a40_runtime_rejects_wrong_trl_version():
+    status = _status()
+    status["packages"] = dict(status["packages"], trl="0.28.0")
+
+    with pytest.raises(RuntimeError, match="trl.*1.12.0.*0.28.0"):
+        validate_a40_runtime(status, required_attention_backend="flash_attention_2")
+
+
+def test_validate_a40_runtime_rejects_missing_compiled_flash_attn():
+    status = _status()
+    status["packages"] = dict(status["packages"], **{"flash-attn": None})
+
+    with pytest.raises(RuntimeError, match="flash-attn"):
+        validate_a40_runtime(status, required_attention_backend="flash_attention_2")
 
 
 def test_validate_a40_runtime_rejects_missing_flash_attention_2():

@@ -328,7 +328,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--validation-records",
         type=Path,
-        default=DEFAULT_VALIDATION_RECORDS,
+        default=None,
     )
     parser.add_argument(
         "--source-revisions",
@@ -343,19 +343,28 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--validation-manifest",
         type=Path,
-        default=DEFAULT_VALIDATION_MANIFEST,
+        default=None,
     )
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--smoke-steps", type=int, default=None)
     args = parser.parse_args(argv)
 
+    canonical = args.smoke_steps is None
+    validation_records_path = args.validation_records
+    validation_manifest_path = args.validation_manifest
+    if canonical:
+        if validation_records_path is None:
+            validation_records_path = DEFAULT_VALIDATION_RECORDS
+        if validation_manifest_path is None:
+            validation_manifest_path = DEFAULT_VALIDATION_MANIFEST
+
     result = run_sft(
         config_path=args.config,
         records_path=args.records,
-        validation_records_path=args.validation_records,
+        validation_records_path=validation_records_path,
         source_revisions_path=args.source_revisions,
         sft_manifest_path=args.sft_manifest,
-        validation_manifest_path=args.validation_manifest,
+        validation_manifest_path=validation_manifest_path,
         output_dir=args.output_dir,
         smoke_steps=args.smoke_steps,
     )

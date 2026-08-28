@@ -12,7 +12,7 @@ from controlled_run.constants import CONTROLLED_SYSTEM_PROMPT
 from probe.data import extract_gsm8k_gold
 
 
-MAX_SFT_TOKENS = 2048
+MAX_SFT_TOKENS = 16384
 DEFAULT_SHINGLE_SIZE = 5
 DEFAULT_NEAR_DUPLICATE_THRESHOLD = 0.80
 

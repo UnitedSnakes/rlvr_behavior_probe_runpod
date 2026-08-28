@@ -5,7 +5,11 @@ from pathlib import Path
 
 import pytest
 
-from controlled_run.data_bundle import verify_data_bundle, write_data_bundle_manifest
+from controlled_run.data_bundle import (
+    verify_canonical_sft_bundle,
+    verify_data_bundle,
+    write_data_bundle_manifest,
+)
 
 
 def _write_jsonl(path: Path, count: int, prefix: str) -> None:
@@ -28,7 +32,16 @@ def _make_bundle_files(tmp_path: Path) -> tuple[Path, Path]:
     _write_jsonl(generated / "sft_val_512_records.jsonl", 1, "val-record")
 
     (manifests / "contamination_audit.json").write_text(
-        json.dumps({"train_count": 2, "validation_count": 1}) + "\n",
+        json.dumps(
+            {
+                "audit_only": False,
+                "max_formatted_tokens": 16384,
+                "selected_total_count": 3,
+                "train_count": 2,
+                "validation_count": 1,
+            }
+        )
+        + "\n",
         encoding="utf-8",
     )
     (manifests / "source_revisions.json").write_text(
@@ -98,3 +111,49 @@ def test_verify_data_bundle_rejects_count_mismatch_even_with_updated_hash(tmp_pa
 
     with pytest.raises(ValueError, match="validation records.*expected 1.*found 2"):
         verify_data_bundle(manifests, generated)
+
+
+def test_verify_canonical_sft_bundle_accepts_current_materialization(tmp_path):
+    manifests, generated = _make_bundle_files(tmp_path)
+    write_data_bundle_manifest(manifests, generated)
+
+    verified = verify_canonical_sft_bundle(
+        manifests,
+        generated,
+        expected_max_formatted_tokens=16384,
+    )
+
+    assert verified["target_size"] == 2
+    assert verified["validation_size"] == 1
+
+
+def test_verify_canonical_sft_bundle_rejects_audit_only_materialization(tmp_path):
+    manifests, generated = _make_bundle_files(tmp_path)
+    audit_path = manifests / "contamination_audit.json"
+    audit = json.loads(audit_path.read_text(encoding="utf-8"))
+    audit["audit_only"] = True
+    audit_path.write_text(json.dumps(audit) + "\n", encoding="utf-8")
+    write_data_bundle_manifest(manifests, generated)
+
+    with pytest.raises(ValueError, match="audit_only"):
+        verify_canonical_sft_bundle(
+            manifests,
+            generated,
+            expected_max_formatted_tokens=16384,
+        )
+
+
+def test_verify_canonical_sft_bundle_rejects_cutoff_mismatch(tmp_path):
+    manifests, generated = _make_bundle_files(tmp_path)
+    audit_path = manifests / "contamination_audit.json"
+    audit = json.loads(audit_path.read_text(encoding="utf-8"))
+    audit["max_formatted_tokens"] = 2048
+    audit_path.write_text(json.dumps(audit) + "\n", encoding="utf-8")
+    write_data_bundle_manifest(manifests, generated)
+
+    with pytest.raises(ValueError, match="max_formatted_tokens.*16384.*2048"):
+        verify_canonical_sft_bundle(
+            manifests,
+            generated,
+            expected_max_formatted_tokens=16384,
+        )

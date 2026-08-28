@@ -38,21 +38,36 @@ RUN uv pip install \
 
 COPY --chmod=0755 docker/rlvr-bootstrap.sh /usr/local/bin/rlvr-bootstrap
 
-RUN test -x /usr/local/bin/rlvr-bootstrap
+RUN test -x /usr/local/bin/rlvr-bootstrap && \
+    command -v gpustat >/dev/null
 
 RUN /opt/vllm-env/bin/python - <<'PY'
+import importlib.metadata
 import sys
+
+import accelerate
+import datasets
 import torch
 import transformers
+import trl
 import vllm
 
 assert sys.version_info[:2] == (3, 12), sys.version
 assert vllm.__version__ == "0.27.1", vllm.__version__
+assert transformers.__version__ == "5.15.0", transformers.__version__
+assert datasets.__version__ == "5.0.1", datasets.__version__
+assert accelerate.__version__ == "1.14.0", accelerate.__version__
+assert trl.__version__ == "0.28.0", trl.__version__
+
 print("python:", sys.version)
 print("torch:", torch.__version__)
 print("torch cuda:", torch.version.cuda)
 print("transformers:", transformers.__version__)
+print("datasets:", datasets.__version__)
+print("accelerate:", accelerate.__version__)
+print("trl:", trl.__version__)
 print("vllm:", vllm.__version__)
+print("gpustat:", importlib.metadata.version("gpustat"))
 PY
 
 WORKDIR /workspace

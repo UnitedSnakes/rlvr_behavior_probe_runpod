@@ -102,7 +102,9 @@ def build_grpo_arguments(
             "vllm_importance_sampling_correction"
         ],
         "vllm_importance_sampling_mode": config["vllm_importance_sampling_mode"],
-        "vllm_importance_sampling_cap": config["vllm_importance_sampling_cap"],
+        "vllm_importance_sampling_clip_max": config[
+            "vllm_importance_sampling_cap"
+        ],
         "save_strategy": "steps",
         "save_steps": 0.25,
         "report_to": "none",

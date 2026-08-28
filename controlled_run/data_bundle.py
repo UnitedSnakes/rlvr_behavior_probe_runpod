@@ -188,6 +188,7 @@ def verify_canonical_sft_bundle(
     generated_dir: Path,
     *,
     expected_max_formatted_tokens: int,
+    supplied_artifacts: dict[str, Path] | None = None,
 ) -> dict:
     if expected_max_formatted_tokens <= 0:
         raise ValueError("expected_max_formatted_tokens must be positive")
@@ -213,6 +214,27 @@ def verify_canonical_sft_bundle(
             "Canonical controlled SFT audit selected_total_count does not match "
             f"train+validation size {expected_total}"
         )
+
+    if supplied_artifacts:
+        labels = dict(ARTIFACTS)
+        artifact_manifest = bundle["artifacts"]
+        for relative_path, supplied_path in supplied_artifacts.items():
+            if relative_path not in labels:
+                raise ValueError(
+                    f"Unsupported supplied canonical SFT artifact: {relative_path}"
+                )
+            expected_sha = artifact_manifest[relative_path]["sha256"]
+            try:
+                actual_sha = _sha256_file(Path(supplied_path))
+            except FileNotFoundError:
+                raise FileNotFoundError(
+                    f"Missing supplied canonical SFT artifact: {supplied_path}"
+                ) from None
+            if actual_sha != expected_sha:
+                raise ValueError(
+                    f"Canonical controlled SFT supplied {labels[relative_path]} SHA256 "
+                    f"mismatch: expected {expected_sha}, got {actual_sha}"
+                )
 
     return bundle
 

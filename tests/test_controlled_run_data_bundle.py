@@ -157,3 +157,20 @@ def test_verify_canonical_sft_bundle_rejects_cutoff_mismatch(tmp_path):
             generated,
             expected_max_formatted_tokens=16384,
         )
+
+
+def test_verify_canonical_sft_bundle_rejects_supplied_records_hash_mismatch(tmp_path):
+    manifests, generated = _make_bundle_files(tmp_path)
+    write_data_bundle_manifest(manifests, generated)
+    alternate_records = tmp_path / "alternate_records.jsonl"
+    _write_jsonl(alternate_records, 2, "different-train-record")
+
+    with pytest.raises(ValueError, match="supplied train records.*SHA256"):
+        verify_canonical_sft_bundle(
+            manifests,
+            generated,
+            expected_max_formatted_tokens=16384,
+            supplied_artifacts={
+                "generated/sft_10k_records.jsonl": alternate_records,
+            },
+        )

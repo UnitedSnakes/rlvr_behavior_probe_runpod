@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import importlib
+
 import pytest
 
-from controlled_run.runtime_acceptance import validate_a40_runtime
+from controlled_run.runtime_acceptance import collect_runtime_status, validate_a40_runtime
 
 
 def _status(**overrides):
@@ -52,5 +54,27 @@ def test_validate_a40_runtime_rejects_wrong_gpu_family():
     with pytest.raises(RuntimeError, match="A40"):
         validate_a40_runtime(
             _status(gpu_name="NVIDIA RTX 4090"),
+            required_attention_backend="flash_attention_2",
+        )
+
+
+def test_collect_runtime_status_reports_missing_optional_training_packages(monkeypatch):
+    real_import_module = importlib.import_module
+
+    def fake_import_module(name: str):
+        if name in {"trl", "vllm"}:
+            raise ModuleNotFoundError(name)
+        return real_import_module(name)
+
+    monkeypatch.setattr(importlib, "import_module", fake_import_module)
+
+    status = collect_runtime_status()
+
+    assert status["packages"]["trl"] is None
+    assert status["packages"]["vllm"] is None
+
+    with pytest.raises(RuntimeError, match="missing required package trl"):
+        validate_a40_runtime(
+            status,
             required_attention_backend="flash_attention_2",
         )

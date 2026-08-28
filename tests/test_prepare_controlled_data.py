@@ -131,6 +131,8 @@ def test_prepare_data_pins_sources_and_writes_manifest_audit_and_full_records(
     assert all("problem" not in row and "completion" not in row for row in manifest)
     assert all("prompt" in row and "completion" in row for row in records)
     assert audit["final_count"] == 3
+    assert audit["audit_only"] is False
+    assert audit["requested_total_count"] == 3
     assert audit["selected_total_count"] == 3
     assert audit["train_count"] == 2
     assert audit["validation_count"] == 1
@@ -192,5 +194,6 @@ def test_main_forwards_cli_paths_target_size_and_seed(monkeypatch, tmp_path):
             "target_size": 17,
             "validation_size": 512,
             "seed": 9,
+            "audit_only": False,
         }
     ]

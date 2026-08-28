@@ -183,6 +183,40 @@ def verify_data_bundle(manifests_dir: Path, generated_dir: Path) -> dict:
     return bundle
 
 
+def verify_canonical_sft_bundle(
+    manifests_dir: Path,
+    generated_dir: Path,
+    *,
+    expected_max_formatted_tokens: int,
+) -> dict:
+    if expected_max_formatted_tokens <= 0:
+        raise ValueError("expected_max_formatted_tokens must be positive")
+
+    bundle = verify_data_bundle(manifests_dir, generated_dir)
+    audit = _json(Path(manifests_dir) / "contamination_audit.json")
+
+    if audit.get("audit_only") is not False:
+        raise ValueError(
+            "Canonical controlled SFT requires a full materialization with audit_only=false"
+        )
+
+    actual_cutoff = audit.get("max_formatted_tokens")
+    if actual_cutoff != expected_max_formatted_tokens:
+        raise ValueError(
+            "Canonical controlled SFT max_formatted_tokens must match the SFT config: "
+            f"expected {expected_max_formatted_tokens}, found {actual_cutoff}"
+        )
+
+    expected_total = int(bundle["target_size"]) + int(bundle["validation_size"])
+    if audit.get("selected_total_count") != expected_total:
+        raise ValueError(
+            "Canonical controlled SFT audit selected_total_count does not match "
+            f"train+validation size {expected_total}"
+        )
+
+    return bundle
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description="Verify a portable controlled SFT data bundle.")
     parser.add_argument(

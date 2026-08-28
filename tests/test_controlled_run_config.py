@@ -21,8 +21,9 @@ def test_sft_config_matches_precommitted_recipe():
     assert cfg["num_train_epochs"] == 2
     assert cfg["max_length"] == 2048
     assert cfg["learning_rate"] == 2e-5
-    assert cfg["per_device_train_batch_size"] == 8
-    assert cfg["gradient_accumulation_steps"] == 8
+    assert cfg["global_batch_size"] == 64
+    assert cfg["per_device_train_batch_size"] == 1
+    assert cfg["gradient_accumulation_steps"] == 32
 
 
 def test_grpo_config_matches_precommitted_behavior_study_recipe():

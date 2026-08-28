@@ -46,7 +46,7 @@ def test_sft_audit_reports_pre_length_filter_distribution_and_tail_fractions():
 
     assert len(manifest) == 5
     assert audit["pre_length_filter_count"] == 10
-    assert audit["removed_too_long"] == 5
+    assert audit["removed_too_long"] == 0
     assert audit["formatted_token_percentiles"] == {
         "p50": pytest.approx(2048.5),
         "p75": pytest.approx(4096.75),
@@ -59,6 +59,23 @@ def test_sft_audit_reports_pre_length_filter_distribution_and_tail_fractions():
         "gt_4096": pytest.approx(0.3),
         "gt_8192": pytest.approx(0.1),
     }
+
+
+def test_sft_selector_accepts_16384_and_rejects_16385():
+    rows = [_row(0, 16384), _row(1, 16385)]
+
+    manifest, audit = build_sft_manifest(
+        rows,
+        [],
+        LengthTokenizer(),
+        target_size=1,
+        seed=42,
+    )
+
+    assert manifest[0]["formatted_token_count"] == 16384
+    assert audit["max_formatted_tokens"] == 16384
+    assert audit["removed_too_long"] == 1
+    assert audit["eligible_after_filters"] == 1
 
 
 def test_extended_length_audit_reports_long_context_tail():

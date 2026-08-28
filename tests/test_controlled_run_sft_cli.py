@@ -74,6 +74,14 @@ def test_run_sft_canonical_freezes_exact_pi0_and_writes_run_manifest(
         lambda path, canonical: 512 if canonical else 1,
     )
 
+    bundle_checks = []
+
+    def fake_verify_bundle(manifests_dir, generated_dir, **kwargs):
+        bundle_checks.append((manifests_dir, generated_dir, kwargs))
+        return {"verified": True}
+
+    monkeypatch.setattr(train_sft, "verify_canonical_sft_bundle", fake_verify_bundle)
+
     class FakeAutoModel:
         @classmethod
         def from_pretrained(cls, repo_id, **kwargs):
@@ -123,6 +131,22 @@ def test_run_sft_canonical_freezes_exact_pi0_and_writes_run_manifest(
         output_dir=output_dir,
     )
 
+    assert bundle_checks == [
+        (
+            tmp_path,
+            tmp_path,
+            {
+                "expected_max_formatted_tokens": 16384,
+                "supplied_artifacts": {
+                    "generated/sft_10k_records.jsonl": records,
+                    "generated/sft_val_512_records.jsonl": validation_records,
+                    "manifests/source_revisions.json": sources,
+                    "manifests/sft_10k_manifest.jsonl": sft_manifest,
+                    "manifests/sft_val_512_manifest.jsonl": validation_manifest,
+                },
+            },
+        )
+    ]
     assert result["mode"] == "canonical"
     assert result["record_count"] == 10_000
     assert result["validation_record_count"] == 512

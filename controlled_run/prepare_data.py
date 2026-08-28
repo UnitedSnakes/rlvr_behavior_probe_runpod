@@ -10,6 +10,7 @@ from transformers import AutoTokenizer
 from controlled_run.constants import BASE_MODEL, GSM8K_DATASET, SEED, SFT_DATASET
 from controlled_run.data import build_sft_manifest, materialize_sft_records
 from controlled_run.data_bundle import write_data_bundle_manifest
+from controlled_run.length_stats import RecordingTokenizer, extended_length_audit
 from controlled_run.provenance import resolve_hf_revision, write_json
 
 
@@ -23,6 +24,31 @@ def _write_jsonl(path: Path, rows: list[dict]) -> None:
     with path.open("w", encoding="utf-8") as file:
         for row in rows:
             file.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+
+
+def _augment_length_audit(audit: dict, tokenizer: RecordingTokenizer) -> None:
+    lengths = tokenizer.formatted_lengths
+    if len(lengths) != int(audit["pre_length_filter_count"]):
+        raise RuntimeError(
+            "Recorded tokenizer length count does not match the SFT audit denominator: "
+            f"recorded={len(lengths)}, audit={audit['pre_length_filter_count']}"
+        )
+
+    extended = extended_length_audit(lengths)
+    audit["formatted_token_percentiles"].update(
+        {
+            "p99_5": extended["p99_5"],
+            "p99_9": extended["p99_9"],
+            "max": extended["max"],
+        }
+    )
+    audit["formatted_token_tail_fractions"].update(
+        {
+            "gt_12288": extended["gt_12288"],
+            "gt_16384": extended["gt_16384"],
+            "gt_32768": extended["gt_32768"],
+        }
+    )
 
 
 def prepare_data(
@@ -72,7 +98,8 @@ def prepare_data(
         "source_identity": "pinned_dataset_revision_plus_source_index",
     }
 
-    tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL, revision=base_sha)
+    raw_tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL, revision=base_sha)
+    tokenizer = RecordingTokenizer(raw_tokenizer)
     raw_openr1_rows = list(
         load_dataset(
             SFT_DATASET,
@@ -111,6 +138,7 @@ def prepare_data(
         target_size=selector_target,
         seed=seed,
     )
+    _augment_length_audit(audit, tokenizer)
 
     if audit_only:
         audit["audit_only"] = True

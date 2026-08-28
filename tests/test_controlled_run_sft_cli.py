@@ -50,6 +50,7 @@ def test_run_sft_canonical_freezes_exact_pi0_and_writes_run_manifest(
     monkeypatch,
     tmp_path,
 ):
+    monkeypatch.setenv("WORLD_SIZE", "2")
     config_path = ROOT / "controlled_run/configs/sft_qwen3_0_6b.yaml"
     records = tmp_path / "records.jsonl"
     validation_records = tmp_path / "validation_records.jsonl"
@@ -125,6 +126,12 @@ def test_run_sft_canonical_freezes_exact_pi0_and_writes_run_manifest(
     assert result["mode"] == "canonical"
     assert result["record_count"] == 10_000
     assert result["validation_record_count"] == 512
+    assert result["runtime_batch"] == {
+        "world_size": 2,
+        "per_device_train_batch_size": 1,
+        "gradient_accumulation_steps": 32,
+        "global_batch_size": 64,
+    }
     assert result["pi0_manifest"]["policy_name"] == "pi_0"
     assert trainer_kwargs[0]["eval_dataset"] is not None
     assert (output_dir / "pi_0" / "model.safetensors").read_bytes() == b"canonical-final"
@@ -137,6 +144,7 @@ def test_run_sft_canonical_freezes_exact_pi0_and_writes_run_manifest(
     assert run_manifest["record_count"] == 10_000
     assert run_manifest["validation_record_count"] == 512
     assert run_manifest["validation_role"] == "diagnostic_only_no_checkpoint_selection"
+    assert run_manifest["runtime_batch"] == result["runtime_batch"]
     assert run_manifest["config"]["model_name"] == "Qwen/Qwen3-0.6B-Base"
     assert run_manifest["lineage"] == {
         key: result["pi0_manifest"][key]

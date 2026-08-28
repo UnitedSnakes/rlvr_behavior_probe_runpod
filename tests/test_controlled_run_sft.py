@@ -51,9 +51,9 @@ def test_build_sft_arguments_maps_exact_canonical_recipe(monkeypatch, tmp_path):
         "lr_scheduler_type": "cosine",
         "warmup_ratio": 0.03,
         "weight_decay": 0.01,
-        "per_device_train_batch_size": 8,
-        "per_device_eval_batch_size": 8,
-        "gradient_accumulation_steps": 8,
+        "per_device_train_batch_size": 1,
+        "per_device_eval_batch_size": 1,
+        "gradient_accumulation_steps": 32,
         "optim": "adamw_torch_fused",
         "save_strategy": "epoch",
         "eval_strategy": "epoch",
@@ -258,5 +258,6 @@ def test_run_sft_loads_exact_base_sha_and_freezes_pi0_only_in_canonical_mode(
     assert trainer_instances[0].trained is True
     assert trainer_instances[0].kwargs["eval_dataset"] is None
     assert result["mode"] == "smoke"
+    assert result["runtime_batch"]["global_batch_size"] == 32
     assert (smoke_dir / "smoke_final" / "model.safetensors").exists()
     assert not (smoke_dir / "pi_0").exists()

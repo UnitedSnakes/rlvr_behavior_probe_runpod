@@ -4,7 +4,11 @@ import importlib
 
 import pytest
 
-from controlled_run.runtime_acceptance import collect_runtime_status, validate_a40_runtime
+from controlled_run.runtime_acceptance import (
+    collect_runtime_status,
+    validate_a40_runtime,
+    validate_model_probe_result,
+)
 
 
 def _status(**overrides):
@@ -95,3 +99,44 @@ def test_collect_runtime_status_reports_missing_optional_training_packages(monke
             status,
             required_attention_backend="flash_attention_2",
         )
+
+
+def test_validate_model_probe_result_requires_real_fa2_forward_backward():
+    result = validate_model_probe_result(
+        {
+            "model_name": "Qwen/Qwen3-0.6B-Base",
+            "model_revision": "da87bfb608c14b7cf20ba1ce41287e8de496c0cd",
+            "requested_attention_backend": "flash_attention_2",
+            "resolved_attention_backend": "flash_attention_2",
+            "forward_ok": True,
+            "backward_ok": True,
+            "loss": 1.25,
+        }
+    )
+
+    assert result["backward_ok"] is True
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "pattern"),
+    [
+        ("resolved_attention_backend", "sdpa", "resolved.*flash_attention_2"),
+        ("forward_ok", False, "forward"),
+        ("backward_ok", False, "backward"),
+        ("loss", float("nan"), "finite"),
+    ],
+)
+def test_validate_model_probe_result_rejects_failed_probe(field, value, pattern):
+    probe = {
+        "model_name": "Qwen/Qwen3-0.6B-Base",
+        "model_revision": "da87bfb608c14b7cf20ba1ce41287e8de496c0cd",
+        "requested_attention_backend": "flash_attention_2",
+        "resolved_attention_backend": "flash_attention_2",
+        "forward_ok": True,
+        "backward_ok": True,
+        "loss": 1.25,
+    }
+    probe[field] = value
+
+    with pytest.raises(RuntimeError, match=pattern):
+        validate_model_probe_result(probe)

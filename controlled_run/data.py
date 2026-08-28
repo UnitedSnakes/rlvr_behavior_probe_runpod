@@ -4,6 +4,7 @@ import hashlib
 import re
 import unicodedata
 from collections import defaultdict
+from collections.abc import Mapping
 
 import numpy as np
 
@@ -156,11 +157,7 @@ def _formatted_token_count(tokenizer, problem: str, completion: str) -> int:
         tokenize=True,
         add_generation_prompt=False,
     )
-    if isinstance(encoded, dict):
-        encoded = encoded["input_ids"]
-    if hasattr(encoded, "shape") and len(getattr(encoded, "shape")) == 2:
-        return int(encoded.shape[-1])
-    return len(encoded)
+    return _token_count(encoded)
 
 
 def _length_audit(lengths: list[int]) -> dict:
@@ -409,7 +406,9 @@ def build_gsm8k_rl_rows(dataset_rows) -> list[dict]:
 
 
 def _token_count(encoded) -> int:
-    if isinstance(encoded, dict):
+    if isinstance(encoded, Mapping):
+        if "input_ids" not in encoded:
+            raise ValueError("Tokenized mapping must contain input_ids")
         encoded = encoded["input_ids"]
     if hasattr(encoded, "shape"):
         shape = getattr(encoded, "shape")

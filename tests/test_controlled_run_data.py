@@ -35,7 +35,7 @@ class FakeTokenizer:
 
         completion = messages[2]["content"]
         if "LONG_TRACE" in completion:
-            return list(range(2049))
+            return list(range(16385))
         return list(range(100))
 
 

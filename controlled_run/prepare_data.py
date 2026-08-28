@@ -9,6 +9,7 @@ from transformers import AutoTokenizer
 
 from controlled_run.constants import BASE_MODEL, GSM8K_DATASET, SEED, SFT_DATASET
 from controlled_run.data import build_sft_manifest, materialize_sft_records
+from controlled_run.data_bundle import write_data_bundle_manifest
 from controlled_run.provenance import resolve_hf_revision, write_json
 
 
@@ -150,6 +151,7 @@ def prepare_data(
         generated_dir / "sft_val_512_records.jsonl",
         validation_records,
     )
+    write_data_bundle_manifest(manifests_dir, generated_dir)
 
     return source_revisions
 

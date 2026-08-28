@@ -15,10 +15,13 @@ from controlled_run.provenance import sha256_file, write_json
 
 
 CANONICAL_SFT_RECORDS = 10_000
+CANONICAL_SFT_VALIDATION_RECORDS = 512
 DEFAULT_CONFIG = Path("controlled_run/configs/sft_qwen3_0_6b.yaml")
 DEFAULT_RECORDS = Path("data/controlled_run/generated/sft_10k_records.jsonl")
+DEFAULT_VALIDATION_RECORDS = Path("data/controlled_run/generated/sft_val_512_records.jsonl")
 DEFAULT_SOURCE_REVISIONS = Path("data/controlled_run/manifests/source_revisions.json")
 DEFAULT_SFT_MANIFEST = Path("data/controlled_run/manifests/sft_10k_manifest.jsonl")
+DEFAULT_VALIDATION_MANIFEST = Path("data/controlled_run/manifests/sft_val_512_manifest.jsonl")
 DEFAULT_OUTPUT_DIR = Path("controlled_run_outputs/sft")
 
 
@@ -27,8 +30,8 @@ def _load_sft_classes():
         from trl import SFTConfig, SFTTrainer
     except ImportError as error:
         raise RuntimeError(
-            "TRL is required for controlled SFT training. Install "
-            "controlled_run/requirements-a40.in in the isolated A40 environment."
+            "TRL is required for controlled SFT training. Install the pinned A40 "
+            "training runtime before running SFT."
         ) from error
     return SFTConfig, SFTTrainer
 
@@ -41,6 +44,7 @@ def build_sft_arguments(
     validate_sft_config(config)
     SFTConfig, _ = _load_sft_classes()
 
+    canonical = max_steps is None
     kwargs = {
         "output_dir": str(Path(output_dir)),
         "num_train_epochs": config["num_train_epochs"],
@@ -55,9 +59,12 @@ def build_sft_arguments(
         "warmup_ratio": config["warmup_ratio"],
         "weight_decay": config["weight_decay"],
         "per_device_train_batch_size": config["per_device_train_batch_size"],
+        "per_device_eval_batch_size": config["per_device_train_batch_size"],
         "gradient_accumulation_steps": config["gradient_accumulation_steps"],
         "optim": config["optim"],
         "save_strategy": "epoch",
+        "eval_strategy": "epoch" if canonical else "no",
+        "load_best_model_at_end": False,
         "report_to": "none",
         "seed": config["seed"],
         "data_seed": config["seed"],
@@ -100,11 +107,10 @@ def load_prompt_completion_jsonl(path: Path) -> Dataset:
     return Dataset.from_list(rows)
 
 
-def validate_record_count(path: Path, canonical: bool) -> int:
+def _record_count(path: Path) -> int:
     source = Path(path)
     if not source.is_file():
         raise FileNotFoundError(f"Controlled SFT records file does not exist: {source}")
-
     count = sum(
         1
         for line in source.read_text(encoding="utf-8").splitlines()
@@ -112,10 +118,25 @@ def validate_record_count(path: Path, canonical: bool) -> int:
     )
     if count == 0:
         raise ValueError(f"Controlled SFT records file is empty: {source}")
+    return count
+
+
+def validate_record_count(path: Path, canonical: bool) -> int:
+    count = _record_count(path)
     if canonical and count != CANONICAL_SFT_RECORDS:
         raise ValueError(
             "Canonical controlled SFT requires exactly 10000 records; "
-            f"found {count} in {source}"
+            f"found {count} in {path}"
+        )
+    return count
+
+
+def validate_validation_record_count(path: Path, canonical: bool) -> int:
+    count = _record_count(path)
+    if canonical and count != CANONICAL_SFT_VALIDATION_RECORDS:
+        raise ValueError(
+            "Canonical controlled SFT requires exactly 512 validation records; "
+            f"found {count} in {path}"
         )
     return count
 
@@ -140,14 +161,20 @@ def build_sft_lineage(
     source_revisions_path: Path,
     sft_manifest_path: Path,
     config_path: Path,
+    validation_manifest_path: Path | None = None,
 ) -> dict:
     revisions = _load_source_revisions(source_revisions_path)
-    return {
+    lineage = {
         "base_model_sha": str(revisions["base_model"]["sha"]),
         "sft_dataset_sha": str(revisions["sft_dataset"]["sha"]),
         "sft_data_manifest_sha256": sha256_file(Path(sft_manifest_path)),
         "sft_config_sha256": sha256_file(Path(config_path)),
     }
+    if validation_manifest_path is not None:
+        lineage["sft_validation_manifest_sha256"] = sha256_file(
+            Path(validation_manifest_path)
+        )
+    return lineage
 
 
 def _write_run_manifest(
@@ -155,6 +182,7 @@ def _write_run_manifest(
     *,
     mode: str,
     record_count: int,
+    validation_record_count: int | None,
     smoke_steps: int | None,
     config: dict,
     lineage: dict,
@@ -164,6 +192,8 @@ def _write_run_manifest(
         {
             "mode": mode,
             "record_count": record_count,
+            "validation_record_count": validation_record_count,
+            "validation_role": "diagnostic_only_no_checkpoint_selection",
             "smoke_steps": smoke_steps,
             "config": config,
             "lineage": lineage,
@@ -178,10 +208,28 @@ def run_sft(
     source_revisions_path: Path,
     sft_manifest_path: Path,
     output_dir: Path,
+    validation_records_path: Path | None = None,
+    validation_manifest_path: Path | None = None,
     smoke_steps: int | None = None,
 ) -> dict:
     canonical = smoke_steps is None
     record_count = validate_record_count(records_path, canonical=canonical)
+
+    if canonical and (validation_records_path is None or validation_manifest_path is None):
+        raise ValueError(
+            "Canonical SFT requires the deterministic 512-example validation records "
+            "and validation manifest"
+        )
+
+    validation_record_count: int | None = None
+    eval_dataset = None
+    if validation_records_path is not None:
+        validation_record_count = validate_validation_record_count(
+            validation_records_path,
+            canonical=canonical,
+        )
+        eval_dataset = load_prompt_completion_jsonl(validation_records_path)
+
     config = load_config(Path(config_path))
     validate_sft_config(config)
     revisions = _load_source_revisions(source_revisions_path)
@@ -222,6 +270,7 @@ def run_sft(
         model=model,
         args=args,
         train_dataset=train_dataset,
+        eval_dataset=eval_dataset,
         processing_class=tokenizer,
     )
     trainer.train()
@@ -230,18 +279,22 @@ def run_sft(
         source_revisions_path,
         sft_manifest_path,
         config_path,
+        validation_manifest_path=validation_manifest_path,
     )
     mode = "canonical" if canonical else "smoke"
     _write_run_manifest(
         destination,
         mode=mode,
         record_count=record_count,
+        validation_record_count=validation_record_count,
         smoke_steps=smoke_steps,
         config=config,
         lineage=lineage,
     )
 
     if canonical:
+        if "sft_validation_manifest_sha256" not in lineage:
+            raise RuntimeError("Canonical SFT lineage is missing validation manifest SHA256")
         manifest = freeze_pi0(
             trainer,
             tokenizer,
@@ -251,6 +304,7 @@ def run_sft(
         return {
             "mode": "canonical",
             "record_count": record_count,
+            "validation_record_count": validation_record_count,
             "pi0_manifest": manifest,
         }
 
@@ -260,6 +314,7 @@ def run_sft(
     return {
         "mode": "smoke",
         "record_count": record_count,
+        "validation_record_count": validation_record_count,
         "smoke_steps": int(smoke_steps),
     }
 
@@ -271,6 +326,11 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--records", type=Path, default=DEFAULT_RECORDS)
     parser.add_argument(
+        "--validation-records",
+        type=Path,
+        default=DEFAULT_VALIDATION_RECORDS,
+    )
+    parser.add_argument(
         "--source-revisions",
         type=Path,
         default=DEFAULT_SOURCE_REVISIONS,
@@ -280,6 +340,11 @@ def main(argv: list[str] | None = None) -> None:
         type=Path,
         default=DEFAULT_SFT_MANIFEST,
     )
+    parser.add_argument(
+        "--validation-manifest",
+        type=Path,
+        default=DEFAULT_VALIDATION_MANIFEST,
+    )
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--smoke-steps", type=int, default=None)
     args = parser.parse_args(argv)
@@ -287,8 +352,10 @@ def main(argv: list[str] | None = None) -> None:
     result = run_sft(
         config_path=args.config,
         records_path=args.records,
+        validation_records_path=args.validation_records,
         source_revisions_path=args.source_revisions,
         sft_manifest_path=args.sft_manifest,
+        validation_manifest_path=args.validation_manifest,
         output_dir=args.output_dir,
         smoke_steps=args.smoke_steps,
     )

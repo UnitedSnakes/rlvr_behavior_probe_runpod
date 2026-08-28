@@ -25,8 +25,7 @@ SFT_INVARIANTS = {
     "lr_scheduler_type": "cosine",
     "warmup_ratio": 0.03,
     "weight_decay": 0.01,
-    "per_device_train_batch_size": 8,
-    "gradient_accumulation_steps": 8,
+    "global_batch_size": 64,
     "seed": SEED,
 }
 
@@ -90,6 +89,44 @@ def _validate_exact(config: dict, expected: dict, label: str) -> None:
 
 def validate_sft_config(config: dict) -> None:
     _validate_exact(config, SFT_INVARIANTS, "SFT")
+    for key in ("per_device_train_batch_size", "gradient_accumulation_steps"):
+        value = config.get(key)
+        if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
+            raise ValueError(f"SFT config field {key!r} must be a positive integer")
+
+
+def validate_sft_runtime_batch(
+    config: dict,
+    *,
+    world_size: int,
+    canonical: bool,
+) -> dict:
+    validate_sft_config(config)
+    if not isinstance(world_size, int) or isinstance(world_size, bool) or world_size <= 0:
+        raise ValueError("SFT world_size must be a positive integer")
+
+    per_device = int(config["per_device_train_batch_size"])
+    grad_accum = int(config["gradient_accumulation_steps"])
+    effective = per_device * world_size * grad_accum
+    target = int(config["global_batch_size"])
+
+    if canonical and world_size != 2:
+        raise ValueError(
+            "Canonical controlled SFT requires exactly 2 GPUs; "
+            f"WORLD_SIZE={world_size}"
+        )
+    if canonical and effective != target:
+        raise ValueError(
+            "Canonical controlled SFT requires global batch size 64; "
+            f"got {per_device} x {world_size} x {grad_accum} = {effective}"
+        )
+
+    return {
+        "world_size": world_size,
+        "per_device_train_batch_size": per_device,
+        "gradient_accumulation_steps": grad_accum,
+        "global_batch_size": effective,
+    }
 
 
 def validate_grpo_config(config: dict) -> None:

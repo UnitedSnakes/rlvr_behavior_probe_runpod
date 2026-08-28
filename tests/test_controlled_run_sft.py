@@ -41,7 +41,7 @@ def test_build_sft_arguments_maps_exact_canonical_recipe(monkeypatch, tmp_path):
     assert args.kwargs == {
         "output_dir": str(tmp_path / "trainer"),
         "num_train_epochs": 2,
-        "max_length": 2048,
+        "max_length": 16384,
         "bf16": True,
         "gradient_checkpointing": True,
         "packing": True,

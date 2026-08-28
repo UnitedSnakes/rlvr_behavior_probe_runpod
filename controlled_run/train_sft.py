@@ -2,14 +2,19 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 import torch
 from datasets import Dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from controlled_run.checkpointing import freeze_pi0
-from controlled_run.config import load_config, validate_sft_config
+from controlled_run.checkpointing import freeze_pi0, load_pi0_manifest
+from controlled_run.config import (
+    load_config,
+    validate_sft_config,
+    validate_sft_runtime_batch,
+)
 from controlled_run.constants import BASE_MODEL
 from controlled_run.provenance import sha256_file, write_json
 
@@ -34,6 +39,31 @@ def _load_sft_classes():
             "training runtime before running SFT."
         ) from error
     return SFTConfig, SFTTrainer
+
+
+def _runtime_world_size() -> int:
+    raw = os.environ.get("WORLD_SIZE", "1")
+    try:
+        world_size = int(raw)
+    except ValueError as error:
+        raise ValueError(f"WORLD_SIZE must be an integer, got {raw!r}") from error
+    if world_size <= 0:
+        raise ValueError(f"WORLD_SIZE must be positive, got {world_size}")
+    return world_size
+
+
+def _wait_for_everyone(trainer) -> None:
+    accelerator = getattr(trainer, "accelerator", None)
+    wait = getattr(accelerator, "wait_for_everyone", None)
+    if callable(wait):
+        wait()
+
+
+def _is_world_process_zero(trainer) -> bool:
+    check = getattr(trainer, "is_world_process_zero", None)
+    if callable(check):
+        return bool(check())
+    return True
 
 
 def build_sft_arguments(
@@ -186,6 +216,7 @@ def _write_run_manifest(
     smoke_steps: int | None,
     config: dict,
     lineage: dict,
+    runtime_batch: dict,
 ) -> None:
     write_json(
         destination / "sft_run_manifest.json",
@@ -196,6 +227,7 @@ def _write_run_manifest(
             "validation_role": "diagnostic_only_no_checkpoint_selection",
             "smoke_steps": smoke_steps,
             "config": config,
+            "runtime_batch": runtime_batch,
             "lineage": lineage,
         },
     )
@@ -232,6 +264,11 @@ def run_sft(
 
     config = load_config(Path(config_path))
     validate_sft_config(config)
+    runtime_batch = validate_sft_runtime_batch(
+        config,
+        world_size=_runtime_world_size(),
+        canonical=canonical,
+    )
     revisions = _load_source_revisions(source_revisions_path)
 
     base_entry = revisions["base_model"]
@@ -274,6 +311,7 @@ def run_sft(
         processing_class=tokenizer,
     )
     trainer.train()
+    _wait_for_everyone(trainer)
 
     lineage = build_sft_lineage(
         source_revisions_path,
@@ -282,39 +320,53 @@ def run_sft(
         validation_manifest_path=validation_manifest_path,
     )
     mode = "canonical" if canonical else "smoke"
-    _write_run_manifest(
-        destination,
-        mode=mode,
-        record_count=record_count,
-        validation_record_count=validation_record_count,
-        smoke_steps=smoke_steps,
-        config=config,
-        lineage=lineage,
-    )
+    is_world_zero = _is_world_process_zero(trainer)
+
+    if is_world_zero:
+        _write_run_manifest(
+            destination,
+            mode=mode,
+            record_count=record_count,
+            validation_record_count=validation_record_count,
+            smoke_steps=smoke_steps,
+            config=config,
+            lineage=lineage,
+            runtime_batch=runtime_batch,
+        )
+
+        if canonical:
+            if "sft_validation_manifest_sha256" not in lineage:
+                raise RuntimeError(
+                    "Canonical SFT lineage is missing validation manifest SHA256"
+                )
+            freeze_pi0(
+                trainer,
+                tokenizer,
+                destination / "pi_0",
+                lineage,
+            )
+        else:
+            smoke_final = destination / "smoke_final"
+            trainer.save_model(str(smoke_final))
+            tokenizer.save_pretrained(str(smoke_final))
+
+    _wait_for_everyone(trainer)
 
     if canonical:
-        if "sft_validation_manifest_sha256" not in lineage:
-            raise RuntimeError("Canonical SFT lineage is missing validation manifest SHA256")
-        manifest = freeze_pi0(
-            trainer,
-            tokenizer,
-            destination / "pi_0",
-            lineage,
-        )
+        manifest = load_pi0_manifest(destination / "pi_0")
         return {
             "mode": "canonical",
             "record_count": record_count,
             "validation_record_count": validation_record_count,
+            "runtime_batch": runtime_batch,
             "pi0_manifest": manifest,
         }
 
-    smoke_final = destination / "smoke_final"
-    trainer.save_model(str(smoke_final))
-    tokenizer.save_pretrained(str(smoke_final))
     return {
         "mode": "smoke",
         "record_count": record_count,
         "validation_record_count": validation_record_count,
+        "runtime_batch": runtime_batch,
         "smoke_steps": int(smoke_steps),
     }
 

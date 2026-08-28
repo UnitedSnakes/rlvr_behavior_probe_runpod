@@ -31,6 +31,7 @@ def prepare_data(
     target_size: int = 10_000,
     validation_size: int = DEFAULT_VALIDATION_SIZE,
     seed: int = SEED,
+    audit_only: bool = False,
 ) -> dict:
     if target_size <= 0:
         raise ValueError("target_size must be positive")
@@ -101,16 +102,28 @@ def prepare_data(
         )
     )
 
-    selected_size = target_size + validation_size
+    requested_total = target_size + validation_size
+    selector_target = 1 if audit_only else requested_total
     selected_manifest, audit = build_sft_manifest(
         openr1_rows,
         [*gsm8k_train, *gsm8k_test],
         tokenizer,
-        target_size=selected_size,
+        target_size=selector_target,
         seed=seed,
     )
+
+    if audit_only:
+        audit["audit_only"] = True
+        audit["requested_total_count"] = requested_total
+        audit["selected_total_count"] = 0
+        audit["train_count"] = 0
+        audit["validation_count"] = 0
+        write_json(manifests_dir / "contamination_audit.json", audit)
+        write_json(manifests_dir / "source_revisions.json", source_revisions)
+        return {"source_revisions": source_revisions, "audit": audit}
+
     train_manifest = selected_manifest[:target_size]
-    validation_manifest = selected_manifest[target_size:selected_size]
+    validation_manifest = selected_manifest[target_size:requested_total]
     train_records = materialize_sft_records(train_manifest, openr1_rows)
     validation_records = materialize_sft_records(validation_manifest, openr1_rows)
 
@@ -135,7 +148,9 @@ def prepare_data(
     if train_indices & validation_indices:
         raise RuntimeError("Controlled SFT train/validation source indices overlap")
 
-    audit["selected_total_count"] = selected_size
+    audit["audit_only"] = False
+    audit["requested_total_count"] = requested_total
+    audit["selected_total_count"] = requested_total
     audit["train_count"] = target_size
     audit["validation_count"] = validation_size
 
@@ -160,7 +175,7 @@ def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
         description=(
             "Build deterministic contamination-audited controlled SFT train and "
-            "validation datasets."
+            "validation datasets, or run the same scan in audit-only mode."
         )
     )
     parser.add_argument(
@@ -180,16 +195,25 @@ def main(argv: list[str] | None = None) -> None:
         default=DEFAULT_VALIDATION_SIZE,
     )
     parser.add_argument("--seed", type=int, default=SEED)
+    parser.add_argument(
+        "--audit-only",
+        action="store_true",
+        help=(
+            "Scan the pinned sources and write contamination/length diagnostics "
+            "without requiring or materializing the requested train/validation counts."
+        ),
+    )
     args = parser.parse_args(argv)
 
-    revisions = prepare_data(
+    result = prepare_data(
         manifests_dir=args.manifests_dir,
         generated_dir=args.generated_dir,
         target_size=args.target_size,
         validation_size=args.validation_size,
         seed=args.seed,
+        audit_only=args.audit_only,
     )
-    print(json.dumps(revisions, indent=2, sort_keys=True))
+    print(json.dumps(result, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

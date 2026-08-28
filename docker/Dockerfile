@@ -38,9 +38,14 @@ RUN uv pip install \
     rm /tmp/requirements-vllm.txt
 
 # Build the canonical compiled FlashAttention2 backend against the exact torch/CUDA
-# stack already owned by the vLLM environment. A build failure is intentional: do
-# not publish an image that would silently depend on a runtime Hub-kernel fallback.
-RUN MAX_JOBS=4 /opt/vllm-env/bin/python -m pip install \
+# stack already owned by the vLLM environment. This image is intentionally A40-only:
+# compile sm80 kernels only and bound compiler parallelism so CI/build hosts do not
+# exhaust RAM. A build failure is intentional; never fall back silently to Hub kernels.
+RUN FLASH_ATTN_CUDA_ARCHS=80 \
+    FLASH_ATTENTION_FORCE_BUILD=TRUE \
+    MAX_JOBS=1 \
+    NVCC_THREADS=1 \
+    /opt/vllm-env/bin/python -m pip install \
         --no-cache-dir \
         --no-build-isolation \
         "flash-attn==2.8.3.post1"

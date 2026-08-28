@@ -3,6 +3,7 @@ from __future__ import annotations
 import pytest
 
 from controlled_run.data import build_sft_manifest
+from controlled_run.length_stats import extended_length_audit
 
 
 class LengthTokenizer:
@@ -32,7 +33,7 @@ def _row(index: int, length: int) -> dict:
 
 
 def test_sft_audit_reports_pre_length_filter_distribution_and_tail_fractions():
-    lengths = [100, 500, 1000, 2000, 2048, 2049, 4096, 4097, 8192, 8193, 12289, 16385, 32769]
+    lengths = [100, 500, 1000, 2000, 2048, 2049, 4096, 4097, 8192, 8193]
     rows = [_row(index, length) for index, length in enumerate(lengths)]
 
     manifest, audit = build_sft_manifest(
@@ -44,26 +45,31 @@ def test_sft_audit_reports_pre_length_filter_distribution_and_tail_fractions():
     )
 
     assert len(manifest) == 5
-    assert audit["pre_length_filter_count"] == len(lengths)
-    assert audit["removed_too_long"] == 8
-
-    expected_percentiles = {
-        "p50": 4096.0,
-        "p75": 8192.0,
-        "p90": 15565.8,
-        "p95": 22938.6,
-        "p99": 30802.92,
-        "p99_5": 31785.96,
-        "p99_9": 32572.392,
-        "max": 32769,
+    assert audit["pre_length_filter_count"] == 10
+    assert audit["removed_too_long"] == 5
+    assert audit["formatted_token_percentiles"] == {
+        "p50": pytest.approx(2048.5),
+        "p75": pytest.approx(4096.75),
+        "p90": pytest.approx(8192.1),
+        "p95": pytest.approx(8192.55),
+        "p99": pytest.approx(8192.91),
     }
-    for key, expected in expected_percentiles.items():
-        assert audit["formatted_token_percentiles"][key] == pytest.approx(expected)
-
     assert audit["formatted_token_tail_fractions"] == {
-        "gt_2048": pytest.approx(8 / 13),
-        "gt_4096": pytest.approx(6 / 13),
-        "gt_8192": pytest.approx(5 / 13),
+        "gt_2048": pytest.approx(0.5),
+        "gt_4096": pytest.approx(0.3),
+        "gt_8192": pytest.approx(0.1),
+    }
+
+
+def test_extended_length_audit_reports_long_context_tail():
+    lengths = [100, 500, 1000, 2000, 2048, 2049, 4096, 4097, 8192, 8193, 12289, 16385, 32769]
+
+    audit = extended_length_audit(lengths)
+
+    assert audit == {
+        "p99_5": pytest.approx(31785.96),
+        "p99_9": pytest.approx(32572.392),
+        "max": 32769,
         "gt_12288": pytest.approx(3 / 13),
         "gt_16384": pytest.approx(2 / 13),
         "gt_32768": pytest.approx(1 / 13),
@@ -87,6 +93,4 @@ def test_sft_length_audit_uses_contamination_clean_verified_denominator():
 
     assert audit["pre_length_filter_count"] == 1
     assert audit["formatted_token_percentiles"]["p99"] == pytest.approx(100.0)
-    assert audit["formatted_token_percentiles"]["max"] == 100
     assert audit["formatted_token_tail_fractions"]["gt_2048"] == 0.0
-    assert audit["formatted_token_tail_fractions"]["gt_16384"] == 0.0

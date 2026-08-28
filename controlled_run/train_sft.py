@@ -16,6 +16,7 @@ from controlled_run.config import (
     validate_sft_runtime_batch,
 )
 from controlled_run.constants import BASE_MODEL
+from controlled_run.data_bundle import verify_canonical_sft_bundle
 from controlled_run.provenance import sha256_file, write_json
 
 
@@ -245,13 +246,30 @@ def run_sft(
     smoke_steps: int | None = None,
 ) -> dict:
     canonical = smoke_steps is None
-    record_count = validate_record_count(records_path, canonical=canonical)
+    config = load_config(Path(config_path))
+    validate_sft_config(config)
 
     if canonical and (validation_records_path is None or validation_manifest_path is None):
         raise ValueError(
             "Canonical SFT requires the deterministic 512-example validation records "
             "and validation manifest"
         )
+
+    if canonical:
+        verify_canonical_sft_bundle(
+            Path(source_revisions_path).parent,
+            Path(records_path).parent,
+            expected_max_formatted_tokens=int(config["max_length"]),
+            supplied_artifacts={
+                "generated/sft_10k_records.jsonl": Path(records_path),
+                "generated/sft_val_512_records.jsonl": Path(validation_records_path),
+                "manifests/source_revisions.json": Path(source_revisions_path),
+                "manifests/sft_10k_manifest.jsonl": Path(sft_manifest_path),
+                "manifests/sft_val_512_manifest.jsonl": Path(validation_manifest_path),
+            },
+        )
+
+    record_count = validate_record_count(records_path, canonical=canonical)
 
     validation_record_count: int | None = None
     eval_dataset = None
@@ -262,8 +280,6 @@ def run_sft(
         )
         eval_dataset = load_prompt_completion_jsonl(validation_records_path)
 
-    config = load_config(Path(config_path))
-    validate_sft_config(config)
     runtime_batch = validate_sft_runtime_batch(
         config,
         world_size=_runtime_world_size(),

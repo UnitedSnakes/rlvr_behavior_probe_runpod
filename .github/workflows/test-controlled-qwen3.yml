@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - controlled-qwen3-rlvr
+      - controlled-qwen3-rlvr-task6
   workflow_dispatch:
 
 permissions:

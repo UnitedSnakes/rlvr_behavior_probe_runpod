@@ -78,7 +78,8 @@ def test_build_grpo_arguments_maps_behavior_study_recipe(monkeypatch, tmp_path):
     assert kwargs["scale_rewards"] == "group"
     assert kwargs["vllm_importance_sampling_correction"] is True
     assert kwargs["vllm_importance_sampling_mode"] == "sequence_mask"
-    assert kwargs["vllm_importance_sampling_cap"] == 3.0
+    assert kwargs["vllm_importance_sampling_clip_max"] == 3.0
+    assert "vllm_importance_sampling_cap" not in kwargs
     assert kwargs["report_to"] == "none"
 
 

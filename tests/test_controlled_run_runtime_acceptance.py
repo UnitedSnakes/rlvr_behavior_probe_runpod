@@ -47,6 +47,14 @@ def test_validate_a40_runtime_rejects_wrong_trl_version():
         validate_a40_runtime(status, required_attention_backend="flash_attention_2")
 
 
+def test_validate_a40_runtime_rejects_missing_trl():
+    status = _status()
+    status["packages"] = dict(status["packages"], trl=None)
+
+    with pytest.raises(RuntimeError, match="missing required package trl"):
+        validate_a40_runtime(status, required_attention_backend="flash_attention_2")
+
+
 def test_validate_a40_runtime_rejects_missing_compiled_flash_attn():
     status = _status()
     status["packages"] = dict(status["packages"], **{"flash-attn": None})
@@ -93,12 +101,6 @@ def test_collect_runtime_status_reports_missing_optional_training_packages(monke
 
     assert status["packages"]["trl"] is None
     assert status["packages"]["vllm"] is None
-
-    with pytest.raises(RuntimeError, match="missing required package trl"):
-        validate_a40_runtime(
-            status,
-            required_attention_backend="flash_attention_2",
-        )
 
 
 def test_validate_model_probe_result_requires_real_fa2_forward_backward():

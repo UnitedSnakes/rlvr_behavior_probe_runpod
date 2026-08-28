@@ -13,7 +13,7 @@ SFT_INVARIANTS = {
     "dataset_config": "default",
     "subset_size": 10_000,
     "num_train_epochs": 2,
-    "max_length": 2048,
+    "max_length": 16384,
     "bf16": True,
     "attn_implementation": "flash_attention_2",
     "gradient_checkpointing": True,

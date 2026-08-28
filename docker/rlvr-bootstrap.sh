@@ -145,6 +145,17 @@ print("HF_TOKEN set:", bool(os.environ.get("HF_TOKEN")))
 PY
 }
 
+run_runtime_acceptance() {
+    local repo_dir="$1"
+
+    log "running canonical A40 runtime acceptance"
+    (
+        cd "$repo_dir"
+        python -m controlled_run.runtime_acceptance \
+            --attention-backend flash_attention_2
+    )
+}
+
 main() {
     local repo_dir
 
@@ -158,6 +169,7 @@ main() {
     configure_known_hosts
     sync_repository "$repo_dir"
     print_runtime_summary "$repo_dir"
+    run_runtime_acceptance "$repo_dir"
     log "bootstrap complete"
 }
 

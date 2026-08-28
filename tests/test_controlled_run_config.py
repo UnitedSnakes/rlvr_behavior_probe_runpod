@@ -19,7 +19,7 @@ def test_sft_config_matches_precommitted_recipe():
 
     assert cfg["model_name"] == "Qwen/Qwen3-0.6B-Base"
     assert cfg["num_train_epochs"] == 2
-    assert cfg["max_length"] == 2048
+    assert cfg["max_length"] == 16384
     assert cfg["learning_rate"] == 2e-5
     assert cfg["global_batch_size"] == 64
     assert cfg["per_device_train_batch_size"] == 1

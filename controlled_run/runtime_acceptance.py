@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import importlib
 import importlib.metadata
 import json
 import platform
@@ -12,8 +13,6 @@ def collect_runtime_status() -> dict[str, Any]:
     import datasets
     import torch
     import transformers
-    import trl
-    import vllm
     from transformers.utils import is_flash_attn_2_available
 
     return {
@@ -27,11 +26,22 @@ def collect_runtime_status() -> dict[str, Any]:
             "transformers": transformers.__version__,
             "datasets": datasets.__version__,
             "accelerate": accelerate.__version__,
-            "trl": trl.__version__,
-            "vllm": vllm.__version__,
+            "trl": _optional_import_version("trl"),
+            "vllm": _optional_import_version("vllm"),
             "flash-attn": _optional_distribution_version("flash-attn"),
         },
     }
+
+
+def _optional_import_version(name: str) -> str | None:
+    try:
+        module = importlib.import_module(name)
+    except (ImportError, ModuleNotFoundError):
+        return None
+    version = getattr(module, "__version__", None)
+    if version:
+        return str(version)
+    return _optional_distribution_version(name)
 
 
 def _optional_distribution_version(name: str) -> str | None:

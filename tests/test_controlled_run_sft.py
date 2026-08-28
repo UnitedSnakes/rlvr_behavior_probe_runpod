@@ -52,9 +52,12 @@ def test_build_sft_arguments_maps_exact_canonical_recipe(monkeypatch, tmp_path):
         "warmup_ratio": 0.03,
         "weight_decay": 0.01,
         "per_device_train_batch_size": 8,
+        "per_device_eval_batch_size": 8,
         "gradient_accumulation_steps": 8,
         "optim": "adamw_torch_fused",
         "save_strategy": "epoch",
+        "eval_strategy": "epoch",
+        "load_best_model_at_end": False,
         "report_to": "none",
         "seed": 42,
         "data_seed": 42,
@@ -73,6 +76,8 @@ def test_build_sft_arguments_adds_max_steps_only_for_smoke(monkeypatch, tmp_path
 
     assert args.kwargs["max_steps"] == 2
     assert args.kwargs["num_train_epochs"] == 2
+    assert args.kwargs["eval_strategy"] == "no"
+    assert args.kwargs["load_best_model_at_end"] is False
 
 
 def test_load_prompt_completion_jsonl_preserves_conversational_columns(tmp_path):
@@ -120,7 +125,17 @@ def test_validate_record_count_enforces_10000_only_for_canonical(tmp_path):
     assert train_sft.validate_record_count(records, canonical=False) == 1
 
 
-def test_build_sft_lineage_hashes_manifest_and_config_and_uses_pinned_shas(tmp_path):
+def test_validate_validation_record_count_enforces_512_only_for_canonical(tmp_path):
+    records = tmp_path / "validation.jsonl"
+    _write_record(records, "u1")
+
+    with pytest.raises(ValueError, match="exactly 512"):
+        train_sft.validate_validation_record_count(records, canonical=True)
+
+    assert train_sft.validate_validation_record_count(records, canonical=False) == 1
+
+
+def test_build_sft_lineage_hashes_train_val_manifest_and_config(tmp_path):
     source_revisions = tmp_path / "source_revisions.json"
     source_revisions.write_text(
         json.dumps(
@@ -132,7 +147,9 @@ def test_build_sft_lineage_hashes_manifest_and_config_and_uses_pinned_shas(tmp_p
         encoding="utf-8",
     )
     data_manifest = tmp_path / "sft_10k_manifest.jsonl"
-    data_manifest.write_text('{"uuid":"u1"}\n', encoding="utf-8")
+    data_manifest.write_text('{"source_index":1}\n', encoding="utf-8")
+    validation_manifest = tmp_path / "sft_val_512_manifest.jsonl"
+    validation_manifest.write_text('{"source_index":2}\n', encoding="utf-8")
     config_path = tmp_path / "sft.yaml"
     config_path.write_text("model_name: x\n", encoding="utf-8")
 
@@ -140,11 +157,13 @@ def test_build_sft_lineage_hashes_manifest_and_config_and_uses_pinned_shas(tmp_p
         source_revisions,
         data_manifest,
         config_path,
+        validation_manifest_path=validation_manifest,
     )
 
     assert lineage["base_model_sha"] == "base-sha"
     assert lineage["sft_dataset_sha"] == "sft-sha"
     assert len(lineage["sft_data_manifest_sha256"]) == 64
+    assert len(lineage["sft_validation_manifest_sha256"]) == 64
     assert len(lineage["sft_config_sha256"]) == 64
 
 
@@ -237,6 +256,7 @@ def test_run_sft_loads_exact_base_sha_and_freezes_pi0_only_in_canonical_mode(
         {"revision": "base-sha"},
     )
     assert trainer_instances[0].trained is True
+    assert trainer_instances[0].kwargs["eval_dataset"] is None
     assert result["mode"] == "smoke"
     assert (smoke_dir / "smoke_final" / "model.safetensors").exists()
     assert not (smoke_dir / "pi_0").exists()

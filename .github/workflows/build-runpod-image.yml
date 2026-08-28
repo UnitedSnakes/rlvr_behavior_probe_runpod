@@ -11,6 +11,7 @@ on:
   push:
     branches:
       - difficulty-bin-analysis
+      - controlled-qwen3-rlvr-task6
     paths:
       - docker/**
       - .github/workflows/build-runpod-image.yml

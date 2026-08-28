@@ -12,6 +12,7 @@ LINEAGE = {
     "base_model_sha": "base-sha",
     "sft_dataset_sha": "dataset-sha",
     "sft_data_manifest_sha256": "data-manifest-sha",
+    "sft_validation_manifest_sha256": "validation-manifest-sha",
     "sft_config_sha256": "config-sha",
 }
 

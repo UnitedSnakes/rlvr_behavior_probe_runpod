@@ -63,10 +63,10 @@ def test_build_grpo_arguments_maps_behavior_study_recipe(monkeypatch, tmp_path):
     assert kwargs["generation_batch_size"] == 32
     assert kwargs["per_device_train_batch_size"] == 8
     assert kwargs["gradient_accumulation_steps"] == 4
-    assert kwargs["max_completion_length"] == 1024
+    assert kwargs["max_completion_length"] == 2048
     assert kwargs["mask_truncated_completions"] is True
     assert "max_prompt_length" not in kwargs
-    assert kwargs["vllm_max_model_length"] == 1536
+    assert kwargs["vllm_max_model_length"] == 2560
     assert kwargs["use_vllm"] is True
     assert kwargs["vllm_mode"] == "colocate"
     assert kwargs["vllm_gpu_memory_utilization"] == 0.30

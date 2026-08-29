@@ -116,6 +116,16 @@ def test_a40_dockerfile_builds_flash_attention_for_sm80_with_bounded_parallelism
     assert "MAX_JOBS=4" not in dockerfile
 
 
+def test_docker_build_gate_is_static_and_defers_gpu_availability_to_a40_runtime():
+    dockerfile = (
+        Path(__file__).resolve().parents[1] / "docker" / "Dockerfile"
+    ).read_text(encoding="utf-8")
+
+    assert 'import flash_attn' in dockerfile
+    assert 'importlib.metadata.version("flash-attn") == "2.8.3.post1"' in dockerfile
+    assert "is_flash_attn_2_available" not in dockerfile
+
+
 def test_validate_model_probe_result_requires_real_fa2_forward_backward():
     result = validate_model_probe_result(
         {

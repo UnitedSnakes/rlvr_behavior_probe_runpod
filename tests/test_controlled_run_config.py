@@ -30,6 +30,9 @@ def test_grpo_config_matches_precommitted_behavior_study_recipe():
     cfg = load_config(ROOT / "controlled_run/configs/grpo_qwen3_0_6b.yaml")
     validate_grpo_config(cfg)
 
+    assert cfg["dataset_name"] == "openai/gsm8k"
+    assert cfg["dataset_config"] == "main"
+    assert cfg["dataset_split"] == "train"
     assert cfg["num_generations"] == 16
     assert cfg["temperature"] == 0.8
     assert cfg["max_prompt_tokens"] == 512

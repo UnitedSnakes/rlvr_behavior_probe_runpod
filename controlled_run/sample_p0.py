@@ -118,6 +118,7 @@ def build_p0_manifest(
     pi0_manifest: dict,
     pi0_lineage_id: str,
     dataset_sha: str,
+    dataset_config: str,
     config_path: Path,
     sampling_settings: dict,
     prompt_audit: dict,
@@ -133,6 +134,7 @@ def build_p0_manifest(
         "pi0_lineage_id": str(pi0_lineage_id),
         "dataset": {
             "name": P0_DATASET,
+            "config": str(dataset_config),
             "split": P0_SPLIT,
             "sha": str(dataset_sha),
         },
@@ -238,7 +240,6 @@ def run_p0(
     destination = Path(output_dir)
     config_path = Path(config_path)
 
-    # Fail closed on policy identity before dataset/model/runtime work.
     policy = verify_policy(policy_dir)
 
     config = load_config(config_path)
@@ -252,6 +253,7 @@ def run_p0(
     )
     raw_dataset = load_dataset(
         P0_DATASET,
+        config["dataset_config"],
         revision=dataset_sha,
         split=P0_SPLIT,
     )
@@ -276,6 +278,7 @@ def run_p0(
         pi0_manifest=policy["manifest"],
         pi0_lineage_id=policy["lineage_id"],
         dataset_sha=dataset_sha,
+        dataset_config=config["dataset_config"],
         config_path=config_path,
         sampling_settings=settings,
         prompt_audit=prompt_audit,

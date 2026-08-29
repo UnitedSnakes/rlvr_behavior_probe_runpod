@@ -1,4 +1,5 @@
 dataset_name: openai/gsm8k
+dataset_config: main
 dataset_split: train
 num_train_epochs: 1
 reward: binary_final_answer_correctness

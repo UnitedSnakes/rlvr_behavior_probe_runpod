@@ -1,6 +1,8 @@
 dataset_name: openai/gsm8k
 dataset_config: main
 dataset_split: train
+canonical_world_size: 2
+global_optimizer_batch_size: 32
 num_train_epochs: 1
 reward: binary_final_answer_correctness
 num_generations: 16
@@ -28,7 +30,7 @@ epsilon: 0.2
 num_iterations: 1
 loss_type: dapo
 scale_rewards: group
-per_device_train_batch_size: 8
+per_device_train_batch_size: 4
 gradient_accumulation_steps: 4
 generation_batch_size: 32
 vllm_importance_sampling_correction: true

@@ -31,6 +31,7 @@ SFT_INVARIANTS = {
 
 GRPO_INVARIANTS = {
     "dataset_name": GSM8K_DATASET,
+    "dataset_config": "main",
     "dataset_split": "train",
     "num_train_epochs": 1,
     "reward": "binary_final_answer_correctness",

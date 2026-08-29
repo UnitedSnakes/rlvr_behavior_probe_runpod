@@ -71,6 +71,8 @@ def test_build_grpo_arguments_maps_behavior_study_recipe(monkeypatch, tmp_path):
     assert kwargs["vllm_mode"] == "colocate"
     assert kwargs["vllm_gpu_memory_utilization"] == 0.30
     assert kwargs["learning_rate"] == 1e-6
+    assert kwargs["warmup_steps"] == 0.10
+    assert "warmup_ratio" not in kwargs
     assert kwargs["beta"] == 0.0
     assert kwargs["epsilon"] == 0.2
     assert kwargs["num_iterations"] == 1

@@ -49,7 +49,7 @@ def test_build_sft_arguments_maps_exact_canonical_recipe(monkeypatch, tmp_path):
         "completion_only_loss": True,
         "learning_rate": 2e-5,
         "lr_scheduler_type": "cosine",
-        "warmup_ratio": 0.03,
+        "warmup_steps": 0.03,
         "weight_decay": 0.01,
         "per_device_train_batch_size": 1,
         "per_device_eval_batch_size": 1,

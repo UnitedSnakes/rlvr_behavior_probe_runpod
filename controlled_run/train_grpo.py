@@ -81,7 +81,7 @@ def build_grpo_arguments(
         "mask_truncated_completions": config["mask_truncated_completions"],
         "learning_rate": config["learning_rate"],
         "lr_scheduler_type": config["lr_scheduler_type"],
-        "warmup_ratio": config["warmup_ratio"],
+        "warmup_steps": config["warmup_ratio"],
         "optim": config["optim"],
         "max_grad_norm": config["max_grad_norm"],
         "bf16": config["bf16"],

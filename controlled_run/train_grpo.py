@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 import torch
@@ -9,7 +10,11 @@ from datasets import Dataset, load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer, TrainerCallback
 
 from controlled_run.checkpointing import PI0_MANIFEST_NAME, load_pi0_manifest
-from controlled_run.config import load_config, validate_grpo_config
+from controlled_run.config import (
+    load_config,
+    validate_grpo_config,
+    validate_grpo_runtime_batch,
+)
 from controlled_run.data import assert_prompt_token_limit, build_gsm8k_rl_rows
 from controlled_run.provenance import resolve_hf_revision, sha256_file, write_json
 from controlled_run.rewards import gsm8k_binary_reward
@@ -30,13 +35,13 @@ def _load_grpo_classes():
     return GRPOConfig, GRPOTrainer, TrainerCallback
 
 
-def progress_step_map(
-    total_steps: int,
-    percentages=range(5, 101, 5),
-) -> dict[int, int]:
+def resolve_runtime_world_size() -> int:
+    return int(os.environ.get("WORLD_SIZE", "1"))
+
+
+def progress_step_map(total_steps: int, percentages=range(5, 101, 5)) -> dict[int, int]:
     if total_steps <= 0:
         raise ValueError("total_steps must be positive")
-
     step_to_percentage: dict[int, int] = {}
     for raw_percentage in percentages:
         percentage = int(raw_percentage)
@@ -44,11 +49,7 @@ def progress_step_map(
             raise ValueError("snapshot percentages must lie in (0, 100]")
         step = max(1, min(total_steps, int(round(total_steps * percentage / 100))))
         step_to_percentage[step] = percentage
-
-    return {
-        percentage: step
-        for step, percentage in sorted(step_to_percentage.items())
-    }
+    return {percentage: step for step, percentage in sorted(step_to_percentage.items())}
 
 
 def verify_pi0_for_grpo(pi0_dir: Path) -> dict:
@@ -60,15 +61,9 @@ def verify_pi0_for_grpo(pi0_dir: Path) -> dict:
     }
 
 
-def build_grpo_arguments(
-    config: dict,
-    output_dir: Path,
-    *,
-    max_steps: int | None = None,
-):
+def build_grpo_arguments(config: dict, output_dir: Path, *, max_steps: int | None = None):
     validate_grpo_config(config)
     GRPOConfig, _, _ = _load_grpo_classes()
-
     kwargs = {
         "output_dir": str(Path(output_dir)),
         "num_train_epochs": config["num_train_epochs"],
@@ -98,13 +93,9 @@ def build_grpo_arguments(
         "per_device_train_batch_size": config["per_device_train_batch_size"],
         "gradient_accumulation_steps": config["gradient_accumulation_steps"],
         "generation_batch_size": config["generation_batch_size"],
-        "vllm_importance_sampling_correction": config[
-            "vllm_importance_sampling_correction"
-        ],
+        "vllm_importance_sampling_correction": config["vllm_importance_sampling_correction"],
         "vllm_importance_sampling_mode": config["vllm_importance_sampling_mode"],
-        "vllm_importance_sampling_clip_max": config[
-            "vllm_importance_sampling_cap"
-        ],
+        "vllm_importance_sampling_clip_max": config["vllm_importance_sampling_cap"],
         "save_strategy": "steps",
         "save_steps": 0.25,
         "report_to": "none",
@@ -116,17 +107,11 @@ def build_grpo_arguments(
             raise ValueError("max_steps must be positive when supplied")
         kwargs["max_steps"] = int(max_steps)
         kwargs["save_strategy"] = "no"
-
     return GRPOConfig(**kwargs)
 
 
 class PolicySnapshotCallback(TrainerCallback):
-    def __init__(
-        self,
-        output_dir: Path,
-        tokenizer,
-        pi0_lineage_id: str,
-    ):
+    def __init__(self, output_dir: Path, tokenizer, pi0_lineage_id: str):
         self.output_dir = Path(output_dir)
         self.tokenizer = tokenizer
         self.pi0_lineage_id = str(pi0_lineage_id)
@@ -140,9 +125,7 @@ class PolicySnapshotCallback(TrainerCallback):
                 self.output_dir / "policy_snapshot_schedule.json",
                 {
                     "max_steps": int(state.max_steps),
-                    "percentage_to_step": {
-                        str(key): value for key, value in self._schedule.items()
-                    },
+                    "percentage_to_step": {str(key): value for key, value in self._schedule.items()},
                     "pi0_lineage_id": self.pi0_lineage_id,
                 },
             )
@@ -158,13 +141,11 @@ class PolicySnapshotCallback(TrainerCallback):
             return control
         if model is None:
             raise ValueError("PolicySnapshotCallback requires model at step end")
-
         schedule = self._ensure_schedule(state)
         current_step = int(state.global_step)
         for percentage, target_step in schedule.items():
             if target_step != current_step or percentage in self._saved_percentages:
                 continue
-
             destination = self.output_dir / f"pi_{percentage:03d}"
             model.save_pretrained(str(destination))
             self.tokenizer.save_pretrained(str(destination))
@@ -201,6 +182,7 @@ def _write_grpo_manifest(
     gsm8k_sha: str,
     prompt_audit: dict,
     pilot_steps: int | None,
+    runtime_batch: dict,
 ) -> None:
     write_json(
         destination / "grpo_run_manifest.json",
@@ -209,6 +191,7 @@ def _write_grpo_manifest(
             "scientific_use": mode == "canonical",
             "pilot_steps": pilot_steps,
             "config": config,
+            "runtime_batch": runtime_batch,
             "pi0_manifest": pi0_verification["manifest"],
             "pi0_lineage_id": pi0_verification["lineage_id"],
             "gsm8k_dataset_sha": gsm8k_sha,
@@ -237,19 +220,20 @@ def run_grpo(
     pilot_steps: int | None = None,
 ) -> dict:
     pilot_steps = validate_pilot_steps(mode, pilot_steps)
-
     pi0_verification = verify_pi0_for_grpo(pi0_dir)
 
     config = load_config(Path(config_path))
     validate_grpo_config(config)
+    runtime_batch = validate_grpo_runtime_batch(
+        config,
+        world_size=resolve_runtime_world_size(),
+    )
+
     destination = Path(output_dir)
     destination.mkdir(parents=True, exist_ok=True)
-
     tokenizer = AutoTokenizer.from_pretrained(str(Path(pi0_dir)))
     gsm8k_sha = resolve_hf_revision(
-        config["dataset_name"],
-        revision="main",
-        repo_type="dataset",
+        config["dataset_name"], revision="main", repo_type="dataset"
     )
     raw_dataset = load_dataset(
         config["dataset_name"],
@@ -259,9 +243,7 @@ def run_grpo(
     )
     rows = build_gsm8k_rl_rows(raw_dataset)
     prompt_audit = assert_prompt_token_limit(
-        rows,
-        tokenizer,
-        max_tokens=config["max_prompt_tokens"],
+        rows, tokenizer, max_tokens=config["max_prompt_tokens"]
     )
     write_json(destination / "prompt_length_audit.json", prompt_audit)
     _write_grpo_manifest(
@@ -272,6 +254,7 @@ def run_grpo(
         gsm8k_sha=gsm8k_sha,
         prompt_audit=prompt_audit,
         pilot_steps=pilot_steps,
+        runtime_batch=runtime_batch,
     )
 
     model = AutoModelForCausalLM.from_pretrained(
@@ -281,13 +264,8 @@ def run_grpo(
     )
     train_dataset = Dataset.from_list(rows)
     trainer_output = destination / "trainer"
-    args = build_grpo_arguments(
-        config,
-        trainer_output,
-        max_steps=pilot_steps,
-    )
+    args = build_grpo_arguments(config, trainer_output, max_steps=pilot_steps)
     _, GRPOTrainer, _ = _load_grpo_classes()
-
     callbacks = []
     if mode == "canonical":
         callbacks.append(
@@ -297,7 +275,6 @@ def run_grpo(
                 pi0_lineage_id=pi0_verification["lineage_id"],
             )
         )
-
     trainer = GRPOTrainer(
         model=model,
         reward_funcs=gsm8k_binary_reward,
@@ -315,20 +292,18 @@ def run_grpo(
         "pi0_lineage_id": pi0_verification["lineage_id"],
         "gsm8k_dataset_sha": gsm8k_sha,
         "prompt_length_audit": prompt_audit,
+        "runtime_batch": runtime_batch,
     }
 
 
 def main(argv: list[str] | None = None) -> None:
-    parser = argparse.ArgumentParser(
-        description="Run exact-lineage controlled Qwen3 GRPO on GSM8K."
-    )
+    parser = argparse.ArgumentParser(description="Run exact-lineage controlled Qwen3 GRPO on GSM8K.")
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--pi0-dir", type=Path, required=True)
     parser.add_argument("--output-dir", type=Path, default=DEFAULT_OUTPUT_DIR)
     parser.add_argument("--mode", choices=("pilot", "canonical"), required=True)
     parser.add_argument("--pilot-steps", type=int, default=None)
     args = parser.parse_args(argv)
-
     result = run_grpo(
         config_path=args.config,
         pi0_dir=args.pi0_dir,

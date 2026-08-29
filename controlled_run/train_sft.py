@@ -87,7 +87,7 @@ def build_sft_arguments(
         "completion_only_loss": config["completion_only_loss"],
         "learning_rate": config["learning_rate"],
         "lr_scheduler_type": config["lr_scheduler_type"],
-        "warmup_ratio": config["warmup_ratio"],
+        "warmup_steps": config["warmup_ratio"],
         "weight_decay": config["weight_decay"],
         "per_device_train_batch_size": config["per_device_train_batch_size"],
         "per_device_eval_batch_size": config["per_device_train_batch_size"],

@@ -4,6 +4,7 @@ import argparse
 import importlib.metadata
 import json
 import platform
+from collections.abc import Mapping
 from pathlib import Path
 
 import torch
@@ -155,6 +156,23 @@ def _append_jsonl(path: Path, record: dict) -> None:
         handle.write(json.dumps(record, ensure_ascii=False) + "\n")
 
 
+def _prompt_token_ids(encoded) -> list[int]:
+    if isinstance(encoded, Mapping):
+        if "input_ids" not in encoded:
+            raise ValueError("Chat-template mapping must contain input_ids")
+        encoded = encoded["input_ids"]
+    if hasattr(encoded, "tolist"):
+        encoded = encoded.tolist()
+    if encoded and isinstance(encoded[0], list):
+        if len(encoded) != 1:
+            raise ValueError("Expected exactly one tokenized prompt")
+        encoded = encoded[0]
+    token_ids = [int(token_id) for token_id in encoded]
+    if not token_ids:
+        raise ValueError("Tokenized prompt must not be empty")
+    return token_ids
+
+
 def sample_indexed_rows(
     *,
     llm,
@@ -167,12 +185,12 @@ def sample_indexed_rows(
 ) -> None:
     output_path = Path(output_path)
     for dataset_index, row in indexed_rows:
-        prompt_token_ids = tokenizer.apply_chat_template(
+        encoded_prompt = tokenizer.apply_chat_template(
             row["prompt"],
             tokenize=True,
             add_generation_prompt=True,
         )
-        prompt = tokens_prompt_cls(prompt_token_ids=prompt_token_ids)
+        prompt = tokens_prompt_cls(prompt_token_ids=_prompt_token_ids(encoded_prompt))
         seed = question_seed(settings["seed"], dataset_index)
         sampling_params = sampling_params_cls(
             n=settings["num_generations"],

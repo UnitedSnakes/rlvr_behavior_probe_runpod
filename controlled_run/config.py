@@ -33,6 +33,8 @@ GRPO_INVARIANTS = {
     "dataset_name": GSM8K_DATASET,
     "dataset_config": "main",
     "dataset_split": "train",
+    "canonical_world_size": 2,
+    "global_optimizer_batch_size": 32,
     "num_train_epochs": 1,
     "reward": "binary_final_answer_correctness",
     "num_generations": 16,
@@ -59,7 +61,7 @@ GRPO_INVARIANTS = {
     "epsilon": 0.2,
     "num_iterations": 1,
     "loss_type": "dapo",
-    "per_device_train_batch_size": 8,
+    "per_device_train_batch_size": 4,
     "gradient_accumulation_steps": 4,
     "generation_batch_size": 32,
     "vllm_importance_sampling_correction": True,
@@ -156,3 +158,65 @@ def validate_grpo_config(config: dict) -> None:
             "Controlled behavior study requires at least two independent prompts "
             "per generation batch"
         )
+
+
+def validate_grpo_runtime_batch(config: dict, *, world_size: int) -> dict:
+    validate_grpo_config(config)
+    if not isinstance(world_size, int) or isinstance(world_size, bool) or world_size <= 0:
+        raise ValueError("GRPO world_size must be a positive integer")
+
+    expected_world_size = int(config["canonical_world_size"])
+    if world_size != expected_world_size:
+        raise ValueError(
+            "Controlled GRPO requires exactly 2 GPUs; "
+            f"WORLD_SIZE={world_size}"
+        )
+
+    per_device = int(config["per_device_train_batch_size"])
+    grad_accum = int(config["gradient_accumulation_steps"])
+    global_optimizer_batch = per_device * world_size * grad_accum
+    target_global_optimizer_batch = int(config["global_optimizer_batch_size"])
+    if global_optimizer_batch != target_global_optimizer_batch:
+        raise ValueError(
+            "Controlled GRPO global optimizer batch mismatch; "
+            f"got {per_device} x {world_size} x {grad_accum} = "
+            f"{global_optimizer_batch}, expected {target_global_optimizer_batch}"
+        )
+
+    per_step_global_batch = per_device * world_size
+    generation_batch = int(config["generation_batch_size"])
+    if generation_batch % per_step_global_batch != 0:
+        raise ValueError(
+            "GRPO generation_batch_size must be divisible by the global per-step "
+            "training batch"
+        )
+    steps_per_generation = generation_batch // per_step_global_batch
+
+    num_generations = int(config["num_generations"])
+    if generation_batch % num_generations != 0:
+        raise ValueError(
+            "GRPO generation_batch_size must be divisible by num_generations"
+        )
+    unique_prompts = generation_batch // num_generations
+
+    if steps_per_generation != 4:
+        raise ValueError(
+            "Controlled GRPO requires steps_per_generation=4; "
+            f"got {steps_per_generation}"
+        )
+    if unique_prompts != 2:
+        raise ValueError(
+            "Controlled GRPO requires exactly 2 unique prompts per generation batch; "
+            f"got {unique_prompts}"
+        )
+
+    return {
+        "world_size": world_size,
+        "per_device_train_batch_size": per_device,
+        "gradient_accumulation_steps": grad_accum,
+        "global_optimizer_batch_size": global_optimizer_batch,
+        "generation_batch_size": generation_batch,
+        "steps_per_generation": steps_per_generation,
+        "num_generations": num_generations,
+        "unique_prompts_per_generation_batch": unique_prompts,
+    }

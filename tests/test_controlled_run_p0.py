@@ -96,6 +96,7 @@ def test_build_p0_manifest_records_exact_provenance(tmp_path):
         pi0_manifest=pi0_manifest,
         pi0_lineage_id="lineage-sha",
         dataset_sha="gsm8k-sha",
+        dataset_config="main",
         config_path=config_path,
         sampling_settings=settings,
         prompt_audit=prompt_audit,
@@ -110,6 +111,7 @@ def test_build_p0_manifest_records_exact_provenance(tmp_path):
     assert manifest["pi0_manifest"] == pi0_manifest
     assert manifest["dataset"] == {
         "name": "openai/gsm8k",
+        "config": "main",
         "split": "test",
         "sha": "gsm8k-sha",
     }

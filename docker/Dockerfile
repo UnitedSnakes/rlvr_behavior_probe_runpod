@@ -55,6 +55,9 @@ COPY --chmod=0755 docker/rlvr-bootstrap.sh /usr/local/bin/rlvr-bootstrap
 RUN test -x /usr/local/bin/rlvr-bootstrap && \
     command -v gpustat >/dev/null
 
+# Build-time validation is intentionally GPU-independent because GitHub-hosted
+# Docker builders have no NVIDIA device. Real FA2 availability plus Qwen3
+# forward/backward are enforced later by controlled_run.runtime_acceptance on A40.
 RUN /opt/vllm-env/bin/python - <<'PY'
 import importlib.metadata
 import sys
@@ -66,7 +69,6 @@ import torch
 import transformers
 import trl
 import vllm
-from transformers.utils import is_flash_attn_2_available
 
 assert sys.version_info[:2] == (3, 12), sys.version
 assert torch.__version__ == "2.13.0+cu130", torch.__version__
@@ -77,7 +79,6 @@ assert datasets.__version__ == "5.0.1", datasets.__version__
 assert accelerate.__version__ == "1.14.0", accelerate.__version__
 assert trl.__version__ == "1.12.0", trl.__version__
 assert importlib.metadata.version("flash-attn") == "2.8.3.post1"
-assert is_flash_attn_2_available() is True
 
 print("python:", sys.version)
 print("torch:", torch.__version__)

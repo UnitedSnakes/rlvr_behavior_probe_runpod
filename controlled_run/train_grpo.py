@@ -238,7 +238,6 @@ def run_grpo(
 ) -> dict:
     pilot_steps = validate_pilot_steps(mode, pilot_steps)
 
-    # Lineage verification is deliberately the first operation that touches pi_0.
     pi0_verification = verify_pi0_for_grpo(pi0_dir)
 
     config = load_config(Path(config_path))
@@ -254,6 +253,7 @@ def run_grpo(
     )
     raw_dataset = load_dataset(
         config["dataset_name"],
+        config["dataset_config"],
         revision=gsm8k_sha,
         split=config["dataset_split"],
     )

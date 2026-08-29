@@ -131,7 +131,10 @@ def test_sample_indexed_rows_uses_policy_tokenizer_tokens_and_shared_reward(monk
             assert tokenize is True
             assert add_generation_prompt is True
             assert prompt[0]["content"] == "controlled"
-            return [101, 202, 303]
+            return {
+                "input_ids": [101, 202, 303],
+                "attention_mask": [1, 1, 1],
+            }
 
     class FakeTokensPrompt:
         def __init__(self, prompt_token_ids):

@@ -9,9 +9,9 @@ top_p: 0.95
 top_k: 0
 repetition_penalty: 1.0
 max_prompt_tokens: 512
-max_completion_length: 1024
+max_completion_length: 2048
 mask_truncated_completions: true
-vllm_max_model_length: 1536
+vllm_max_model_length: 2560
 learning_rate: 1.0e-6
 lr_scheduler_type: cosine
 warmup_ratio: 0.10

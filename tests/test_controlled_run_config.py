@@ -36,9 +36,9 @@ def test_grpo_config_matches_precommitted_behavior_study_recipe():
     assert cfg["num_generations"] == 16
     assert cfg["temperature"] == 0.8
     assert cfg["max_prompt_tokens"] == 512
-    assert cfg["max_completion_length"] == 1024
+    assert cfg["max_completion_length"] == 2048
     assert cfg["mask_truncated_completions"] is True
-    assert cfg["vllm_max_model_length"] == 1536
+    assert cfg["vllm_max_model_length"] == 2560
     assert cfg["per_device_train_batch_size"] == 8
     assert cfg["gradient_accumulation_steps"] == 4
     assert cfg["generation_batch_size"] == 32

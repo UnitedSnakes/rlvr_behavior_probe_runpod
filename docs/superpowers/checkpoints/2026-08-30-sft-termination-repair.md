@@ -20,7 +20,7 @@ trainer/checkpoint-112
 pi_0
 ```
 
-Teacher-forced endpoint acceptance has passed. Free-rollout termination acceptance is still pending. **Do not start GRPO until the free-rollout gate passes.**
+Teacher-forced endpoint acceptance has passed. The 128-sample free-rollout termination acceptance **did not pass**: natural stopping was 57.03% and length clipping remained 42.97%. **Do not start GRPO until the remaining exposure/termination failure is understood.**
 
 The original frozen pi0 with SHA256
 `7ade572b243ddd782f102a6b7ddafd14eecf242c06f2d4fd75e4e99e194c619c`
@@ -125,16 +125,51 @@ im_end median:   1.1307e-16
 
 Thus the original teacher-forced termination collapse is repaired and remains repaired through two epochs.
 
-## Current gate
+## Corrected final pi0 free-rollout acceptance
 
-Run a 128-sample free-rollout acceptance on the corrected final `pi_0` with the frozen GRPO sampling parameters and record vLLM `finish_reason`, token length, boxed-answer presence, and correctness.
+A 128-rollout audit used 8 GSM8K train prompts × 16 generations with the frozen GRPO sampling parameters (`temperature=0.8`, `top_p=0.95`, `top_k=0`, repetition penalty 1.0, max completion 2048, seed 42).
 
-Working acceptance target:
+Per-prompt natural-stop counts were:
 
 ```text
-natural stop: preferably >80%
-length clipping: preferably <20%
-correctness: no material regression relative to the matched diagnostic baseline
+[0] 12/16
+[1]  9/16
+[2]  8/16
+[3] 13/16
+[4]  9/16
+[5] 11/16
+[6] 11/16
+[7]  0/16
 ```
 
-If clipping remains around 30–50%, the native-EOS bug is fixed but a second exposure/termination issue remains and must be investigated before GRPO. Do not mask truncated samples, silently raise the generation cap, or promote this pi0 to canonical GRPO without the rollout result.
+Aggregate result:
+
+```text
+n:              128
+natural stop:    73/128 = 57.03%
+length clipped:  55/128 = 42.97%
+boxed:           81/128 = 63.28%
+correct:         92/128 = 71.88%
+stop+correct:    63/128 = 49.22%
+clip+correct:    29/128 = 22.66%
+length p50:      1561
+length p75:      2048
+length p90:      2048
+```
+
+This is materially better than the one-epoch native-EOS diagnostic (`48.44%` natural stop, `51.56%` clipping), but it remains far outside the working acceptance target of >80% natural stop / <20% clipping. The terminal-token repair therefore solved one causal defect without fully solving free-generation termination.
+
+The unusually concentrated failure on prompt 7 (`0/16` natural stop, `5/16` correct) is a high-priority diagnostic target. The next step is to inspect clipped trajectories, especially prompt 7, for repeated reasoning loops, post-answer continuation, answer-without-EOT behavior, or other exposure-shift patterns. Do not start GRPO, silently raise the generation cap, or mask this failure as acceptable.
+
+## Current gate
+
+The next diagnostic should classify the 55 clipped completions into at least:
+
+```text
+answer produced, then continued
+no answer produced by cap
+repetition / looping
+other long-but-progressing reasoning
+```
+
+and inspect whether native-EOT probability is high immediately after model-generated boxed answers. This will distinguish a failure to reach an answer state from a failure to terminate after reaching one.

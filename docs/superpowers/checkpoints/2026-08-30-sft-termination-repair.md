@@ -20,7 +20,7 @@ trainer/checkpoint-112
 pi_0
 ```
 
-The native-EOS SFT repair has passed teacher-forced endpoint checks and generated-state checks. The remaining 2048-token clipping is now best classified as a **GRPO completion-horizon mismatch**, not evidence that EOS termination is still broken. Do not start canonical GRPO until the completion horizon is re-audited and amended from evidence.
+The native-EOS SFT repair has passed teacher-forced endpoint checks and generated-state checks. The original 2048-token GRPO horizon is demonstrably too short relative to the SFT trajectory distribution, but a matched 2k/4k/8k rollout curve shows that horizon mismatch alone does **not** explain all remaining long generations. Do not start canonical GRPO until the persistent long-reasoning / looping population is understood and the GRPO horizon is amended from evidence.
 
 The original frozen pi0 with SHA256
 `7ade572b243ddd782f102a6b7ddafd14eecf242c06f2d4fd75e4e99e194c619c`
@@ -144,7 +144,7 @@ box 3: P(EOT)=0.000065, rank 7; model strongly preferred punctuation / continued
 
 This is consistent with ordinary context-dependent sampling, not a runtime that ignores EOS.
 
-## SFT trajectory-length audit: decisive horizon evidence
+## SFT trajectory-length audit
 
 The exact frozen 10,000-example SFT bundle was re-tokenized using the corrected tokenizer.
 
@@ -209,18 +209,44 @@ p95: 5
 p99: 28
 ```
 
-This is the key reclassification: the SFT data teaches long reasoning trajectories, with median first-box position around 4k tokens and median full completion around 4.7k. A 2048-token GRPO horizon therefore truncates the majority of trajectories before the training distribution normally reaches its answer state. Once the final box is reached, the source distribution ends almost immediately.
+This proves that 2048 is a poor match to the SFT demonstration horizon: the median first-box position is around 4k and median full completion is around 4.7k. Once the final box is reached, the source distribution ends almost immediately.
+
+## Matched 2048 / 4096 / 8192 horizon curve
+
+A single deterministic-style 8192-token rollout batch (8 GSM8K prompts × 16 generations) was generated, then the same trajectories were virtually truncated at 2048 and 4096. This gives nested, trajectory-matched horizon comparisons rather than independent resampling noise.
+
+```text
+cap=2048
+  natural stop: 73/128 = 57.03%
+  clipped:      55/128 = 42.97%
+  boxed:        82/128 = 64.06%
+  correct:      86/128 = 67.19%
+  stop+correct: 64/128 = 50.00%
+
+cap=4096
+  natural stop: 82/128 = 64.06%
+  clipped:      46/128 = 35.94%
+  boxed:        91/128 = 71.09%
+  correct:      85/128 = 66.41%
+  stop+correct: 68/128 = 53.12%
+
+cap=8192
+  natural stop: 84/128 = 65.62%
+  clipped:      44/128 = 34.38%
+  boxed:        92/128 = 71.88%
+  correct:      87/128 = 67.97%
+  stop+correct: 68/128 = 53.12%
+```
+
+Of the 55 trajectories clipped at 2048, only 9 naturally stopped by 4096 and only 11 by 8192. The marginal improvement from 4096 to 8192 is only two additional stops. Therefore the earlier interpretation that remaining clipping was primarily a horizon mismatch was too strong.
+
+Current interpretation:
+
+1. `max_completion_length=2048` is objectively too short relative to the SFT trajectory distribution and should not be retained without amendment.
+2. Merely increasing the cap to 4096 or 8192 does **not** solve the persistent long-generation population.
+3. Roughly one third of the sampled trajectories continue all the way to 8192, indicating a separate long-reasoning / self-restart / looping mode that must be characterized before choosing the final GRPO horizon.
+4. The corrected native-EOS mechanism itself still appears healthy at genuine generated terminal states.
 
 ## Current gate
 
-Do not change canonical GRPO configuration yet. First measure a small matched horizon curve on the corrected pi0 under the same sampling settings:
-
-```text
-max_completion = 2048  -> known clipping 42.97% on the 128-rollout diagnostic
-max_completion = 4096  -> measure
-max_completion = 8192  -> measure
-```
-
-Use sufficient `vllm_max_model_length` only for this diagnostic. The purpose is to choose the GRPO completion horizon from observed pi0 behavior and the frozen SFT trajectory distribution, rather than treating the earlier 2048 value as an invariant.
-
-If 4096/8192 sharply reduce clipping and trajectories terminate normally once they reach the answer state, amend the GRPO recipe accordingly before any new pilot. If clipping remains high even at 8192, investigate a separate long-reasoning / looping behavior before GRPO.
+Do not start canonical GRPO and do not simply set the horizon to 8192. The next diagnostic should inspect the 44 trajectories that remain clipped at 8192 and classify why they continue: repeated self-restarts / alternative-solution loops, token-level repetition, unresolved reasoning, or other modes. Quantify how many have already produced a valid boxed/final answer before continuing. Only after that should the GRPO horizon and any overlong policy be amended.

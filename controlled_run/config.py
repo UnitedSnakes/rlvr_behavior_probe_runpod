@@ -26,6 +26,8 @@ SFT_INVARIANTS = {
     "warmup_ratio": 0.03,
     "weight_decay": 0.01,
     "global_batch_size": 64,
+    "assistant_terminal_token": "<|endoftext|>",
+    "assistant_terminal_token_id": 151643,
     "seed": SEED,
 }
 

@@ -31,6 +31,58 @@ DEFAULT_VALIDATION_MANIFEST = Path("data/controlled_run/manifests/sft_val_512_ma
 DEFAULT_OUTPUT_DIR = Path("controlled_run_outputs/sft")
 
 
+
+def configure_sft_tokenizer_terminal(
+    tokenizer,
+    *,
+    terminal_token: str,
+    terminal_token_id: int,
+):
+    if tokenizer.eos_token != terminal_token:
+        raise ValueError(
+            "Controlled SFT terminal token must match Base tokenizer EOS: "
+            f"{terminal_token!r} != {tokenizer.eos_token!r}"
+        )
+    if tokenizer.eos_token_id != terminal_token_id:
+        raise ValueError(
+            "Controlled SFT terminal token id must match Base tokenizer EOS id: "
+            f"{terminal_token_id} != {tokenizer.eos_token_id}"
+        )
+
+    template = tokenizer.chat_template
+    if not isinstance(template, str) or not template:
+        raise ValueError("Controlled SFT requires a non-empty chat_template")
+
+    # Exact boundary from the pinned Qwen3 Base chat template.
+    # This is the same single-variable intervention validated by
+    # diagnose_sft_terminal_ab.py.
+    old = (
+        "        {{- '<|im_end|>\\n' }}\n"
+        '    {%- elif message.role == "tool" %}'
+    )
+
+    new = (
+        '        {%- if message.role == "assistant" %}\n'
+        "            {{- '"
+        + terminal_token
+        + "\\n' }}\n"
+        "        {%- else %}\n"
+        "            {{- '<|im_end|>\\n' }}\n"
+        "        {%- endif %}\n"
+        '    {%- elif message.role == "tool" %}'
+    )
+
+    count = template.count(old)
+    if count != 1:
+        raise ValueError(
+            "Expected exactly one pinned Qwen3 assistant/tool boundary "
+            f"to patch; found {count}"
+        )
+
+    tokenizer.chat_template = template.replace(old, new, 1)
+    return tokenizer
+
+
 def _load_sft_classes():
     try:
         from trl import SFTConfig, SFTTrainer
@@ -308,6 +360,11 @@ def run_sft(
     tokenizer = AutoTokenizer.from_pretrained(
         config["model_name"],
         revision=base_sha,
+    )
+    tokenizer = configure_sft_tokenizer_terminal(
+        tokenizer,
+        terminal_token=config["assistant_terminal_token"],
+        terminal_token_id=config["assistant_terminal_token_id"],
     )
     train_dataset = load_prompt_completion_jsonl(records_path)
 

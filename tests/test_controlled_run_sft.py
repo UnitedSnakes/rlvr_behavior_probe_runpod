@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 import torch
+from jinja2 import Template
 
 import controlled_run.train_sft as train_sft
 from controlled_run.config import load_config
@@ -261,3 +262,216 @@ def test_run_sft_loads_exact_base_sha_and_freezes_pi0_only_in_canonical_mode(
     assert result["runtime_batch"]["global_batch_size"] == 32
     assert (smoke_dir / "smoke_final" / "model.safetensors").exists()
     assert not (smoke_dir / "pi_0").exists()
+
+
+class FakeTerminalTokenizer:
+    eos_token = "<|endoftext|>"
+    eos_token_id = 151643
+    chat_template = "irrelevant"
+
+
+def test_configure_sft_tokenizer_terminal_rejects_non_native_eos():
+    tokenizer = FakeTerminalTokenizer()
+
+    with pytest.raises(ValueError, match="must match Base tokenizer EOS"):
+        train_sft.configure_sft_tokenizer_terminal(
+            tokenizer,
+            terminal_token="<|im_end|>",
+            terminal_token_id=151645,
+        )
+
+
+class FakePinnedQwenTerminalTokenizer:
+    eos_token = "<|endoftext|>"
+    eos_token_id = 151643
+
+    chat_template = """{%- for message in messages %}
+    {%- if message.role == "user" %}
+        {{- '<|im_start|>' + message.role + '\\n' + message.content + '<|im_end|>' + '\\n' }}
+    {%- elif message.role == "assistant" %}
+        {{- '<|im_start|>' + message.role + '\\n' + message.content }}
+        {{- '<|im_end|>\\n' }}
+    {%- elif message.role == "tool" %}
+        {{- '<|im_start|>user\\n' + message.content + '<|im_end|>\\n' }}
+    {%- endif %}
+{%- endfor %}
+{%- if add_generation_prompt %}
+    {{- '<|im_start|>assistant\\n' }}
+{%- endif %}"""
+
+    def apply_chat_template(
+        self,
+        messages,
+        *,
+        tokenize=False,
+        add_generation_prompt=False,
+    ):
+        assert tokenize is False
+        return Template(self.chat_template).render(
+            messages=messages,
+            add_generation_prompt=add_generation_prompt,
+        )
+
+
+def test_configure_sft_tokenizer_terminal_matches_pinned_qwen3_assistant_branch():
+    tokenizer = FakePinnedQwenTerminalTokenizer()
+
+    prompt = [
+        {"role": "user", "content": "1+1?"},
+    ]
+
+    before_prompt = tokenizer.apply_chat_template(
+        prompt,
+        tokenize=False,
+        add_generation_prompt=True,
+    )
+
+    train_sft.configure_sft_tokenizer_terminal(
+        tokenizer,
+        terminal_token="<|endoftext|>",
+        terminal_token_id=151643,
+    )
+
+    after_prompt = tokenizer.apply_chat_template(
+        prompt,
+        tokenize=False,
+        add_generation_prompt=True,
+    )
+
+    assert after_prompt == before_prompt
+
+    rendered = tokenizer.apply_chat_template(
+        prompt + [
+            {"role": "assistant", "content": r"\boxed{2}"},
+        ],
+        tokenize=False,
+        add_generation_prompt=False,
+    )
+
+    assert "<|im_start|>user\n1+1?<|im_end|>\n" in rendered
+    assert rendered.endswith(
+        "<|im_start|>assistant\n"
+        + r"\boxed{2}"
+        + "<|endoftext|>\n"
+    )
+
+
+def test_run_sft_configures_native_eos_before_trainer(monkeypatch, tmp_path):
+    config_path = ROOT / "controlled_run/configs/sft_qwen3_0_6b.yaml"
+
+    records = tmp_path / "records.jsonl"
+    _write_record(records, "u1")
+
+    source_revisions = tmp_path / "source_revisions.json"
+    source_revisions.write_text(
+        json.dumps(
+            {
+                "base_model": {
+                    "repo_id": "Qwen/Qwen3-0.6B-Base",
+                    "sha": "base-sha",
+                },
+                "sft_dataset": {
+                    "repo_id": "open-r1/OpenR1-Math-220k",
+                    "sha": "sft-sha",
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    manifest_path = tmp_path / "sft_10k_manifest.jsonl"
+    manifest_path.write_text(
+        '{"uuid":"u1"}\n',
+        encoding="utf-8",
+    )
+
+    configured_calls = []
+
+    class FakeAutoModel:
+        @classmethod
+        def from_pretrained(cls, *args, **kwargs):
+            return "MODEL"
+
+    class FakeTokenizer:
+        def save_pretrained(self, output_dir):
+            path = Path(output_dir)
+            path.mkdir(parents=True, exist_ok=True)
+            (path / "tokenizer.json").write_text("{}", encoding="utf-8")
+
+    tokenizer = FakeTokenizer()
+
+    class FakeAutoTokenizer:
+        @classmethod
+        def from_pretrained(cls, *args, **kwargs):
+            return tokenizer
+
+    def fake_configure(
+        supplied_tokenizer,
+        *,
+        terminal_token,
+        terminal_token_id,
+    ):
+        assert supplied_tokenizer is tokenizer
+        assert terminal_token == "<|endoftext|>"
+        assert terminal_token_id == 151643
+
+        configured_calls.append(
+            (terminal_token, terminal_token_id)
+        )
+        supplied_tokenizer.terminal_configured = True
+        return supplied_tokenizer
+
+    class FakeTrainer:
+        def __init__(self, **kwargs):
+            processing_class = kwargs["processing_class"]
+
+            assert getattr(
+                processing_class,
+                "terminal_configured",
+                False,
+            ), (
+                "native-EOS terminal configuration must happen "
+                "before SFTTrainer construction"
+            )
+
+        def train(self):
+            pass
+
+        def save_model(self, output_dir):
+            path = Path(output_dir)
+            path.mkdir(parents=True, exist_ok=True)
+            (path / "model.safetensors").write_bytes(b"weights")
+
+    monkeypatch.setattr(
+        train_sft,
+        "AutoModelForCausalLM",
+        FakeAutoModel,
+    )
+    monkeypatch.setattr(
+        train_sft,
+        "AutoTokenizer",
+        FakeAutoTokenizer,
+    )
+    monkeypatch.setattr(
+        train_sft,
+        "configure_sft_tokenizer_terminal",
+        fake_configure,
+    )
+    monkeypatch.setattr(
+        train_sft,
+        "_load_sft_classes",
+        lambda: (FakeSFTConfig, FakeTrainer),
+    )
+
+    train_sft.run_sft(
+        config_path=config_path,
+        records_path=records,
+        source_revisions_path=source_revisions,
+        sft_manifest_path=manifest_path,
+        output_dir=tmp_path / "out",
+        smoke_steps=1,
+    )
+
+    assert configured_calls == [
+        ("<|endoftext|>", 151643)
+    ]

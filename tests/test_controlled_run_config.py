@@ -31,6 +31,8 @@ def test_sft_config_matches_precommitted_recipe():
     assert cfg["global_batch_size"] == 64
     assert cfg["per_device_train_batch_size"] == 1
     assert cfg["gradient_accumulation_steps"] == 32
+    assert cfg["assistant_terminal_token"] == "<|endoftext|>"
+    assert cfg["assistant_terminal_token_id"] == 151643
 
 
 def test_grpo_config_matches_precommitted_behavior_study_recipe():

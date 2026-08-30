@@ -17,7 +17,10 @@ from controlled_run.config import (
 )
 from controlled_run.data import assert_prompt_token_limit, build_gsm8k_rl_rows
 from controlled_run.provenance import resolve_hf_revision, sha256_file, write_json
-from controlled_run.rewards import gsm8k_binary_reward
+from controlled_run.rewards import (
+    make_gsm8k_terminated_binary_reward,
+    resolve_terminal_token_ids,
+)
 
 
 DEFAULT_CONFIG = Path("controlled_run/configs/grpo_qwen3_0_6b.yaml")
@@ -168,8 +171,8 @@ def validate_pilot_steps(mode: str, pilot_steps: int | None) -> int | None:
         if pilot_steps is not None:
             raise ValueError("canonical mode does not allow a max-step override")
         return None
-    if pilot_steps is None or not 20 <= int(pilot_steps) <= 50:
-        raise ValueError("pilot mode requires --pilot-steps between 20 and 50")
+    if pilot_steps is None or not 20 <= int(pilot_steps) <= 500:
+        raise ValueError("pilot mode requires --pilot-steps between 20 and 500")
     return int(pilot_steps)
 
 
@@ -277,7 +280,9 @@ def run_grpo(
         )
     trainer = GRPOTrainer(
         model=model,
-        reward_funcs=gsm8k_binary_reward,
+        reward_funcs=make_gsm8k_terminated_binary_reward(
+            resolve_terminal_token_ids(tokenizer)
+        ),
         args=args,
         train_dataset=train_dataset,
         processing_class=tokenizer,

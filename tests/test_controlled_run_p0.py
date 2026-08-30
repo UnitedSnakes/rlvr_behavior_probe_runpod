@@ -31,6 +31,51 @@ def test_canonical_sampling_settings_are_derived_from_grpo_config():
     }
 
 
+def test_canonical_sampling_settings_accepts_num_generations_override():
+    import controlled_run.sample_p0 as sample_p0
+
+    config = load_config(CONFIG_PATH)
+    settings = sample_p0.canonical_sampling_settings(
+        config, num_generations_override=1024
+    )
+
+    assert settings["num_generations"] == 1024
+    assert settings["temperature"] == config["temperature"]
+
+
+def test_select_indexed_rows_sorts_dedupes_and_bounds_checks():
+    import controlled_run.sample_p0 as sample_p0
+
+    rows = [{"x": index} for index in range(10)]
+
+    assert sample_p0.select_indexed_rows(rows, [7, 2, 5]) == [
+        (2, {"x": 2}),
+        (5, {"x": 5}),
+        (7, {"x": 7}),
+    ]
+
+    with pytest.raises(ValueError, match="non-empty"):
+        sample_p0.select_indexed_rows(rows, [])
+    with pytest.raises(ValueError, match="duplicates"):
+        sample_p0.select_indexed_rows(rows, [3, 3])
+    with pytest.raises(ValueError, match="out of range"):
+        sample_p0.select_indexed_rows(rows, [10])
+    with pytest.raises(ValueError, match="out of range"):
+        sample_p0.select_indexed_rows(rows, [-1])
+
+
+def test_run_p0_rejects_dataset_indices_combined_with_start_end(tmp_path):
+    import controlled_run.sample_p0 as sample_p0
+
+    with pytest.raises(ValueError, match="cannot be combined"):
+        sample_p0.run_p0(
+            policy_dir=tmp_path / "does-not-exist",
+            output_dir=tmp_path / "out",
+            start_index=5,
+            dataset_indices=[1, 2, 3],
+        )
+
+
 def test_slice_shard_is_inclusive_exclusive_and_bounds_checked():
     import controlled_run.sample_p0 as sample_p0
 
@@ -119,6 +164,36 @@ def test_build_p0_manifest_records_exact_provenance(tmp_path):
     assert manifest["prompt_length_audit"] == prompt_audit
     assert manifest["shard"] == {"start_index": 10, "end_index": 40, "record_count": 30}
     assert manifest["grpo_config_sha256"] == sample_p0.sha256_file(config_path)
+
+
+def test_build_p0_manifest_records_explicit_indices_when_provided(tmp_path):
+    import controlled_run.sample_p0 as sample_p0
+
+    config_path = tmp_path / "grpo.yaml"
+    config_path.write_text("seed: 42\n", encoding="utf-8")
+
+    manifest = sample_p0.build_p0_manifest(
+        policy_dir=tmp_path / "pi_0",
+        pi0_manifest={"policy_name": "pi_0", "files": {}},
+        pi0_lineage_id="lineage-sha",
+        dataset_sha="gsm8k-sha",
+        dataset_config="main",
+        config_path=config_path,
+        sampling_settings={"num_generations": 1024},
+        prompt_audit={"count": 1, "limit": 512},
+        start_index=2,
+        end_index=8,
+        record_count=3,
+        runtime={},
+        indices=[2, 5, 7],
+    )
+
+    assert manifest["shard"] == {
+        "start_index": 2,
+        "end_index": 8,
+        "record_count": 3,
+        "indices": [2, 5, 7],
+    }
 
 
 def test_sample_indexed_rows_uses_policy_tokenizer_tokens_and_shared_reward(monkeypatch, tmp_path):

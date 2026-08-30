@@ -24,10 +24,17 @@ P0_DATASET = "openai/gsm8k"
 P0_SPLIT = "test"
 
 
-def canonical_sampling_settings(config: dict) -> dict:
+def canonical_sampling_settings(
+    config: dict, *, num_generations_override: int | None = None
+) -> dict:
     validate_grpo_config(config)
+    num_generations = (
+        config["num_generations"]
+        if num_generations_override is None
+        else int(num_generations_override)
+    )
     return {
-        "num_generations": config["num_generations"],
+        "num_generations": num_generations,
         "temperature": config["temperature"],
         "top_p": config["top_p"],
         "top_k": config["top_k"],
@@ -60,6 +67,19 @@ def slice_shard(
             f"{resolved_end} <= {start_index}"
         )
     return [(index, rows[index]) for index in range(start_index, resolved_end)]
+
+
+def select_indexed_rows(rows: list[dict], indices: list[int]) -> list[tuple[int, dict]]:
+    count = len(rows)
+    if not indices:
+        raise ValueError("indices must be non-empty")
+    ordered = sorted(set(int(index) for index in indices))
+    if len(ordered) != len(indices):
+        raise ValueError("indices must not contain duplicates")
+    for index in ordered:
+        if index < 0 or index >= count:
+            raise ValueError(f"dataset index {index} out of range [0, {count})")
+    return [(index, rows[index]) for index in ordered]
 
 
 def question_seed(seed: int, dataset_index: int) -> int:
@@ -127,7 +147,15 @@ def build_p0_manifest(
     end_index: int,
     record_count: int,
     runtime: dict,
+    indices: list[int] | None = None,
 ) -> dict:
+    shard = {
+        "start_index": int(start_index),
+        "end_index": int(end_index),
+        "record_count": int(record_count),
+    }
+    if indices is not None:
+        shard["indices"] = [int(index) for index in indices]
     return {
         "mode": "canonical_p0",
         "policy_dir": str(Path(policy_dir)),
@@ -142,11 +170,7 @@ def build_p0_manifest(
         "grpo_config_sha256": sha256_file(Path(config_path)),
         "sampling": dict(sampling_settings),
         "prompt_length_audit": dict(prompt_audit),
-        "shard": {
-            "start_index": int(start_index),
-            "end_index": int(end_index),
-            "record_count": int(record_count),
-        },
+        "shard": shard,
         "runtime": dict(runtime),
     }
 
@@ -252,16 +276,23 @@ def run_p0(
     config_path: Path = DEFAULT_CONFIG,
     start_index: int = 0,
     end_index: int | None = None,
+    dataset_indices: list[int] | None = None,
+    num_generations: int | None = None,
     gpu_memory_utilization: float = 0.50,
 ) -> dict:
     policy_dir = Path(policy_dir)
     destination = Path(output_dir)
     config_path = Path(config_path)
 
+    if dataset_indices is not None and (start_index != 0 or end_index is not None):
+        raise ValueError(
+            "dataset_indices cannot be combined with start_index/end_index"
+        )
+
     policy = verify_policy(policy_dir)
 
     config = load_config(config_path)
-    settings = canonical_sampling_settings(config)
+    settings = canonical_sampling_settings(config, num_generations_override=num_generations)
     tokenizer = AutoTokenizer.from_pretrained(str(policy_dir))
 
     dataset_sha = resolve_hf_revision(
@@ -280,8 +311,15 @@ def run_p0(
         tokenizer,
         settings["max_prompt_tokens"],
     )
-    indexed_rows = slice_shard(rows, start_index, end_index)
+    if dataset_indices is not None:
+        indexed_rows = select_indexed_rows(rows, dataset_indices)
+    else:
+        indexed_rows = slice_shard(rows, start_index, end_index)
+    resolved_start = indexed_rows[0][0]
     resolved_end = indexed_rows[-1][0] + 1
+    explicit_indices = (
+        [index for index, _ in indexed_rows] if dataset_indices is not None else None
+    )
 
     destination.mkdir(parents=True, exist_ok=True)
     raw_path = destination / "p0_raw.jsonl"
@@ -300,10 +338,11 @@ def run_p0(
         config_path=config_path,
         sampling_settings=settings,
         prompt_audit=prompt_audit,
-        start_index=indexed_rows[0][0],
+        start_index=resolved_start,
         end_index=resolved_end,
         record_count=len(indexed_rows),
         runtime=runtime,
+        indices=explicit_indices,
     )
     write_json(destination / "prompt_length_audit.json", prompt_audit)
     write_json(destination / "p0_run_manifest.json", manifest)
@@ -340,8 +379,30 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--start-index", type=int, default=0)
     parser.add_argument("--end-index", type=int, default=None)
+    parser.add_argument(
+        "--dataset-indices",
+        type=str,
+        default=None,
+        help=(
+            "Comma-separated explicit GSM8K test dataset indices to sample "
+            "(overrides --start-index/--end-index for a fixed, non-contiguous "
+            "question subset)."
+        ),
+    )
+    parser.add_argument(
+        "--num-generations",
+        type=int,
+        default=None,
+        help="Override K for this diagnostic sample only; defaults to the frozen GRPO config value.",
+    )
     parser.add_argument("--gpu-memory-utilization", type=float, default=0.50)
     args = parser.parse_args(argv)
+
+    dataset_indices = None
+    if args.dataset_indices is not None:
+        dataset_indices = [
+            int(token) for token in args.dataset_indices.split(",") if token.strip()
+        ]
 
     result = run_p0(
         policy_dir=args.policy_dir,
@@ -349,6 +410,8 @@ def main(argv: list[str] | None = None) -> None:
         config_path=args.config,
         start_index=args.start_index,
         end_index=args.end_index,
+        dataset_indices=dataset_indices,
+        num_generations=args.num_generations,
         gpu_memory_utilization=args.gpu_memory_utilization,
     )
     print(json.dumps(result, indent=2, sort_keys=True))

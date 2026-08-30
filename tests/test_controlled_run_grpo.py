@@ -56,7 +56,7 @@ def test_build_grpo_arguments_maps_behavior_study_recipe(monkeypatch, tmp_path):
     assert kwargs["per_device_train_batch_size"] == 4
     assert kwargs["gradient_accumulation_steps"] == 4
     assert kwargs["max_completion_length"] == 2048
-    assert kwargs["mask_truncated_completions"] is True
+    assert kwargs["mask_truncated_completions"] is False
     assert kwargs["vllm_max_model_length"] == 2560
     assert kwargs["vllm_gpu_memory_utilization"] == 0.30
     assert kwargs["learning_rate"] == 1e-6
@@ -79,12 +79,12 @@ def test_resolve_runtime_world_size(monkeypatch):
 
 def test_validate_pilot_steps_enforces_small_diagnostic_window():
     assert train_grpo.validate_pilot_steps("pilot", 20) == 20
-    assert train_grpo.validate_pilot_steps("pilot", 50) == 50
+    assert train_grpo.validate_pilot_steps("pilot", 500) == 500
     assert train_grpo.validate_pilot_steps("canonical", None) is None
-    with pytest.raises(ValueError, match="20.*50"):
+    with pytest.raises(ValueError, match="20.*500"):
         train_grpo.validate_pilot_steps("pilot", 19)
-    with pytest.raises(ValueError, match="20.*50"):
-        train_grpo.validate_pilot_steps("pilot", 51)
+    with pytest.raises(ValueError, match="20.*500"):
+        train_grpo.validate_pilot_steps("pilot", 501)
     with pytest.raises(ValueError, match="canonical.*override"):
         train_grpo.validate_pilot_steps("canonical", 20)
 

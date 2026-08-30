@@ -48,7 +48,10 @@ def test_grpo_config_matches_precommitted_behavior_study_recipe():
     assert cfg["temperature"] == 0.8
     assert cfg["max_prompt_tokens"] == 512
     assert cfg["max_completion_length"] == 2048
-    assert cfg["mask_truncated_completions"] is True
+    # 2026-08-30 truncation-policy amendment: truncated completions are no
+    # longer masked out of the loss; they carry reward 0 instead.
+    assert cfg["mask_truncated_completions"] is False
+    assert cfg["reward"] == "binary_terminated_final_answer_correctness"
     assert cfg["vllm_max_model_length"] == 2560
     assert cfg["per_device_train_batch_size"] == 4
     assert cfg["gradient_accumulation_steps"] == 4

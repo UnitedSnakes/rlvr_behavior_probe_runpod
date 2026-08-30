@@ -1,0 +1,26 @@
+{
+  "base_model": {
+    "repo_id": "Qwen/Qwen3-0.6B-Base",
+    "requested_revision": "main",
+    "sha": "da87bfb608c14b7cf20ba1ce41287e8de496c0cd"
+  },
+  "gsm8k_dataset": {
+    "repo_id": "openai/gsm8k",
+    "requested_revision": "main",
+    "sha": "740312add88f781978c0658806c59bc2815b9866"
+  },
+  "seed": 42,
+  "sft_dataset": {
+    "repo_id": "open-r1/OpenR1-Math-220k",
+    "requested_revision": "main",
+    "sha": "e4e141ec9dea9f8326f4d347be56105859b2bd68"
+  },
+  "source_identity": "pinned_dataset_revision_plus_source_index",
+  "target_size": 10000,
+  "tokenizer": {
+    "repo_id": "Qwen/Qwen3-0.6B-Base",
+    "requested_revision": "main",
+    "sha": "da87bfb608c14b7cf20ba1ce41287e8de496c0cd"
+  },
+  "validation_size": 512
+}

@@ -9,11 +9,14 @@ from transformers import AutoTokenizer
 
 from controlled_run.constants import BASE_MODEL, GSM8K_DATASET, SEED, SFT_DATASET
 from controlled_run.data import build_sft_manifest, materialize_sft_records
+from controlled_run.data_bundle import write_data_bundle_manifest
+from controlled_run.length_stats import RecordingTokenizer, extended_length_audit
 from controlled_run.provenance import resolve_hf_revision, write_json
 
 
 DEFAULT_MANIFESTS_DIR = Path("data/controlled_run/manifests")
 DEFAULT_GENERATED_DIR = Path("data/controlled_run/generated")
+DEFAULT_VALIDATION_SIZE = 512
 
 
 def _write_jsonl(path: Path, rows: list[dict]) -> None:
@@ -23,12 +26,44 @@ def _write_jsonl(path: Path, rows: list[dict]) -> None:
             file.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
 
 
+def _augment_length_audit(audit: dict, tokenizer: RecordingTokenizer) -> None:
+    lengths = tokenizer.formatted_lengths
+    if len(lengths) != int(audit["pre_length_filter_count"]):
+        raise RuntimeError(
+            "Recorded tokenizer length count does not match the SFT audit denominator: "
+            f"recorded={len(lengths)}, audit={audit['pre_length_filter_count']}"
+        )
+
+    extended = extended_length_audit(lengths)
+    audit["formatted_token_percentiles"].update(
+        {
+            "p99_5": extended["p99_5"],
+            "p99_9": extended["p99_9"],
+            "max": extended["max"],
+        }
+    )
+    audit["formatted_token_tail_fractions"].update(
+        {
+            "gt_12288": extended["gt_12288"],
+            "gt_16384": extended["gt_16384"],
+            "gt_32768": extended["gt_32768"],
+        }
+    )
+
+
 def prepare_data(
     manifests_dir: Path = DEFAULT_MANIFESTS_DIR,
     generated_dir: Path = DEFAULT_GENERATED_DIR,
     target_size: int = 10_000,
+    validation_size: int = DEFAULT_VALIDATION_SIZE,
     seed: int = SEED,
+    audit_only: bool = False,
 ) -> dict:
+    if target_size <= 0:
+        raise ValueError("target_size must be positive")
+    if validation_size <= 0:
+        raise ValueError("validation_size must be positive")
+
     manifests_dir = Path(manifests_dir)
     generated_dir = Path(generated_dir)
 
@@ -59,10 +94,13 @@ def prepare_data(
         },
         "seed": seed,
         "target_size": target_size,
+        "validation_size": validation_size,
+        "source_identity": "pinned_dataset_revision_plus_source_index",
     }
 
-    tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL, revision=base_sha)
-    openr1_rows = list(
+    raw_tokenizer = AutoTokenizer.from_pretrained(BASE_MODEL, revision=base_sha)
+    tokenizer = RecordingTokenizer(raw_tokenizer)
+    raw_openr1_rows = list(
         load_dataset(
             SFT_DATASET,
             "default",
@@ -70,6 +108,10 @@ def prepare_data(
             revision=sft_dataset_sha,
         )
     )
+    openr1_rows = [
+        {**row, "source_index": source_index}
+        for source_index, row in enumerate(raw_openr1_rows)
+    ]
     gsm8k_train = list(
         load_dataset(
             GSM8K_DATASET,
@@ -87,32 +129,82 @@ def prepare_data(
         )
     )
 
-    manifest, audit = build_sft_manifest(
+    requested_total = target_size + validation_size
+    selector_target = 1 if audit_only else requested_total
+    selected_manifest, audit = build_sft_manifest(
         openr1_rows,
         [*gsm8k_train, *gsm8k_test],
         tokenizer,
-        target_size=target_size,
+        target_size=selector_target,
         seed=seed,
     )
-    records = materialize_sft_records(manifest, openr1_rows)
+    _augment_length_audit(audit, tokenizer)
 
-    if len(manifest) != target_size or len(records) != target_size:
+    if audit_only:
+        audit["audit_only"] = True
+        audit["requested_total_count"] = requested_total
+        audit["selected_total_count"] = 0
+        audit["train_count"] = 0
+        audit["validation_count"] = 0
+        write_json(manifests_dir / "contamination_audit.json", audit)
+        write_json(manifests_dir / "source_revisions.json", source_revisions)
+        return {"source_revisions": source_revisions, "audit": audit}
+
+    train_manifest = selected_manifest[:target_size]
+    validation_manifest = selected_manifest[target_size:requested_total]
+    train_records = materialize_sft_records(train_manifest, openr1_rows)
+    validation_records = materialize_sft_records(validation_manifest, openr1_rows)
+
+    if len(train_manifest) != target_size or len(train_records) != target_size:
         raise RuntimeError(
-            "Controlled SFT materialization produced an unexpected number of records: "
-            f"manifest={len(manifest)}, records={len(records)}, expected={target_size}"
+            "Controlled SFT train materialization produced an unexpected count: "
+            f"manifest={len(train_manifest)}, records={len(train_records)}, "
+            f"expected={target_size}"
+        )
+    if (
+        len(validation_manifest) != validation_size
+        or len(validation_records) != validation_size
+    ):
+        raise RuntimeError(
+            "Controlled SFT validation materialization produced an unexpected count: "
+            f"manifest={len(validation_manifest)}, records={len(validation_records)}, "
+            f"expected={validation_size}"
         )
 
-    _write_jsonl(manifests_dir / "sft_10k_manifest.jsonl", manifest)
+    train_indices = {int(item["source_index"]) for item in train_manifest}
+    validation_indices = {int(item["source_index"]) for item in validation_manifest}
+    if train_indices & validation_indices:
+        raise RuntimeError("Controlled SFT train/validation source indices overlap")
+
+    audit["audit_only"] = False
+    audit["requested_total_count"] = requested_total
+    audit["selected_total_count"] = requested_total
+    audit["train_count"] = target_size
+    audit["validation_count"] = validation_size
+
+    _write_jsonl(manifests_dir / "sft_10k_manifest.jsonl", train_manifest)
+    _write_jsonl(
+        manifests_dir / "sft_val_512_manifest.jsonl",
+        validation_manifest,
+    )
     write_json(manifests_dir / "contamination_audit.json", audit)
     write_json(manifests_dir / "source_revisions.json", source_revisions)
-    _write_jsonl(generated_dir / "sft_10k_records.jsonl", records)
+    _write_jsonl(generated_dir / "sft_10k_records.jsonl", train_records)
+    _write_jsonl(
+        generated_dir / "sft_val_512_records.jsonl",
+        validation_records,
+    )
+    write_data_bundle_manifest(manifests_dir, generated_dir)
 
     return source_revisions
 
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
-        description="Build the deterministic contamination-audited controlled SFT dataset."
+        description=(
+            "Build deterministic contamination-audited controlled SFT train and "
+            "validation datasets, or run the same scan in audit-only mode."
+        )
     )
     parser.add_argument(
         "--manifests-dir",
@@ -125,16 +217,31 @@ def main(argv: list[str] | None = None) -> None:
         default=DEFAULT_GENERATED_DIR,
     )
     parser.add_argument("--target-size", type=int, default=10_000)
+    parser.add_argument(
+        "--validation-size",
+        type=int,
+        default=DEFAULT_VALIDATION_SIZE,
+    )
     parser.add_argument("--seed", type=int, default=SEED)
+    parser.add_argument(
+        "--audit-only",
+        action="store_true",
+        help=(
+            "Scan the pinned sources and write contamination/length diagnostics "
+            "without requiring or materializing the requested train/validation counts."
+        ),
+    )
     args = parser.parse_args(argv)
 
-    revisions = prepare_data(
+    result = prepare_data(
         manifests_dir=args.manifests_dir,
         generated_dir=args.generated_dir,
         target_size=args.target_size,
+        validation_size=args.validation_size,
         seed=args.seed,
+        audit_only=args.audit_only,
     )
-    print(json.dumps(revisions, indent=2, sort_keys=True))
+    print(json.dumps(result, indent=2, sort_keys=True))
 
 
 if __name__ == "__main__":

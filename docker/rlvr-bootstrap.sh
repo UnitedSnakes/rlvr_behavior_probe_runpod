@@ -2,6 +2,8 @@
 set -Eeuo pipefail
 
 DEFAULT_REPO_DIR="/workspace/rlvr_behavior_probe_runpod"
+DEFAULT_GIT_USER_NAME="runpod"
+DEFAULT_GIT_USER_EMAIL="runpod@localhost"
 
 log() {
     printf '[rlvr-bootstrap] %s\n' "$*"
@@ -106,6 +108,16 @@ sync_repository() {
     git -C "$repo_dir" merge --ff-only "origin/$RLVR_BRANCH"
 }
 
+configure_git_identity() {
+    local repo_dir="$1"
+    local user_name="${RLVR_GIT_USER_NAME:-$DEFAULT_GIT_USER_NAME}"
+    local user_email="${RLVR_GIT_USER_EMAIL:-$DEFAULT_GIT_USER_EMAIL}"
+
+    log "configuring repo-local Git identity"
+    git -C "$repo_dir" config user.name "$user_name"
+    git -C "$repo_dir" config user.email "$user_email"
+}
+
 print_runtime_summary() {
     local repo_dir="$1"
 
@@ -113,22 +125,50 @@ print_runtime_summary() {
     printf 'repository: %s\n' "$repo_dir"
     printf 'branch: %s\n' "$(git -C "$repo_dir" rev-parse --abbrev-ref HEAD)"
     printf 'commit: %s\n' "$(git -C "$repo_dir" rev-parse --short HEAD)"
+    printf 'git user: %s <%s>\n' \
+        "$(git -C "$repo_dir" config user.name)" \
+        "$(git -C "$repo_dir" config user.email)"
+    printf 'gpustat: %s\n' "$(command -v gpustat || printf 'unavailable')"
 
     python - <<'PY'
+import importlib.metadata
 import os
 import sys
 
+import accelerate
+import datasets
 import torch
+import transformers
+import trl
 import vllm
 
 print("python:", sys.executable)
 print("python version:", sys.version.split()[0])
 print("torch:", torch.__version__)
 print("cuda:", torch.version.cuda)
+print("transformers:", transformers.__version__)
+print("datasets:", datasets.__version__)
+print("accelerate:", accelerate.__version__)
+print("trl:", trl.__version__)
 print("vllm:", vllm.__version__)
+try:
+    print("gpustat package:", importlib.metadata.version("gpustat"))
+except importlib.metadata.PackageNotFoundError:
+    print("gpustat package: unavailable")
 print("gpu:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "unavailable")
 print("HF_TOKEN set:", bool(os.environ.get("HF_TOKEN")))
 PY
+}
+
+run_runtime_acceptance() {
+    local repo_dir="$1"
+
+    log "running canonical A40 runtime acceptance"
+    (
+        cd "$repo_dir"
+        python -m controlled_run.runtime_acceptance \
+            --attention-backend flash_attention_2
+    )
 }
 
 main() {
@@ -143,7 +183,9 @@ main() {
     install_deploy_key
     configure_known_hosts
     sync_repository "$repo_dir"
+    configure_git_identity "$repo_dir"
     print_runtime_summary "$repo_dir"
+    run_runtime_acceptance "$repo_dir"
     log "bootstrap complete"
 }
 

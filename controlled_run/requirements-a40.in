@@ -1,8 +1,5 @@
-trl==0.28.0
-vllm==0.25.1
-transformers>=5,<6
-datasets>=4,<5
-accelerate>=1,<2
-huggingface_hub>=0.36,<1
+# Training extras layered onto the authoritative docker/ A40 runtime.
+# Do not pin vLLM/Transformers/datasets/Accelerate here; Docker owns those versions.
+trl==1.12.0
 pyyaml>=6,<7
 pytest>=8.3,<9

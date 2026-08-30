@@ -1,5 +1,58 @@
 # RLVR Behavioral Probe
 
+## Current controlled Qwen3 workflow
+
+The active controlled experiment is now the Qwen3-0.6B causal RLVR study on branch `controlled-qwen3-rlvr-task6`. The older Qwen2.5 material below is retained as preliminary/historical evidence, not as the canonical training recipe.
+
+Current execution lanes:
+
+```text
+M5 Pro / generic CPU dev
+  → pytest
+  → pinned data preparation and contamination/length audit
+  → verified portable SFT data bundle
+
+A40 CUDA runtime
+  → explicit runtime acceptance, including FlashAttention2
+  → 1×A40 SFT engineering smoke
+  → 2×A40 canonical SFT, global optimizer batch 64
+  → exact pi_0 freeze
+  → p0 sampling/evaluation
+  → 1×A40 GRPO pilot and canonical GRPO
+```
+
+Use the project `.venv` with the platform-neutral development requirements:
+
+```bash
+python3.12 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r controlled_run/requirements-dev.txt
+python -m pytest -q
+```
+
+Canonical SFT data are selected with a frozen formatted-token cutoff of **16,384**. A normal materialization writes a hashed bundle; verify it with:
+
+```bash
+python -m controlled_run.data_bundle
+```
+
+Canonical SFT refuses audit-only, stale, hash-mismatched, wrong-count, or wrong-cutoff bundles. The canonical A40 runtime must also pass:
+
+```bash
+python -m controlled_run.runtime_acceptance \
+  --attention-backend flash_attention_2
+```
+
+This check is intentionally fail-closed: it does not silently install FlashAttention or fall back to SDPA.
+
+Authoritative current checkpoint and design notes:
+
+- `docs/superpowers/2026-08-27-controlled-qwen3-rlvr-checkpoint.md`
+- `docs/superpowers/specs/2026-08-27-long-context-sft-compute-amendment.md`
+- `docs/superpowers/specs/2026-08-27-dev-a40-infra-separation-design.md`
+
+---
+
 A small study of what changes during RL post-training. I am mainly looking at whether RLVR improves reasoning by putting more probability on solutions the SFT model can already reach, or by expanding observed solution coverage.
 
 ## Preliminary results
@@ -112,7 +165,9 @@ If vLLM-Metal cannot load `ns-0/qwen-2.5-1.5b-instruct-reasoning-sft` at `checkp
 
 A successful run should record `device_resolved` as `mps`, `runtime.platform` as `metal`, and `runtime.implementation` as `vllm-metal` in `results_m5_smoke/run_config.json`.
 
-## RunPod vLLM image
+## Historical RunPod vLLM image workflow
+
+The following section documents the earlier Qwen2.5 probe runtime. For the active controlled Qwen3 experiment, use the current workflow and checkpoint linked at the top of this README.
 
 Create a RunPod template with these settings:
 

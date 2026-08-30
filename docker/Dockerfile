@@ -9,6 +9,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 
 RUN apt-get update --yes && \
     apt-get install --yes --no-install-recommends \
+        build-essential \
         ca-certificates \
         curl \
         git \
@@ -36,23 +37,59 @@ RUN uv pip install \
         -r /tmp/requirements-vllm.txt && \
     rm /tmp/requirements-vllm.txt
 
+# Build the canonical compiled FlashAttention2 backend against the exact torch/CUDA
+# stack already owned by the vLLM environment. This image is intentionally A40-only:
+# compile sm80 kernels only and bound compiler parallelism so CI/build hosts do not
+# exhaust RAM. A build failure is intentional; never fall back silently to Hub kernels.
+RUN FLASH_ATTN_CUDA_ARCHS=80 \
+    FLASH_ATTENTION_FORCE_BUILD=TRUE \
+    MAX_JOBS=1 \
+    NVCC_THREADS=1 \
+    /opt/vllm-env/bin/python -m pip install \
+        --no-cache-dir \
+        --no-build-isolation \
+        "flash-attn==2.8.3.post1"
+
 COPY --chmod=0755 docker/rlvr-bootstrap.sh /usr/local/bin/rlvr-bootstrap
 
-RUN test -x /usr/local/bin/rlvr-bootstrap
+RUN test -x /usr/local/bin/rlvr-bootstrap && \
+    command -v gpustat >/dev/null
 
+# Build-time validation is intentionally GPU-independent because GitHub-hosted
+# Docker builders have no NVIDIA device. Real FA2 availability plus Qwen3
+# forward/backward are enforced later by controlled_run.runtime_acceptance on A40.
 RUN /opt/vllm-env/bin/python - <<'PY'
+import importlib.metadata
 import sys
+
+import accelerate
+import datasets
+import flash_attn
 import torch
 import transformers
+import trl
 import vllm
 
 assert sys.version_info[:2] == (3, 12), sys.version
+assert torch.__version__ == "2.13.0+cu130", torch.__version__
+assert torch.version.cuda == "13.0", torch.version.cuda
 assert vllm.__version__ == "0.27.1", vllm.__version__
+assert transformers.__version__ == "5.15.0", transformers.__version__
+assert datasets.__version__ == "5.0.1", datasets.__version__
+assert accelerate.__version__ == "1.14.0", accelerate.__version__
+assert trl.__version__ == "1.12.0", trl.__version__
+assert importlib.metadata.version("flash-attn") == "2.8.3.post1"
+
 print("python:", sys.version)
 print("torch:", torch.__version__)
 print("torch cuda:", torch.version.cuda)
 print("transformers:", transformers.__version__)
+print("datasets:", datasets.__version__)
+print("accelerate:", accelerate.__version__)
+print("trl:", trl.__version__)
 print("vllm:", vllm.__version__)
+print("flash-attn:", importlib.metadata.version("flash-attn"))
+print("gpustat:", importlib.metadata.version("gpustat"))
 PY
 
 WORKDIR /workspace

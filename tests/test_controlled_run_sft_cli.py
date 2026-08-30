@@ -50,19 +50,37 @@ def test_run_sft_canonical_freezes_exact_pi0_and_writes_run_manifest(
     monkeypatch,
     tmp_path,
 ):
+    monkeypatch.setenv("WORLD_SIZE", "2")
     config_path = ROOT / "controlled_run/configs/sft_qwen3_0_6b.yaml"
     records = tmp_path / "records.jsonl"
+    validation_records = tmp_path / "validation_records.jsonl"
     sources = tmp_path / "source_revisions.json"
     sft_manifest = tmp_path / "sft_10k_manifest.jsonl"
+    validation_manifest = tmp_path / "sft_val_512_manifest.jsonl"
     _write_record(records)
+    _write_record(validation_records)
     _write_sources(sources)
     sft_manifest.write_text('{"uuid":"u1"}\n', encoding="utf-8")
+    validation_manifest.write_text('{"uuid":"v1"}\n', encoding="utf-8")
 
     monkeypatch.setattr(
         train_sft,
         "validate_record_count",
         lambda path, canonical: 10_000 if canonical else 1,
     )
+    monkeypatch.setattr(
+        train_sft,
+        "validate_validation_record_count",
+        lambda path, canonical: 512 if canonical else 1,
+    )
+
+    bundle_checks = []
+
+    def fake_verify_bundle(manifests_dir, generated_dir, **kwargs):
+        bundle_checks.append((manifests_dir, generated_dir, kwargs))
+        return {"verified": True}
+
+    monkeypatch.setattr(train_sft, "verify_canonical_sft_bundle", fake_verify_bundle)
 
     class FakeAutoModel:
         @classmethod
@@ -80,9 +98,11 @@ def test_run_sft_canonical_freezes_exact_pi0_and_writes_run_manifest(
         def from_pretrained(cls, repo_id, **kwargs):
             return FakeTokenizer()
 
+    trainer_kwargs = []
+
     class FakeTrainer:
         def __init__(self, **kwargs):
-            pass
+            trainer_kwargs.append(kwargs)
 
         def train(self):
             pass
@@ -96,6 +116,11 @@ def test_run_sft_canonical_freezes_exact_pi0_and_writes_run_manifest(
     monkeypatch.setattr(train_sft, "AutoTokenizer", FakeAutoTokenizer)
     monkeypatch.setattr(
         train_sft,
+        "configure_sft_tokenizer_terminal",
+        lambda tokenizer, **_: tokenizer,
+    )
+    monkeypatch.setattr(
+        train_sft,
         "_load_sft_classes",
         lambda: (FakeSFTConfig, FakeTrainer),
     )
@@ -104,14 +129,40 @@ def test_run_sft_canonical_freezes_exact_pi0_and_writes_run_manifest(
     result = train_sft.run_sft(
         config_path=config_path,
         records_path=records,
+        validation_records_path=validation_records,
         source_revisions_path=sources,
         sft_manifest_path=sft_manifest,
+        validation_manifest_path=validation_manifest,
         output_dir=output_dir,
     )
 
+    assert bundle_checks == [
+        (
+            tmp_path,
+            tmp_path,
+            {
+                "expected_max_formatted_tokens": 16384,
+                "supplied_artifacts": {
+                    "generated/sft_10k_records.jsonl": records,
+                    "generated/sft_val_512_records.jsonl": validation_records,
+                    "manifests/source_revisions.json": sources,
+                    "manifests/sft_10k_manifest.jsonl": sft_manifest,
+                    "manifests/sft_val_512_manifest.jsonl": validation_manifest,
+                },
+            },
+        )
+    ]
     assert result["mode"] == "canonical"
     assert result["record_count"] == 10_000
+    assert result["validation_record_count"] == 512
+    assert result["runtime_batch"] == {
+        "world_size": 2,
+        "per_device_train_batch_size": 1,
+        "gradient_accumulation_steps": 32,
+        "global_batch_size": 64,
+    }
     assert result["pi0_manifest"]["policy_name"] == "pi_0"
+    assert trainer_kwargs[0]["eval_dataset"] is not None
     assert (output_dir / "pi_0" / "model.safetensors").read_bytes() == b"canonical-final"
     assert (output_dir / "pi_0" / "pi0_manifest.json").exists()
 
@@ -120,6 +171,9 @@ def test_run_sft_canonical_freezes_exact_pi0_and_writes_run_manifest(
     )
     assert run_manifest["mode"] == "canonical"
     assert run_manifest["record_count"] == 10_000
+    assert run_manifest["validation_record_count"] == 512
+    assert run_manifest["validation_role"] == "diagnostic_only_no_checkpoint_selection"
+    assert run_manifest["runtime_batch"] == result["runtime_batch"]
     assert run_manifest["config"]["model_name"] == "Qwen/Qwen3-0.6B-Base"
     assert run_manifest["lineage"] == {
         key: result["pi0_manifest"][key]
@@ -127,6 +181,7 @@ def test_run_sft_canonical_freezes_exact_pi0_and_writes_run_manifest(
             "base_model_sha",
             "sft_dataset_sha",
             "sft_data_manifest_sha256",
+            "sft_validation_manifest_sha256",
             "sft_config_sha256",
         )
     }
@@ -162,8 +217,10 @@ def test_main_forwards_explicit_paths_and_smoke_steps(monkeypatch, tmp_path):
         {
             "config_path": tmp_path / "sft.yaml",
             "records_path": tmp_path / "records.jsonl",
+            "validation_records_path": None,
             "source_revisions_path": tmp_path / "revisions.json",
             "sft_manifest_path": tmp_path / "manifest.jsonl",
+            "validation_manifest_path": None,
             "output_dir": tmp_path / "out",
             "smoke_steps": 2,
         }

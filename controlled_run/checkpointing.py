@@ -15,6 +15,7 @@ _REQUIRED_LINEAGE_KEYS = {
     "base_model_sha",
     "sft_dataset_sha",
     "sft_data_manifest_sha256",
+    "sft_validation_manifest_sha256",
     "sft_config_sha256",
 }
 

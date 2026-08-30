@@ -94,6 +94,7 @@ def test_prepare_data_pins_sources_and_writes_manifest_audit_and_full_records(
         manifests_dir=manifests_dir,
         generated_dir=generated_dir,
         target_size=2,
+        validation_size=1,
         seed=42,
     )
 
@@ -110,7 +111,9 @@ def test_prepare_data_pins_sources_and_writes_manifest_audit_and_full_records(
     ]
 
     manifest = read_jsonl(manifests_dir / "sft_10k_manifest.jsonl")
+    validation_manifest = read_jsonl(manifests_dir / "sft_val_512_manifest.jsonl")
     records = read_jsonl(generated_dir / "sft_10k_records.jsonl")
+    validation_records = read_jsonl(generated_dir / "sft_val_512_records.jsonl")
     audit = json.loads(
         (manifests_dir / "contamination_audit.json").read_text(encoding="utf-8")
     )
@@ -119,10 +122,20 @@ def test_prepare_data_pins_sources_and_writes_manifest_audit_and_full_records(
     )
 
     assert len(manifest) == 2
+    assert len(validation_manifest) == 1
     assert len(records) == 2
+    assert len(validation_records) == 1
+    assert {row["source_index"] for row in manifest}.isdisjoint(
+        {row["source_index"] for row in validation_manifest}
+    )
     assert all("problem" not in row and "completion" not in row for row in manifest)
     assert all("prompt" in row and "completion" in row for row in records)
-    assert audit["final_count"] == 2
+    assert audit["final_count"] == 3
+    assert audit["audit_only"] is False
+    assert audit["requested_total_count"] == 3
+    assert audit["selected_total_count"] == 3
+    assert audit["train_count"] == 2
+    assert audit["validation_count"] == 1
     assert revisions == {
         "base_model": {
             "repo_id": BASE_MODEL,
@@ -146,6 +159,8 @@ def test_prepare_data_pins_sources_and_writes_manifest_audit_and_full_records(
         },
         "seed": 42,
         "target_size": 2,
+        "validation_size": 1,
+        "source_identity": "pinned_dataset_revision_plus_source_index",
     }
     assert result == revisions
 
@@ -177,6 +192,8 @@ def test_main_forwards_cli_paths_target_size_and_seed(monkeypatch, tmp_path):
             "manifests_dir": tmp_path / "m",
             "generated_dir": tmp_path / "g",
             "target_size": 17,
+            "validation_size": 512,
             "seed": 9,
+            "audit_only": False,
         }
     ]

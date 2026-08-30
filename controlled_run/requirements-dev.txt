@@ -1,0 +1,10 @@
+torch>=2.3
+transformers==5.15.0
+datasets==5.0.1
+accelerate==1.14.0
+huggingface_hub>=1.5,<2
+numpy>=1.26
+pandas>=2.2
+pyyaml>=6,<7
+matplotlib>=3.8.3,<3.10
+pytest>=8.3,<9

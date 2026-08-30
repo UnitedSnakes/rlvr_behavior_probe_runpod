@@ -35,7 +35,7 @@ class FakeTokenizer:
 
         completion = messages[2]["content"]
         if "LONG_TRACE" in completion:
-            return list(range(2049))
+            return list(range(16385))
         return list(range(100))
 
 
@@ -204,7 +204,10 @@ def test_build_sft_manifest_is_order_invariant_and_records_filter_counts():
     )
 
     eligible = ["u1", "u3", "u6", "u7"]
-    expected = sorted(eligible, key=lambda uuid: stable_candidate_key(uuid, 42))[:3]
+    expected = sorted(
+        eligible,
+        key=lambda uuid: stable_candidate_key(f"uuid:{uuid}", 42),
+    )[:3]
 
     assert [row["uuid"] for row in manifest_a] == expected
     assert manifest_a == manifest_b

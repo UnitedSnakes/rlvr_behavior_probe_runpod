@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - controlled-qwen3-rlvr
+      - controlled-qwen3-rlvr-task6
   workflow_dispatch:
 
 permissions:
@@ -25,7 +26,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install --index-url https://download.pytorch.org/whl/cpu "torch>=2.3"
-          python -m pip install -r requirements.txt pytest pyyaml
+          python -m pip install -r controlled_run/requirements-dev.txt
 
       - name: Run tests
         run: python -m pytest -q

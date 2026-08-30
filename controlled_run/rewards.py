@@ -65,3 +65,83 @@ def gsm8k_binary_reward(completions, answer, **kwargs) -> list[float]:
         rewards.append(1.0 if numeric_equal(pred_value, gold_value) else 0.0)
 
     return rewards
+
+
+def is_truncated_completion(completion_ids, terminal_token_ids) -> bool:
+    """Return True when a completion did not end on a terminal token.
+
+    This mirrors the predicate TRL applies internally when
+    ``mask_truncated_completions`` is enabled (``grpo_trainer.py``: a
+    completion is truncated iff ``ids[-1] not in [eos_token_id,
+    pad_token_id]``). Reusing the same rule keeps the reward definition and
+    TRL's own truncation accounting from drifting apart.
+
+    Truncation is decided from token ids, never from decoded text: vLLM omits
+    special tokens from text output by default.
+    """
+    ids = list(completion_ids)
+    if not ids:
+        return True
+    return ids[-1] not in set(terminal_token_ids)
+
+
+def make_gsm8k_terminated_binary_reward(terminal_token_ids):
+    """Build the canonical post-2026-08-30 GRPO reward.
+
+    r(x, z) = 1 if z terminated within the completion budget and the extracted
+    final numeric answer is correct, else 0.
+
+    See docs/superpowers/specs/2026-08-30-grpo-truncation-policy-amendment.md.
+    A truncated completion scores 0 even when a correct answer is parseable
+    from the truncated text; that cost is accepted deliberately.
+    """
+    terminal_token_ids = frozenset(terminal_token_ids)
+    if not terminal_token_ids:
+        raise ValueError("terminal_token_ids must contain at least one token id")
+
+    def gsm8k_terminated_binary_reward(
+        completions, answer, completion_ids=None, **kwargs
+    ) -> list[float]:
+        del kwargs
+        completions = list(completions)
+        correctness = gsm8k_binary_reward(completions, answer)
+
+        if completion_ids is None:
+            raise ValueError(
+                "gsm8k_terminated_binary_reward requires completion_ids; TRL "
+                "supplies them to synchronous reward functions"
+            )
+
+        completion_ids = list(completion_ids)
+        if len(completion_ids) != len(completions):
+            raise ValueError(
+                f"completion_ids count {len(completion_ids)} does not match "
+                f"completion count {len(completions)}"
+            )
+
+        return [
+            0.0 if is_truncated_completion(ids, terminal_token_ids) else score
+            for score, ids in zip(correctness, completion_ids)
+        ]
+
+    gsm8k_terminated_binary_reward.__name__ = "binary_terminated_final_answer_correctness"
+    return gsm8k_terminated_binary_reward
+
+
+def resolve_terminal_token_ids(tokenizer) -> tuple[int, ...]:
+    """Terminal token ids used to decide whether a completion truncated.
+
+    Must match TRL's own rule (eos plus pad) so the reward definition and
+    TRL's clipped_ratio metric cannot drift apart.
+    """
+    ids = [
+        getattr(tokenizer, "eos_token_id", None),
+        getattr(tokenizer, "pad_token_id", None),
+    ]
+    resolved = tuple(sorted({int(i) for i in ids if i is not None}))
+    if not resolved:
+        raise ValueError(
+            "Tokenizer exposes neither eos_token_id nor pad_token_id; "
+            "cannot determine completion truncation"
+        )
+    return resolved

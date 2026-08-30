@@ -2,6 +2,8 @@
 set -Eeuo pipefail
 
 DEFAULT_REPO_DIR="/workspace/rlvr_behavior_probe_runpod"
+DEFAULT_GIT_USER_NAME="runpod"
+DEFAULT_GIT_USER_EMAIL="runpod@localhost"
 
 log() {
     printf '[rlvr-bootstrap] %s\n' "$*"
@@ -106,6 +108,16 @@ sync_repository() {
     git -C "$repo_dir" merge --ff-only "origin/$RLVR_BRANCH"
 }
 
+configure_git_identity() {
+    local repo_dir="$1"
+    local user_name="${RLVR_GIT_USER_NAME:-$DEFAULT_GIT_USER_NAME}"
+    local user_email="${RLVR_GIT_USER_EMAIL:-$DEFAULT_GIT_USER_EMAIL}"
+
+    log "configuring repo-local Git identity"
+    git -C "$repo_dir" config user.name "$user_name"
+    git -C "$repo_dir" config user.email "$user_email"
+}
+
 print_runtime_summary() {
     local repo_dir="$1"
 
@@ -113,6 +125,9 @@ print_runtime_summary() {
     printf 'repository: %s\n' "$repo_dir"
     printf 'branch: %s\n' "$(git -C "$repo_dir" rev-parse --abbrev-ref HEAD)"
     printf 'commit: %s\n' "$(git -C "$repo_dir" rev-parse --short HEAD)"
+    printf 'git user: %s <%s>\n' \
+        "$(git -C "$repo_dir" config user.name)" \
+        "$(git -C "$repo_dir" config user.email)"
     printf 'gpustat: %s\n' "$(command -v gpustat || printf 'unavailable')"
 
     python - <<'PY'
@@ -168,6 +183,7 @@ main() {
     install_deploy_key
     configure_known_hosts
     sync_repository "$repo_dir"
+    configure_git_identity "$repo_dir"
     print_runtime_summary "$repo_dir"
     run_runtime_acceptance "$repo_dir"
     log "bootstrap complete"

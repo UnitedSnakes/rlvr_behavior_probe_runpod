@@ -79,3 +79,24 @@ Before corrected canonical SFT:
 The corrected canonical two-epoch SFT is then run once from the untouched
 pinned Base model. Its epoch-1 and epoch-2 checkpoints are used for termination
 acceptance diagnostics; no separate full-length diagnostic SFT is required.
+
+## Corrected canonical endpoint result
+
+The corrected two-epoch run completed under
+`controlled_run_outputs/sft_corrected` with checkpoints `checkpoint-56`,
+`checkpoint-112`, and final frozen `pi_0`.
+
+Teacher-forced endpoint acceptance on 20 canonical SFT examples passed at both
+checkpoints:
+
+| checkpoint | EOT mean | EOT median | EOT rank-1 | im_end median |
+|---|---:|---:|---:|---:|
+| epoch 1 / checkpoint-56 | 0.99801493 | 0.99984744 | 20/20 | 1.3863e-16 |
+| epoch 2 / final pi0 | 0.99836544 | 0.99987036 | 20/20 | 1.1307e-16 |
+
+This confirms that the original teacher-forced termination collapse is repaired
+and remains repaired through the full two-epoch canonical SFT.
+
+The final acceptance gate is still a 128-sample free-rollout check on the
+corrected `pi_0` with the frozen GRPO sampling parameters. GRPO must not start
+until that check shows acceptable natural stopping / clipping behavior.

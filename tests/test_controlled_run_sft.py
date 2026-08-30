@@ -234,6 +234,11 @@ def test_run_sft_loads_exact_base_sha_and_freezes_pi0_only_in_canonical_mode(
     monkeypatch.setattr(train_sft, "AutoTokenizer", FakeAutoTokenizer)
     monkeypatch.setattr(
         train_sft,
+        "configure_sft_tokenizer_terminal",
+        lambda tokenizer, **_: tokenizer,
+    )
+    monkeypatch.setattr(
+        train_sft,
         "_load_sft_classes",
         lambda: (FakeSFTConfig, FakeTrainer),
     )

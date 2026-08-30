@@ -1,0 +1,40 @@
+{
+  "audit_only": false,
+  "candidate_count": 93733,
+  "eligible_after_filters": 63909,
+  "excluded_by_target_size": 53397,
+  "final_count": 10512,
+  "formatted_token_percentiles": {
+    "max": 22319,
+    "p50": 4974.0,
+    "p75": 8096.0,
+    "p90": 11843.600000000006,
+    "p95": 14128.649999999994,
+    "p99": 16876.0,
+    "p99_5": 17496.165,
+    "p99_9": 18946.089000000342
+  },
+  "formatted_token_tail_fractions": {
+    "gt_12288": 0.08890530722817387,
+    "gt_16384": 0.01630033247137052,
+    "gt_2048": 0.8967337766284941,
+    "gt_32768": 0.0,
+    "gt_4096": 0.6033431843369044,
+    "gt_8192": 0.24413557443664574
+  },
+  "identity_scheme": "source_index",
+  "max_formatted_tokens": 16384,
+  "near_duplicate_threshold": 0.8,
+  "pre_length_filter_count": 64968,
+  "removed_exact_duplicates": 0,
+  "removed_near_duplicates": 0,
+  "removed_no_verified_trace": 28765,
+  "removed_normalized_duplicates": 0,
+  "removed_too_long": 1059,
+  "requested_total_count": 10512,
+  "seed": 42,
+  "selected_total_count": 10512,
+  "shingle_size": 5,
+  "train_count": 10000,
+  "validation_count": 512
+}

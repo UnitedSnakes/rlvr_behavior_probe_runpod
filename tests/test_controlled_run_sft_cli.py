@@ -116,6 +116,11 @@ def test_run_sft_canonical_freezes_exact_pi0_and_writes_run_manifest(
     monkeypatch.setattr(train_sft, "AutoTokenizer", FakeAutoTokenizer)
     monkeypatch.setattr(
         train_sft,
+        "configure_sft_tokenizer_terminal",
+        lambda tokenizer, **_: tokenizer,
+    )
+    monkeypatch.setattr(
+        train_sft,
         "_load_sft_classes",
         lambda: (FakeSFTConfig, FakeTrainer),
     )

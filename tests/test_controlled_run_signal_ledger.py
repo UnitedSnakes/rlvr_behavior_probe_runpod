@@ -7,12 +7,15 @@ import math
 import torch
 
 
-def test_sequence_log_rho_keeps_raw_tail_and_matches_effective_trl_clamp():
+def test_sequence_log_rho_keeps_raw_tail_and_matches_dapo_effective_ratio():
     ledger = importlib.import_module("controlled_run.signal_ledger")
 
     old = torch.tensor([[-50.0, -50.0], [math.log(2.0), math.log(2.0)]])
     sampling = torch.zeros_like(old)
     mask = torch.ones_like(old)
+    # In sequence_mask mode both numerical underflow and an upper-cap rejection
+    # can appear as a post-mask ratio of exactly zero. The raw log ratio keeps
+    # those cases distinguishable.
     post_mask_ratio = torch.tensor([[0.0], [0.0]])
 
     raw = ledger.compute_raw_sequence_log_rho(old, sampling, mask)
@@ -20,11 +23,7 @@ def test_sequence_log_rho_keeps_raw_tail_and_matches_effective_trl_clamp():
     upper_masked = ledger.infer_upper_cap_mask(raw, clip_max=3.0)
 
     assert torch.allclose(raw[:, 0], torch.tensor([-100.0, math.log(4.0)]), atol=1e-6)
-    assert torch.allclose(
-        effective[:, 0],
-        torch.tensor([math.log(1e-8), math.log(1e-8)]),
-        atol=1e-6,
-    )
+    assert torch.isneginf(effective[:, 0]).tolist() == [True, True]
     assert upper_masked[:, 0].tolist() == [False, True]
 
 

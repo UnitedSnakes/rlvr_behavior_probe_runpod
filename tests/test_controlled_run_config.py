@@ -48,8 +48,6 @@ def test_grpo_config_matches_precommitted_behavior_study_recipe():
     assert cfg["temperature"] == 0.8
     assert cfg["max_prompt_tokens"] == 512
     assert cfg["max_completion_length"] == 2048
-    # 2026-08-30 truncation-policy amendment: truncated completions are no
-    # longer masked out of the loss; they carry reward 0 instead.
     assert cfg["mask_truncated_completions"] is False
     assert cfg["reward"] == "binary_terminated_final_answer_correctness"
     assert cfg["vllm_max_model_length"] == 2560
@@ -64,6 +62,13 @@ def test_grpo_config_matches_precommitted_behavior_study_recipe():
     assert cfg["vllm_importance_sampling_correction"] is True
     assert cfg["vllm_importance_sampling_mode"] == "sequence_mask"
     assert cfg["vllm_importance_sampling_cap"] == 3.0
+
+
+def test_grpo_config_rejects_changing_frozen_reward_scaling():
+    cfg = load_config(ROOT / "controlled_run/configs/grpo_qwen3_0_6b.yaml")
+    cfg["scale_rewards"] = "batch"
+    with pytest.raises(ValueError, match="scale_rewards"):
+        validate_grpo_config(cfg)
 
 
 def test_grpo_runtime_batch_preserves_frozen_two_a40_semantics():

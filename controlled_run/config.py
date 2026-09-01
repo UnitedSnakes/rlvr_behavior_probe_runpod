@@ -63,6 +63,7 @@ GRPO_INVARIANTS = {
     "epsilon": 0.2,
     "num_iterations": 1,
     "loss_type": "dapo",
+    "scale_rewards": "group",
     "per_device_train_batch_size": 4,
     "gradient_accumulation_steps": 4,
     "generation_batch_size": 32,
@@ -136,11 +137,6 @@ def validate_sft_runtime_batch(
 
 def validate_grpo_config(config: dict) -> None:
     _validate_exact(config, GRPO_INVARIANTS, "GRPO")
-
-    if config.get("scale_rewards") not in {True, False, "group", "batch", "none"}:
-        raise ValueError(
-            "GRPO scale_rewards must be one of True, False, 'group', 'batch', or 'none'"
-        )
 
     if config["vllm_max_model_length"] != (
         config["max_prompt_tokens"] + config["max_completion_length"]

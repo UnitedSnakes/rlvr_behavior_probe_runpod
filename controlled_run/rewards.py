@@ -85,7 +85,7 @@ def is_truncated_completion(completion_ids, terminal_token_ids) -> bool:
     return ids[-1] not in set(terminal_token_ids)
 
 
-def make_gsm8k_terminated_binary_reward(terminal_token_ids):
+def make_gsm8k_terminated_binary_reward(terminal_token_ids, *, ledger_recorder=None):
     """Build the canonical post-2026-08-30 GRPO reward.
 
     r(x, z) = 1 if z terminated within the completion budget and the extracted
@@ -102,7 +102,6 @@ def make_gsm8k_terminated_binary_reward(terminal_token_ids):
     def gsm8k_terminated_binary_reward(
         completions, answer, completion_ids=None, **kwargs
     ) -> list[float]:
-        del kwargs
         completions = list(completions)
         correctness = gsm8k_binary_reward(completions, answer)
 
@@ -119,10 +118,30 @@ def make_gsm8k_terminated_binary_reward(terminal_token_ids):
                 f"completion count {len(completions)}"
             )
 
-        return [
-            0.0 if is_truncated_completion(ids, terminal_token_ids) else score
-            for score, ids in zip(correctness, completion_ids)
+        terminated = [
+            not is_truncated_completion(ids, terminal_token_ids)
+            for ids in completion_ids
         ]
+        rewards = [
+            score if did_terminate else 0.0
+            for score, did_terminate in zip(correctness, terminated, strict=True)
+        ]
+
+        if ledger_recorder is not None:
+            dataset_indices = kwargs.get("dataset_index")
+            if dataset_indices is None:
+                raise ValueError(
+                    "Signal ledger requires dataset_index to reach the reward function"
+                )
+            ledger_recorder.capture(
+                dataset_indices=dataset_indices,
+                correctness=correctness,
+                terminated=terminated,
+                rewards=rewards,
+                completion_lengths=[len(ids) for ids in completion_ids],
+            )
+
+        return rewards
 
     gsm8k_terminated_binary_reward.__name__ = "binary_terminated_final_answer_correctness"
     return gsm8k_terminated_binary_reward

@@ -21,6 +21,11 @@ from controlled_run.rewards import (
     make_gsm8k_terminated_binary_reward,
     resolve_terminal_token_ids,
 )
+from controlled_run.signal_ledger import (
+    RewardBatchRecorder,
+    make_signal_ledger_trainer,
+    utc_launch_timestamp,
+)
 
 
 DEFAULT_CONFIG = Path("controlled_run/configs/grpo_qwen3_0_6b.yaml")
@@ -99,6 +104,7 @@ def build_grpo_arguments(config: dict, output_dir: Path, *, max_steps: int | Non
         "vllm_importance_sampling_correction": config["vllm_importance_sampling_correction"],
         "vllm_importance_sampling_mode": config["vllm_importance_sampling_mode"],
         "vllm_importance_sampling_clip_max": config["vllm_importance_sampling_cap"],
+        "remove_unused_columns": False,
         "save_strategy": "steps",
         "save_steps": 0.25,
         "report_to": "none",
@@ -199,6 +205,11 @@ def _write_grpo_manifest(
             "pi0_lineage_id": pi0_verification["lineage_id"],
             "gsm8k_dataset_sha": gsm8k_sha,
             "prompt_length_audit": prompt_audit,
+            "signal_ledger": {
+                "enabled": True,
+                "directory": "signal_ledger",
+                "step_semantics": "generation_global_step",
+            },
             "core_diagnostics": [
                 "reward",
                 "frac_reward_zero_std",
@@ -269,6 +280,16 @@ def run_grpo(
     trainer_output = destination / "trainer"
     args = build_grpo_arguments(config, trainer_output, max_steps=pilot_steps)
     _, GRPOTrainer, _ = _load_grpo_classes()
+
+    recorder = RewardBatchRecorder()
+    LedgerGRPOTrainer = make_signal_ledger_trainer(
+        GRPOTrainer,
+        recorder=recorder,
+        ledger_dir=destination / "signal_ledger",
+        importance_sampling_clip_max=config["vllm_importance_sampling_cap"],
+        launch_timestamp=utc_launch_timestamp(),
+    )
+
     callbacks = []
     if mode == "canonical":
         callbacks.append(
@@ -278,10 +299,11 @@ def run_grpo(
                 pi0_lineage_id=pi0_verification["lineage_id"],
             )
         )
-    trainer = GRPOTrainer(
+    trainer = LedgerGRPOTrainer(
         model=model,
         reward_funcs=make_gsm8k_terminated_binary_reward(
-            resolve_terminal_token_ids(tokenizer)
+            resolve_terminal_token_ids(tokenizer),
+            ledger_recorder=recorder,
         ),
         args=args,
         train_dataset=train_dataset,

@@ -400,6 +400,7 @@ def build_gsm8k_rl_rows(dataset_rows) -> list[dict]:
                     {"role": "user", "content": question},
                 ],
                 "answer": gold,
+                "dataset_index": index,
             }
         )
     return rows

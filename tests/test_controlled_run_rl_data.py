@@ -25,7 +25,7 @@ class LengthTokenizer:
         return list(range(length))
 
 
-def test_build_gsm8k_rl_rows_uses_train_question_and_numeric_gold():
+def test_build_gsm8k_rl_rows_uses_train_question_numeric_gold_and_dataset_index():
     rows = build_gsm8k_rl_rows(
         [
             {
@@ -45,6 +45,7 @@ def test_build_gsm8k_rl_rows_uses_train_question_and_numeric_gold():
                 },
             ],
             "answer": "5",
+            "dataset_index": 0,
         }
     ]
 

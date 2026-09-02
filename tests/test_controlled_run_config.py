@@ -46,6 +46,7 @@ def test_grpo_config_matches_precommitted_behavior_study_recipe():
     assert cfg["global_optimizer_batch_size"] == 32
     assert cfg["num_generations"] == 16
     assert cfg["temperature"] == 0.8
+    assert cfg["top_p"] == 1.0
     assert cfg["max_prompt_tokens"] == 512
     assert cfg["max_completion_length"] == 2048
     assert cfg["mask_truncated_completions"] is False
@@ -68,6 +69,13 @@ def test_grpo_config_rejects_changing_frozen_reward_scaling():
     cfg = load_config(ROOT / "controlled_run/configs/grpo_qwen3_0_6b.yaml")
     cfg["scale_rewards"] = "batch"
     with pytest.raises(ValueError, match="scale_rewards"):
+        validate_grpo_config(cfg)
+
+
+def test_grpo_config_rejects_return_to_top_p_095_without_amendment():
+    cfg = load_config(ROOT / "controlled_run/configs/grpo_qwen3_0_6b.yaml")
+    cfg["top_p"] = 0.95
+    with pytest.raises(ValueError, match="top_p"):
         validate_grpo_config(cfg)
 
 

@@ -61,7 +61,7 @@ def test_grpo_config_matches_precommitted_behavior_study_recipe():
     assert cfg["loss_type"] == "dapo"
     assert cfg["scale_rewards"] == "group"
     assert cfg["vllm_importance_sampling_correction"] is True
-    assert cfg["vllm_importance_sampling_mode"] == "sequence_mask"
+    assert cfg["vllm_importance_sampling_mode"] == "token_truncate"
     assert cfg["vllm_importance_sampling_cap"] == 3.0
 
 
@@ -76,6 +76,13 @@ def test_grpo_config_rejects_return_to_top_p_095_without_amendment():
     cfg = load_config(ROOT / "controlled_run/configs/grpo_qwen3_0_6b.yaml")
     cfg["top_p"] = 0.95
     with pytest.raises(ValueError, match="top_p"):
+        validate_grpo_config(cfg)
+
+
+def test_grpo_config_rejects_return_to_sequence_is_without_amendment():
+    cfg = load_config(ROOT / "controlled_run/configs/grpo_qwen3_0_6b.yaml")
+    cfg["vllm_importance_sampling_mode"] = "sequence_mask"
+    with pytest.raises(ValueError, match="vllm_importance_sampling_mode"):
         validate_grpo_config(cfg)
 
 

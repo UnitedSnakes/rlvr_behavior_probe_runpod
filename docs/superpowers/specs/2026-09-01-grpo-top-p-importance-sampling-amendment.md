@@ -7,7 +7,7 @@ Adopted in two stages on 2026-09-01/02.
 1. Rollout sampling changed from `top_p=0.95` to `top_p=1.0` after diagnosing the known top-p / processed-logprob mismatch.
 2. vLLM importance correction changes from `sequence_mask` to `token_truncate` after a preregistered token-level residual diagnostic showed that nearly non-degenerate local ratios become strongly degenerate only when multiplied over the full trajectory.
 
-Canonical GRPO remains **blocked** until the final `token_truncate` revalidation pilot and the amended train-side `p_0` rebaseline pass.
+The final `token_truncate` engineering revalidation **passed on 2026-09-02**. Canonical GRPO remains **blocked only on the amended train-side `p_0` rebaseline and the previously required truncation/shakedown gates that have not been explicitly superseded**.
 
 The reward, completion cap, batch semantics, optimizer, GRPO loss, reward scaling, and exact `pi_0` lineage remain unchanged.
 
@@ -287,7 +287,44 @@ Acceptance checks:
 4. Loss, gradient norm, rewards, and ledger fields remain finite and complete; the pilot must not alter any sampling setting or the canonical `pi_0` lineage.
 5. Record `completions/mean_length` and interpret an increase against the preregistered DAPO/sequence-IS interaction above rather than treating it automatically as failure.
 
-If these checks fail, canonical GRPO remains blocked and the train-side `p_0` bank must not start.
+### Revalidation result — PASS
+
+The final disposable 20-step pilot used the untouched canonical `pi_0` and the frozen `top_p=1.0 + token_truncate` recipe. It produced 640 complete ledger rows over 40 prompt groups and 977,199 active tokens with no missing required fields and no non-finite numeric ledger values.
+
+```text
+actual token ratio mean:                  0.9999041
+actual token log-ratio mean:             -0.0011110
+actual token ESS/N:                       0.9979630
+per-generation ESS/N min/median/max:      0.997691 / 0.997968 / 0.998202
+
+actual mean ratio ~ length slope/1000:    -0.0001236
+actual mean log-ratio ~ length /1000:     -0.0002593
+R^2 (mean ratio / mean log ratio):         0.00418 / 0.01173
+
+sequence hard masks:                       0 / 640
+raw token ratios > 3:                      1 / 977,199
+actual ratios at cap 3:                    1 / 977,199
+cap fraction:                              1.02e-6
+
+counterfactual sum Delta ~ length slope:  -0.0013501/token
+counterfactual R^2:                        0.15825
+```
+
+The actual token-level correction is therefore essentially non-degenerate and its per-rollout mean has only a tiny residual association with completion length. Across a 1500-token illustrative length span, the fitted mean-log-ratio trend changes local log weight by only about `3.9e-4`, negligible relative to the nominal 1.5--1.6x difficulty-allocation contrasts under study. The counterfactual sequence-product slope remains negative as expected; it is no longer the training weight.
+
+The preregistered expectation of zero or negligible token clamping is satisfied, but it is important to record the exact result rather than round it to zero: **one** active token out of 977,199 exceeded the upper cap and was truncated to 3. No sequence was hard-masked.
+
+Completion-length comparison to the preceding `sequence_mask` diagnostic pilot was mixed rather than directionally decisive:
+
+```text
+mean length:       1506.5 -> 1526.9  (+20.4)
+median length:     1962   -> 1856
+cap rate @2048:    49.38% -> 46.72%
+```
+
+The preregistered statement was only that mean length *may* increase when the reverse sequence-IS bias is removed; this short stochastic comparison is not treated as evidence for or against a DAPO-induced length trend.
+
+**Decision:** the token-IS engineering gate is released. Do not reopen sequence-level IS absent a new written amendment. Proceed to the amended train-side `K=32` `p_0` rebaseline before canonical GRPO.
 
 ## Consequences for probability banks and truncation evidence
 

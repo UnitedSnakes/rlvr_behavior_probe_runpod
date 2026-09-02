@@ -24,7 +24,32 @@ LEDGER_FIELDS = (
     "effective_log_rho",
     "importance_sampling_ratio",
     "upper_cap_masked",
+    "token_delta_count",
+    "token_delta_mean",
+    "token_delta_std",
+    "token_delta_min",
+    "token_delta_max",
+    "token_delta_positive_fraction",
+    "token_ratio_sum",
+    "token_ratio_sq_sum",
+    "token_ratio_gt_clip_fraction",
+    "token_abs_delta_gt_1_fraction",
+    "trimmed_token_count_1pct",
+    "trimmed_raw_log_rho_1pct",
 )
+
+
+def _validate_per_token_inputs(
+    old_per_token_logps: torch.Tensor,
+    sampling_per_token_logps: torch.Tensor,
+    mask: torch.Tensor,
+) -> None:
+    if old_per_token_logps.shape != sampling_per_token_logps.shape:
+        raise ValueError("old and sampling log-probability tensors must have matching shapes")
+    if mask.shape != old_per_token_logps.shape:
+        raise ValueError("importance-sampling mask must match per-token log-probability shape")
+    if old_per_token_logps.ndim != 2:
+        raise ValueError("per-token log-probability tensors must be rank-2 [batch, tokens]")
 
 
 def compute_raw_sequence_log_rho(
@@ -33,14 +58,95 @@ def compute_raw_sequence_log_rho(
     mask: torch.Tensor,
 ) -> torch.Tensor:
     """Reconstruct the sequence log-ratio before exp/masking exactly as TRL does."""
-    if old_per_token_logps.shape != sampling_per_token_logps.shape:
-        raise ValueError("old and sampling log-probability tensors must have matching shapes")
-    if mask.shape != old_per_token_logps.shape:
-        raise ValueError("importance-sampling mask must match per-token log-probability shape")
+    _validate_per_token_inputs(old_per_token_logps, sampling_per_token_logps, mask)
 
     per_token_diff = (old_per_token_logps - sampling_per_token_logps) * mask
     per_token_diff = torch.nan_to_num(per_token_diff, nan=0.0)
     return per_token_diff.sum(dim=-1, keepdim=True)
+
+
+def compute_token_logprob_summary(
+    old_per_token_logps: torch.Tensor,
+    sampling_per_token_logps: torch.Tensor,
+    mask: torch.Tensor,
+    *,
+    clip_max: float | None,
+    trim_fraction: float = 0.01,
+) -> dict[str, torch.Tensor]:
+    """Summarize active-token train-vs-vLLM log-probability discrepancies.
+
+    The returned statistics are per rollout and intentionally avoid storing the
+    full token array. Ratio sums are accumulated in float64 so aggregate
+    token-level ESS can later be reconstructed exactly as
+    `(sum rho)^2 / sum rho^2` across ledger rows.
+    """
+    _validate_per_token_inputs(old_per_token_logps, sampling_per_token_logps, mask)
+    if not 0.0 <= trim_fraction < 1.0:
+        raise ValueError("trim_fraction must lie in [0, 1)")
+    if clip_max is not None and clip_max <= 0:
+        raise ValueError("clip_max must be positive when supplied")
+
+    raw_delta = old_per_token_logps - sampling_per_token_logps
+    active_mask = mask.to(dtype=torch.bool)
+    clip_log = math.log(clip_max) if clip_max is not None else None
+
+    values: dict[str, list[torch.Tensor]] = {
+        "token_delta_count": [],
+        "token_delta_mean": [],
+        "token_delta_std": [],
+        "token_delta_min": [],
+        "token_delta_max": [],
+        "token_delta_positive_fraction": [],
+        "token_ratio_sum": [],
+        "token_ratio_sq_sum": [],
+        "token_ratio_gt_clip_fraction": [],
+        "token_abs_delta_gt_1_fraction": [],
+        "trimmed_token_count_1pct": [],
+        "trimmed_raw_log_rho_1pct": [],
+    }
+
+    for row_index in range(raw_delta.shape[0]):
+        active = raw_delta[row_index][active_mask[row_index]]
+        if active.numel() == 0:
+            raise ValueError("token-level IS summary requires at least one active token per rollout")
+        active = torch.nan_to_num(active, nan=0.0).to(torch.float64)
+        count = int(active.numel())
+        count_tensor = torch.tensor(count, dtype=torch.int64, device=active.device)
+
+        values["token_delta_count"].append(count_tensor)
+        values["token_delta_mean"].append(active.mean())
+        values["token_delta_std"].append(active.std(correction=0))
+        values["token_delta_min"].append(active.min())
+        values["token_delta_max"].append(active.max())
+        values["token_delta_positive_fraction"].append((active > 0).to(torch.float64).mean())
+
+        ratios = torch.exp(active)
+        values["token_ratio_sum"].append(ratios.sum())
+        values["token_ratio_sq_sum"].append(torch.exp(2.0 * active).sum())
+        if clip_log is None:
+            values["token_ratio_gt_clip_fraction"].append(torch.zeros((), dtype=torch.float64, device=active.device))
+        else:
+            values["token_ratio_gt_clip_fraction"].append(
+                (active > clip_log).to(torch.float64).mean()
+            )
+        values["token_abs_delta_gt_1_fraction"].append(
+            (active.abs() > 1.0).to(torch.float64).mean()
+        )
+
+        trim_count = math.floor(trim_fraction * count)
+        if trim_count:
+            remove = torch.topk(active.abs(), k=trim_count, largest=True).indices
+            keep = torch.ones(count, dtype=torch.bool, device=active.device)
+            keep[remove] = False
+            trimmed = active[keep]
+        else:
+            trimmed = active
+        values["trimmed_token_count_1pct"].append(
+            torch.tensor(trimmed.numel(), dtype=torch.int64, device=active.device)
+        )
+        values["trimmed_raw_log_rho_1pct"].append(trimmed.sum())
+
+    return {name: torch.stack(items) for name, items in values.items()}
 
 
 def compute_effective_log_rho(importance_sampling_ratio: torch.Tensor) -> torch.Tensor:
@@ -120,6 +226,12 @@ def _optional_scalar(tensor: torch.Tensor | None, index: int) -> float | None:
         return None
     value = float(tensor[index].item())
     return value if math.isfinite(value) else None
+
+
+def _optional_int(tensor: torch.Tensor | None, index: int) -> int | None:
+    if tensor is None:
+        return None
+    return int(tensor[index].item())
 
 
 def append_ledger_rows(path: Path, rows: list[dict]) -> None:
@@ -204,6 +316,7 @@ def make_signal_ledger_trainer(
             effective_log_rho = None
             post_mask_ratio = output.get("importance_sampling_ratio")
             upper_cap_masked = None
+            token_summary = None
 
             old_per_token_logps = output.get("old_per_token_logps")
             sampling_per_token_logps = output.get("sampling_per_token_logps")
@@ -215,6 +328,13 @@ def make_signal_ledger_trainer(
                     old_per_token_logps,
                     sampling_per_token_logps,
                     loss_mask,
+                )
+                token_summary = compute_token_logprob_summary(
+                    old_per_token_logps,
+                    sampling_per_token_logps,
+                    loss_mask,
+                    clip_max=importance_sampling_clip_max,
+                    trim_fraction=0.01,
                 )
                 upper_cap_masked = infer_upper_cap_mask(
                     raw_log_rho,
@@ -246,6 +366,42 @@ def make_signal_ledger_trainer(
                         "importance_sampling_ratio": _optional_scalar(post_mask_ratio, index),
                         "upper_cap_masked": (
                             bool(upper_cap_masked[index].item()) if upper_cap_masked is not None else None
+                        ),
+                        "token_delta_count": _optional_int(
+                            None if token_summary is None else token_summary["token_delta_count"], index
+                        ),
+                        "token_delta_mean": _optional_scalar(
+                            None if token_summary is None else token_summary["token_delta_mean"], index
+                        ),
+                        "token_delta_std": _optional_scalar(
+                            None if token_summary is None else token_summary["token_delta_std"], index
+                        ),
+                        "token_delta_min": _optional_scalar(
+                            None if token_summary is None else token_summary["token_delta_min"], index
+                        ),
+                        "token_delta_max": _optional_scalar(
+                            None if token_summary is None else token_summary["token_delta_max"], index
+                        ),
+                        "token_delta_positive_fraction": _optional_scalar(
+                            None if token_summary is None else token_summary["token_delta_positive_fraction"], index
+                        ),
+                        "token_ratio_sum": _optional_scalar(
+                            None if token_summary is None else token_summary["token_ratio_sum"], index
+                        ),
+                        "token_ratio_sq_sum": _optional_scalar(
+                            None if token_summary is None else token_summary["token_ratio_sq_sum"], index
+                        ),
+                        "token_ratio_gt_clip_fraction": _optional_scalar(
+                            None if token_summary is None else token_summary["token_ratio_gt_clip_fraction"], index
+                        ),
+                        "token_abs_delta_gt_1_fraction": _optional_scalar(
+                            None if token_summary is None else token_summary["token_abs_delta_gt_1_fraction"], index
+                        ),
+                        "trimmed_token_count_1pct": _optional_int(
+                            None if token_summary is None else token_summary["trimmed_token_count_1pct"], index
+                        ),
+                        "trimmed_raw_log_rho_1pct": _optional_scalar(
+                            None if token_summary is None else token_summary["trimmed_raw_log_rho_1pct"], index
                         ),
                     }
                 )

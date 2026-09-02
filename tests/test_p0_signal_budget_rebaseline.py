@@ -1,8 +1,21 @@
 from __future__ import annotations
 
 import math
+import sys
+import types
 
 import pytest
+
+
+# CPU CI deliberately does not install vLLM. Stub import-only symbols before
+# importing the diagnostic module; behavioral tests inject their own fakes.
+vllm = types.ModuleType("vllm")
+vllm.LLM = object
+vllm.SamplingParams = object
+vllm_inputs = types.ModuleType("vllm.inputs")
+vllm_inputs.TokensPrompt = object
+sys.modules.setdefault("vllm", vllm)
+sys.modules.setdefault("vllm.inputs", vllm_inputs)
 
 import diagnose_p0_signal_budget as p0diag
 

@@ -68,7 +68,7 @@ GRPO_INVARIANTS = {
     "gradient_accumulation_steps": 4,
     "generation_batch_size": 32,
     "vllm_importance_sampling_correction": True,
-    "vllm_importance_sampling_mode": "sequence_mask",
+    "vllm_importance_sampling_mode": "token_truncate",
     "vllm_importance_sampling_cap": 3.0,
     "seed": SEED,
 }

@@ -36,6 +36,15 @@ LEDGER_FIELDS = (
     "token_abs_delta_gt_1_fraction",
     "trimmed_token_count_1pct",
     "trimmed_raw_log_rho_1pct",
+    "actual_is_ratio_count",
+    "actual_is_ratio_mean",
+    "actual_is_ratio_std",
+    "actual_is_ratio_min",
+    "actual_is_ratio_max",
+    "actual_is_ratio_sum",
+    "actual_is_ratio_sq_sum",
+    "actual_is_log_ratio_mean",
+    "actual_is_ratio_at_upper_cap_fraction",
 )
 
 
@@ -57,7 +66,7 @@ def compute_raw_sequence_log_rho(
     sampling_per_token_logps: torch.Tensor,
     mask: torch.Tensor,
 ) -> torch.Tensor:
-    """Reconstruct the sequence log-ratio before exp/masking exactly as TRL does."""
+    """Counterfactual sequence-product log-ratio before any vLLM IS clipping/masking."""
     _validate_per_token_inputs(old_per_token_logps, sampling_per_token_logps, mask)
 
     per_token_diff = (old_per_token_logps - sampling_per_token_logps) * mask
@@ -73,13 +82,7 @@ def compute_token_logprob_summary(
     clip_max: float | None,
     trim_fraction: float = 0.01,
 ) -> dict[str, torch.Tensor]:
-    """Summarize active-token train-vs-vLLM log-probability discrepancies.
-
-    The returned statistics are per rollout and intentionally avoid storing the
-    full token array. Ratio sums are accumulated in float64 so aggregate
-    token-level ESS can later be reconstructed exactly as
-    `(sum rho)^2 / sum rho^2` across ledger rows.
-    """
+    """Summarize active-token train-vs-vLLM log-probability discrepancies."""
     _validate_per_token_inputs(old_per_token_logps, sampling_per_token_logps, mask)
     if not 0.0 <= trim_fraction < 1.0:
         raise ValueError("trim_fraction must lie in [0, 1)")
@@ -111,9 +114,10 @@ def compute_token_logprob_summary(
             raise ValueError("token-level IS summary requires at least one active token per rollout")
         active = torch.nan_to_num(active, nan=0.0).to(torch.float64)
         count = int(active.numel())
-        count_tensor = torch.tensor(count, dtype=torch.int64, device=active.device)
 
-        values["token_delta_count"].append(count_tensor)
+        values["token_delta_count"].append(
+            torch.tensor(count, dtype=torch.int64, device=active.device)
+        )
         values["token_delta_mean"].append(active.mean())
         values["token_delta_std"].append(active.std(correction=0))
         values["token_delta_min"].append(active.min())
@@ -124,7 +128,9 @@ def compute_token_logprob_summary(
         values["token_ratio_sum"].append(ratios.sum())
         values["token_ratio_sq_sum"].append(torch.exp(2.0 * active).sum())
         if clip_log is None:
-            values["token_ratio_gt_clip_fraction"].append(torch.zeros((), dtype=torch.float64, device=active.device))
+            values["token_ratio_gt_clip_fraction"].append(
+                torch.zeros((), dtype=torch.float64, device=active.device)
+            )
         else:
             values["token_ratio_gt_clip_fraction"].append(
                 (active > clip_log).to(torch.float64).mean()
@@ -149,19 +155,71 @@ def compute_token_logprob_summary(
     return {name: torch.stack(items) for name, items in values.items()}
 
 
-def compute_effective_log_rho(importance_sampling_ratio: torch.Tensor) -> torch.Tensor:
-    """Log of the post-mask ratio that DAPO actually multiplies into the loss.
+def compute_actual_token_is_ratio_summary(
+    importance_sampling_ratio: torch.Tensor,
+    mask: torch.Tensor,
+    *,
+    clip_max: float | None,
+) -> dict[str, torch.Tensor]:
+    """Summarize the post-truncate token ratios actually multiplied into DAPO loss."""
+    if importance_sampling_ratio.ndim != 2:
+        raise ValueError("actual token IS ratios must be rank-2 [batch, tokens]")
+    if importance_sampling_ratio.shape != mask.shape:
+        raise ValueError("actual token IS ratios must match the active loss-mask shape")
+    if clip_max is not None and clip_max <= 0:
+        raise ValueError("clip_max must be positive when supplied")
 
-    For the canonical DAPO path TRL does not clamp this value again in log
-    space. A zero post-mask ratio therefore maps to -inf. The raw log-ratio and
-    upper-cap flag are logged separately so an upper-cap rejection can be
-    distinguished from floating-point underflow.
-    """
+    active_mask = mask.to(dtype=torch.bool)
+    values: dict[str, list[torch.Tensor]] = {
+        "actual_is_ratio_count": [],
+        "actual_is_ratio_mean": [],
+        "actual_is_ratio_std": [],
+        "actual_is_ratio_min": [],
+        "actual_is_ratio_max": [],
+        "actual_is_ratio_sum": [],
+        "actual_is_ratio_sq_sum": [],
+        "actual_is_log_ratio_mean": [],
+        "actual_is_ratio_at_upper_cap_fraction": [],
+    }
+
+    for row_index in range(importance_sampling_ratio.shape[0]):
+        active = importance_sampling_ratio[row_index][active_mask[row_index]].to(torch.float64)
+        if active.numel() == 0:
+            raise ValueError("actual token IS summary requires at least one active token per rollout")
+        if not torch.isfinite(active).all():
+            raise ValueError("actual token IS ratios must be finite on active tokens")
+        if (active <= 0).any():
+            raise ValueError("actual token IS ratios must be positive on active tokens")
+
+        values["actual_is_ratio_count"].append(
+            torch.tensor(active.numel(), dtype=torch.int64, device=active.device)
+        )
+        values["actual_is_ratio_mean"].append(active.mean())
+        values["actual_is_ratio_std"].append(active.std(correction=0))
+        values["actual_is_ratio_min"].append(active.min())
+        values["actual_is_ratio_max"].append(active.max())
+        values["actual_is_ratio_sum"].append(active.sum())
+        values["actual_is_ratio_sq_sum"].append((active * active).sum())
+        values["actual_is_log_ratio_mean"].append(torch.log(active).mean())
+        if clip_max is None:
+            values["actual_is_ratio_at_upper_cap_fraction"].append(
+                torch.zeros((), dtype=torch.float64, device=active.device)
+            )
+        else:
+            values["actual_is_ratio_at_upper_cap_fraction"].append(
+                (active >= clip_max).to(torch.float64).mean()
+            )
+
+    return {name: torch.stack(items) for name, items in values.items()}
+
+
+def compute_effective_log_rho(importance_sampling_ratio: torch.Tensor) -> torch.Tensor:
+    """Log of a scalar post-mask sequence ratio used by legacy sequence-mode pilots."""
     return torch.log(importance_sampling_ratio)
 
 
 def infer_upper_cap_mask(raw_log_rho: torch.Tensor, *, clip_max: float | None) -> torch.Tensor:
-    """Infer sequence-mask rejection from the pre-exp ratio, before zero-fill erases provenance."""
+    """Infer legacy sequence-mask rejection from the pre-exp sequence ratio."""
     if clip_max is None:
         return torch.zeros_like(raw_log_rho, dtype=torch.bool)
     if clip_max <= 0:
@@ -262,9 +320,17 @@ def make_signal_ledger_trainer(
     recorder: RewardBatchRecorder,
     ledger_dir: Path,
     importance_sampling_clip_max: float | None,
+    importance_sampling_mode: str,
     launch_timestamp: str,
 ):
     """Wrap TRL's trainer without copying its generation or loss implementation."""
+    if importance_sampling_mode not in {
+        "sequence_mask",
+        "sequence_truncate",
+        "token_mask",
+        "token_truncate",
+    }:
+        raise ValueError(f"Unsupported importance-sampling mode: {importance_sampling_mode}")
 
     class SignalLedgerGRPOTrainer(base_trainer_class):
         def _generate_and_score_completions(self, inputs):
@@ -314,9 +380,11 @@ def make_signal_ledger_trainer(
 
             raw_log_rho = None
             effective_log_rho = None
-            post_mask_ratio = output.get("importance_sampling_ratio")
+            post_is_ratio = output.get("importance_sampling_ratio")
             upper_cap_masked = None
             token_summary = None
+            actual_is_summary = None
+            loss_mask = None
 
             old_per_token_logps = output.get("old_per_token_logps")
             sampling_per_token_logps = output.get("sampling_per_token_logps")
@@ -336,17 +404,34 @@ def make_signal_ledger_trainer(
                     clip_max=importance_sampling_clip_max,
                     trim_fraction=0.01,
                 )
-                upper_cap_masked = infer_upper_cap_mask(
-                    raw_log_rho,
-                    clip_max=importance_sampling_clip_max,
-                )
 
-            if post_mask_ratio is not None:
-                if post_mask_ratio.ndim != 2 or post_mask_ratio.shape[1] != 1:
-                    raise RuntimeError(
-                        "Canonical signal ledger expects sequence-level vLLM importance sampling ratios"
+            sequence_mode = importance_sampling_mode.startswith("sequence_")
+            token_mode = importance_sampling_mode.startswith("token_")
+            if post_is_ratio is not None:
+                if sequence_mode:
+                    if post_is_ratio.ndim != 2 or post_is_ratio.shape[1] != 1:
+                        raise RuntimeError(
+                            "Sequence-level vLLM IS mode must return ratios with shape [B,1]"
+                        )
+                    effective_log_rho = compute_effective_log_rho(post_is_ratio)
+                    if importance_sampling_mode == "sequence_mask" and raw_log_rho is not None:
+                        upper_cap_masked = infer_upper_cap_mask(
+                            raw_log_rho,
+                            clip_max=importance_sampling_clip_max,
+                        )
+                    else:
+                        upper_cap_masked = torch.zeros_like(post_is_ratio, dtype=torch.bool)
+                elif token_mode:
+                    if loss_mask is None:
+                        raise RuntimeError("Token-level vLLM IS requires a completion loss mask")
+                    actual_is_summary = compute_actual_token_is_ratio_summary(
+                        post_is_ratio,
+                        loss_mask,
+                        clip_max=importance_sampling_clip_max,
                     )
-                effective_log_rho = compute_effective_log_rho(post_mask_ratio)
+                    upper_cap_masked = torch.zeros(
+                        (local_count, 1), dtype=torch.bool, device=advantages.device
+                    )
 
             rank = int(self.accelerator.process_index)
             ledger_path = Path(ledger_dir) / f"signal_ledger_{launch_timestamp}_rank{rank}.jsonl"
@@ -363,7 +448,9 @@ def make_signal_ledger_trainer(
                         "advantage": float(advantages[index].item()),
                         "raw_log_rho": _optional_scalar(raw_log_rho, index),
                         "effective_log_rho": _optional_scalar(effective_log_rho, index),
-                        "importance_sampling_ratio": _optional_scalar(post_mask_ratio, index),
+                        "importance_sampling_ratio": (
+                            _optional_scalar(post_is_ratio, index) if sequence_mode else None
+                        ),
                         "upper_cap_masked": (
                             bool(upper_cap_masked[index].item()) if upper_cap_masked is not None else None
                         ),
@@ -402,6 +489,36 @@ def make_signal_ledger_trainer(
                         ),
                         "trimmed_raw_log_rho_1pct": _optional_scalar(
                             None if token_summary is None else token_summary["trimmed_raw_log_rho_1pct"], index
+                        ),
+                        "actual_is_ratio_count": _optional_int(
+                            None if actual_is_summary is None else actual_is_summary["actual_is_ratio_count"], index
+                        ),
+                        "actual_is_ratio_mean": _optional_scalar(
+                            None if actual_is_summary is None else actual_is_summary["actual_is_ratio_mean"], index
+                        ),
+                        "actual_is_ratio_std": _optional_scalar(
+                            None if actual_is_summary is None else actual_is_summary["actual_is_ratio_std"], index
+                        ),
+                        "actual_is_ratio_min": _optional_scalar(
+                            None if actual_is_summary is None else actual_is_summary["actual_is_ratio_min"], index
+                        ),
+                        "actual_is_ratio_max": _optional_scalar(
+                            None if actual_is_summary is None else actual_is_summary["actual_is_ratio_max"], index
+                        ),
+                        "actual_is_ratio_sum": _optional_scalar(
+                            None if actual_is_summary is None else actual_is_summary["actual_is_ratio_sum"], index
+                        ),
+                        "actual_is_ratio_sq_sum": _optional_scalar(
+                            None if actual_is_summary is None else actual_is_summary["actual_is_ratio_sq_sum"], index
+                        ),
+                        "actual_is_log_ratio_mean": _optional_scalar(
+                            None if actual_is_summary is None else actual_is_summary["actual_is_log_ratio_mean"], index
+                        ),
+                        "actual_is_ratio_at_upper_cap_fraction": _optional_scalar(
+                            None
+                            if actual_is_summary is None
+                            else actual_is_summary["actual_is_ratio_at_upper_cap_fraction"],
+                            index,
                         ),
                     }
                 )

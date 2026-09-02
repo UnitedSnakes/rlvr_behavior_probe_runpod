@@ -13,9 +13,6 @@ def test_sequence_log_rho_keeps_raw_tail_and_matches_dapo_effective_ratio():
     old = torch.tensor([[-50.0, -50.0], [math.log(2.0), math.log(2.0)]])
     sampling = torch.zeros_like(old)
     mask = torch.ones_like(old)
-    # In sequence_mask mode both numerical underflow and an upper-cap rejection
-    # can appear as a post-mask ratio of exactly zero. The raw log ratio keeps
-    # those cases distinguishable.
     post_mask_ratio = torch.tensor([[0.0], [0.0]])
 
     raw = ledger.compute_raw_sequence_log_rho(old, sampling, mask)
@@ -34,7 +31,7 @@ def test_token_logprob_summary_is_mask_aware_and_supports_trimmed_slope_and_ess(
     delta[0, 0] = 2.0
     delta[0, 1] = -0.5
     delta[0, 2] = 0.2
-    delta[0, 100] = 100.0  # masked: must not enter any statistic
+    delta[0, 100] = 100.0
     old = delta.clone()
     sampling = torch.zeros_like(old)
     mask = torch.ones_like(old)
@@ -62,9 +59,35 @@ def test_token_logprob_summary_is_mask_aware_and_supports_trimmed_slope_and_ess(
     assert torch.allclose(summary["token_ratio_sq_sum"][0], expected_ratio_sq_sum)
     assert math.isclose(summary["token_ratio_gt_clip_fraction"][0].item(), 0.01)
     assert math.isclose(summary["token_abs_delta_gt_1_fraction"][0].item(), 0.01)
-    # floor(1% * 100) = 1: remove the largest |delta| token, +2.0.
     assert summary["trimmed_token_count_1pct"][0].item() == 99
     assert math.isclose(summary["trimmed_raw_log_rho_1pct"][0].item(), -0.3, abs_tol=1e-12)
+
+
+def test_actual_token_is_ratio_summary_uses_active_training_ratios():
+    ledger = importlib.import_module("controlled_run.signal_ledger")
+
+    ratio = torch.tensor(
+        [[0.5, 1.0, 2.0, 3.0], [1.0, 1.5, 99.0, 99.0]],
+        dtype=torch.float64,
+    )
+    mask = torch.tensor(
+        [[1, 1, 1, 0], [1, 1, 0, 0]],
+        dtype=torch.float64,
+    )
+
+    summary = ledger.compute_actual_token_is_ratio_summary(ratio, mask, clip_max=3.0)
+
+    assert summary["actual_is_ratio_count"].tolist() == [3, 2]
+    assert torch.allclose(summary["actual_is_ratio_mean"], torch.tensor([3.5 / 3, 1.25], dtype=torch.float64))
+    assert torch.allclose(summary["actual_is_ratio_min"], torch.tensor([0.5, 1.0], dtype=torch.float64))
+    assert torch.allclose(summary["actual_is_ratio_max"], torch.tensor([2.0, 1.5], dtype=torch.float64))
+    assert torch.allclose(summary["actual_is_ratio_sum"], torch.tensor([3.5, 2.5], dtype=torch.float64))
+    assert torch.allclose(summary["actual_is_ratio_sq_sum"], torch.tensor([5.25, 3.25], dtype=torch.float64))
+    assert torch.allclose(
+        summary["actual_is_log_ratio_mean"],
+        torch.tensor([(math.log(0.5) + math.log(2.0)) / 3, math.log(1.5) / 2], dtype=torch.float64),
+    )
+    assert summary["actual_is_ratio_at_upper_cap_fraction"].tolist() == [0.0, 0.0]
 
 
 def test_signal_ledger_jsonl_schema_is_complete(tmp_path):
@@ -82,8 +105,8 @@ def test_signal_ledger_jsonl_schema_is_complete(tmp_path):
         "group_reward_std": 0.5,
         "advantage": 1.2,
         "raw_log_rho": -4.3,
-        "effective_log_rho": -4.3,
-        "importance_sampling_ratio": 0.0136,
+        "effective_log_rho": None,
+        "importance_sampling_ratio": None,
         "upper_cap_masked": False,
         "token_delta_count": 731,
         "token_delta_mean": -0.0059,
@@ -97,6 +120,15 @@ def test_signal_ledger_jsonl_schema_is_complete(tmp_path):
         "token_abs_delta_gt_1_fraction": 0.0,
         "trimmed_token_count_1pct": 724,
         "trimmed_raw_log_rho_1pct": -3.9,
+        "actual_is_ratio_count": 731,
+        "actual_is_ratio_mean": 1.0001,
+        "actual_is_ratio_std": 0.04,
+        "actual_is_ratio_min": 0.5,
+        "actual_is_ratio_max": 1.9,
+        "actual_is_ratio_sum": 731.1,
+        "actual_is_ratio_sq_sum": 732.4,
+        "actual_is_log_ratio_mean": -0.0007,
+        "actual_is_ratio_at_upper_cap_fraction": 0.0,
     }
 
     path = tmp_path / "signal_ledger.jsonl"

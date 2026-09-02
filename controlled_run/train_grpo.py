@@ -209,6 +209,8 @@ def _write_grpo_manifest(
                 "enabled": True,
                 "directory": "signal_ledger",
                 "step_semantics": "generation_global_step",
+                "raw_log_rho_semantics": "counterfactual_sequence_sum_of_token_logprob_differences",
+                "actual_is_semantics": config["vllm_importance_sampling_mode"],
             },
             "core_diagnostics": [
                 "reward",
@@ -287,6 +289,7 @@ def run_grpo(
         recorder=recorder,
         ledger_dir=destination / "signal_ledger",
         importance_sampling_clip_max=config["vllm_importance_sampling_cap"],
+        importance_sampling_mode=config["vllm_importance_sampling_mode"],
         launch_timestamp=utc_launch_timestamp(),
     )
 

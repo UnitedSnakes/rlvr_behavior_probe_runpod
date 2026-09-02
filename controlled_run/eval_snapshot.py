@@ -21,12 +21,18 @@ from controlled_run.sample_p0 import (
     _prompt_token_ids,
     canonical_sampling_settings,
     collect_runtime_metadata,
-    question_seed,
     select_indexed_rows,
 )
 
 
 DEFAULT_OUTPUT_DIR = Path("controlled_run_outputs/snapshot_eval")
+SNAPSHOT_SEED_OFFSET = 75_000
+
+
+def snapshot_question_seed(seed: int, dataset_index: int) -> int:
+    if dataset_index < 0:
+        raise ValueError("dataset_index must be non-negative")
+    return int(seed) * 100_000 + int(dataset_index) + SNAPSHOT_SEED_OFFSET
 
 
 def _load_json(path: Path) -> dict:
@@ -187,7 +193,7 @@ def sample_snapshot_rows(
             add_generation_prompt=True,
         )
         prompt = tokens_prompt_cls(prompt_token_ids=_prompt_token_ids(encoded_prompt))
-        seed = question_seed(settings["seed"], dataset_index)
+        seed = snapshot_question_seed(settings["seed"], dataset_index)
         sampling_params = sampling_params_cls(
             n=settings["num_generations"],
             temperature=settings["temperature"],

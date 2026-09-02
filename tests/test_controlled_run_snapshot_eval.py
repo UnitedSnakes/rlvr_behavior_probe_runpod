@@ -256,12 +256,12 @@ def test_snapshot_sampling_inherits_frozen_config_and_records_token_semantics(mo
         "top_k": config["top_k"],
         "repetition_penalty": config["repetition_penalty"],
         "max_tokens": config["max_completion_length"],
-        "seed": 4_200_017,
+        "seed": 4_275_017,
     }
 
     record = json.loads(output_path.read_text(encoding="utf-8"))
     assert record["dataset_index"] == 17
-    assert record["question_seed"] == 4_200_017
+    assert record["question_seed"] == 4_275_017
     assert record["n_correct"] == 2
     assert record["n_terminated"] == 1
     assert record["n_reward"] == 1

@@ -41,7 +41,7 @@ GRPO_INVARIANTS = {
     "reward": "binary_terminated_final_answer_correctness",
     "num_generations": 16,
     "temperature": 0.8,
-    "top_p": 0.95,
+    "top_p": 1.0,
     "top_k": 0,
     "repetition_penalty": 1.0,
     "max_prompt_tokens": 512,

@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import torch
 
+from controlled_run.signal_ledger import RewardBatchRecorder
+
 
 ADVANTAGE_ESTIMATOR = "practical_maxrl"
 ALL_FAILURE_BEHAVIOR = "zero_group_gradient"
@@ -52,7 +54,7 @@ def compute_practical_maxrl_advantages(
     group, p_hat is at least 1/N.
 
     The input is expected to contain complete prompt groups contiguously, as in
-    the GRPO generated batch after cross-process gathering.
+    TRL's globally aggregated GRPO reward tensor before its rank-local slice.
     """
     group_size = _validate_group_size(group_size)
     _validate_binary_rewards(rewards, group_size)
@@ -81,3 +83,74 @@ def practical_maxrl_metadata(*, group_size: int) -> dict[str, object]:
         "all_failure_behavior": ALL_FAILURE_BEHAVIOR,
         "maxrl_denominator_epsilon": DENOMINATOR_EPSILON,
     }
+
+
+class MaxRLRewardBatchRecorder(RewardBatchRecorder):
+    """Reward handoff that MaxRL can inspect before the ledger consumes it."""
+
+    def peek(self) -> list[dict]:
+        if self._pending is None:
+            raise RuntimeError("MaxRL reward metadata is missing for this generation")
+        return [dict(row) for row in self._pending]
+
+
+def make_practical_maxrl_trainer(base_trainer_class, *, recorder: MaxRLRewardBatchRecorder):
+    """Wrap a TRL-compatible trainer by replacing only its group advantages.
+
+    This wrapper is intended to sit *inside* the existing signal-ledger wrapper:
+
+        TRL GRPOTrainer -> practical MaxRL wrapper -> signal-ledger wrapper
+
+    The reward recorder is peeked here and consumed later by the ledger. This
+    leaves the canonical GRPO ledger wrapper unchanged while ensuring that the
+    ledger records the exact advantage tensor subsequently consumed by the loss.
+    """
+
+    class PracticalMaxRLTrainer(base_trainer_class):
+        def _generate_and_score_completions(self, inputs):
+            output = super()._generate_and_score_completions(inputs)
+            metadata = recorder.peek()
+
+            base_advantages = output.get("advantages")
+            if base_advantages is None:
+                raise RuntimeError("Practical MaxRL requires trainer output['advantages']")
+            if base_advantages.ndim != 1:
+                raise RuntimeError("Practical MaxRL expects local advantages to be one-dimensional")
+
+            local_count = len(metadata)
+            if int(base_advantages.shape[0]) != local_count:
+                raise RuntimeError(
+                    "MaxRL reward metadata count does not match local trainer advantages: "
+                    f"{local_count} != {int(base_advantages.shape[0])}"
+                )
+
+            local_rewards = torch.tensor(
+                [row["canonical_reward"] for row in metadata],
+                dtype=torch.float32,
+                device=base_advantages.device,
+            )
+            global_rewards = self.accelerator.gather(local_rewards)
+
+            group_size = int(self.num_generations if self.model.training else self.num_generations_eval)
+            global_advantages = compute_practical_maxrl_advantages(
+                global_rewards,
+                group_size=group_size,
+            )
+
+            start = int(self.accelerator.process_index) * local_count
+            stop = start + local_count
+            local_advantages = global_advantages[start:stop]
+            if int(local_advantages.numel()) != local_count:
+                raise RuntimeError(
+                    "Practical MaxRL process slice does not match local generation batch: "
+                    f"{int(local_advantages.numel())} != {local_count}"
+                )
+
+            output["advantages"] = local_advantages.to(
+                device=base_advantages.device,
+                dtype=base_advantages.dtype,
+            )
+            return output
+
+    PracticalMaxRLTrainer.__name__ = "PracticalMaxRLTrainer"
+    return PracticalMaxRLTrainer

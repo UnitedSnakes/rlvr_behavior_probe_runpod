@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import json
 
-import pytest
 import torch
 
-from controlled_run.signal_ledger import RewardBatchRecorder, make_signal_ledger_trainer
+from controlled_run.maxrl import MaxRLRewardBatchRecorder, make_practical_maxrl_trainer
+from controlled_run.signal_ledger import make_signal_ledger_trainer
 
 
 class FakeAccelerator:
@@ -48,7 +48,7 @@ class FakeBaseTrainer:
         return {"advantages": self._output_advantages.clone()}
 
 
-def _capture_group(recorder: RewardBatchRecorder, rewards, *, dataset_index=10) -> None:
+def _capture_group(recorder: MaxRLRewardBatchRecorder, rewards, *, dataset_index=10) -> None:
     recorder.capture(
         dataset_indices=[dataset_index] * len(rewards),
         correctness=[bool(reward) for reward in rewards],
@@ -64,38 +64,22 @@ def _ledger_advantages(tmp_path, *, rank=0):
     return [row["advantage"] for row in rows]
 
 
-def test_signal_ledger_default_grpo_path_preserves_base_advantages(tmp_path):
-    recorder = RewardBatchRecorder()
-    _capture_group(recorder, [1.0, 0.0, 0.0, 0.0])
-    trainer_cls = make_signal_ledger_trainer(
-        FakeBaseTrainer,
+def _wrapped_trainer(recorder, tmp_path):
+    maxrl_trainer = make_practical_maxrl_trainer(FakeBaseTrainer, recorder=recorder)
+    return make_signal_ledger_trainer(
+        maxrl_trainer,
         recorder=recorder,
         ledger_dir=tmp_path,
         importance_sampling_clip_max=3.0,
         importance_sampling_mode="token_truncate",
         launch_timestamp="test",
     )
-    base = torch.tensor([10.0, 11.0, 12.0, 13.0])
-    trainer = trainer_cls(base)
-
-    output = trainer._generate_and_score_completions([])
-
-    assert torch.equal(output["advantages"], base)
-    assert _ledger_advantages(tmp_path) == [10.0, 11.0, 12.0, 13.0]
 
 
-def test_signal_ledger_practical_maxrl_replaces_advantages_before_loss_and_ledger(tmp_path):
-    recorder = RewardBatchRecorder()
+def test_maxrl_wrapper_replaces_advantages_before_existing_ledger_records_them(tmp_path):
+    recorder = MaxRLRewardBatchRecorder()
     _capture_group(recorder, [1.0, 0.0, 0.0, 0.0])
-    trainer_cls = make_signal_ledger_trainer(
-        FakeBaseTrainer,
-        recorder=recorder,
-        ledger_dir=tmp_path,
-        importance_sampling_clip_max=3.0,
-        importance_sampling_mode="token_truncate",
-        launch_timestamp="test",
-        advantage_estimator="practical_maxrl",
-    )
+    trainer_cls = _wrapped_trainer(recorder, tmp_path)
     trainer = trainer_cls(torch.tensor([10.0, 11.0, 12.0, 13.0]))
 
     output = trainer._generate_and_score_completions([])
@@ -105,22 +89,14 @@ def test_signal_ledger_practical_maxrl_replaces_advantages_before_loss_and_ledge
     assert _ledger_advantages(tmp_path) == [3.0, -1.0, -1.0, -1.0]
 
 
-def test_signal_ledger_practical_maxrl_uses_global_groups_then_rank_slice(tmp_path):
-    recorder = RewardBatchRecorder()
+def test_maxrl_wrapper_uses_global_groups_then_returns_only_rank_slice(tmp_path):
+    recorder = MaxRLRewardBatchRecorder()
     _capture_group(recorder, [1.0, 1.0, 0.0, 0.0], dataset_index=20)
     global_rewards = torch.tensor(
         [1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0],
         dtype=torch.float32,
     )
-    trainer_cls = make_signal_ledger_trainer(
-        FakeBaseTrainer,
-        recorder=recorder,
-        ledger_dir=tmp_path,
-        importance_sampling_clip_max=3.0,
-        importance_sampling_mode="token_truncate",
-        launch_timestamp="test",
-        advantage_estimator="practical_maxrl",
-    )
+    trainer_cls = _wrapped_trainer(recorder, tmp_path)
     trainer = trainer_cls(
         torch.tensor([10.0, 11.0, 12.0, 13.0]),
         accelerator=FakeRankOneAccelerator(global_rewards),
@@ -133,14 +109,12 @@ def test_signal_ledger_practical_maxrl_uses_global_groups_then_rank_slice(tmp_pa
     assert _ledger_advantages(tmp_path, rank=1) == [1.0, 1.0, -1.0, -1.0]
 
 
-def test_signal_ledger_rejects_unknown_advantage_estimator(tmp_path):
-    with pytest.raises(ValueError, match="advantage estimator"):
-        make_signal_ledger_trainer(
-            FakeBaseTrainer,
-            recorder=RewardBatchRecorder(),
-            ledger_dir=tmp_path,
-            importance_sampling_clip_max=3.0,
-            importance_sampling_mode="token_truncate",
-            launch_timestamp="test",
-            advantage_estimator="mystery",
-        )
+def test_maxrl_reward_peek_does_not_consume_batch():
+    recorder = MaxRLRewardBatchRecorder()
+    _capture_group(recorder, [1.0, 0.0, 0.0, 0.0])
+
+    first = recorder.peek()
+    second = recorder.peek()
+    consumed = recorder.pop()
+
+    assert first == second == consumed

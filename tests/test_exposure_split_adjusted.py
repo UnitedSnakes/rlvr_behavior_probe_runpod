@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import math
 
 from analyses import exposure_split_adjusted as esa
@@ -128,3 +129,139 @@ def test_symmetrization_equal_weights_crossfit_directions() -> None:
     assert math.isclose(row["adjusted_delta_C_unexposed"], 0.08)
     assert math.isclose(row["adjusted_gap_C_unexposed_minus_exposed"], -0.02)
     assert row["adjusted_transfer_classification"] == "transfer_compatible"
+
+
+def test_build_adjustment_rows_joins_direction_specific_covariates_and_uses_strict_boundary() -> None:
+    balance = [
+        {
+            "direction": "A-bin/B-base",
+            "bin": "(0,.25]",
+            "dataset_index": 0,
+            "exposure_step": 1,
+            "baseline_p0": 0.10,
+            "baseline_p0_completion_length": 100.0,
+            "prompt_token_count": 30,
+        },
+        {
+            "direction": "A-bin/B-base",
+            "bin": "(0,.25]",
+            "dataset_index": 1,
+            "exposure_step": 2,
+            "baseline_p0": 0.20,
+            "baseline_p0_completion_length": 120.0,
+            "prompt_token_count": 35,
+        },
+    ]
+    movement = [
+        {
+            "snapshot_pct": 25,
+            "direction": "A-bin/B-base",
+            "bin": "(0,.25]",
+            "dataset_index": i,
+            "delta_R": 0.1,
+            "delta_T": 0.2,
+            "delta_C": 0.05,
+        }
+        for i in range(2)
+    ]
+
+    joined = esa.build_adjustment_rows(
+        movement,
+        balance,
+        snapshot_schedule={25: 2},
+        target_pcts=(25,),
+    )
+    assert [row["exposure_status"] for row in joined] == ["exposed", "unexposed"]
+    assert joined[0]["baseline_p0"] == 0.10
+    assert joined[1]["prompt_token_count"] == 35
+
+
+def test_end_to_end_adjusted_analysis_writes_symmetric_output_and_records_small_cells(tmp_path) -> None:
+    balance_path = tmp_path / "balance.csv"
+    movement_path = tmp_path / "movement.csv"
+    output_dir = tmp_path / "out"
+
+    balance_rows: list[dict] = []
+    movement_rows: list[dict] = []
+    for direction in ("A-bin/B-base", "B-bin/A-base"):
+        for i in range(8):
+            p0 = 0.02 * i
+            p0_len = 100.0 + 7.0 * i + (i % 2)
+            prompt = 30.0 + (i % 3) + i / 10.0
+            exposed = i < 4
+            base = 0.05 + 0.25 * p0 - 0.0003 * p0_len + 0.001 * prompt
+            balance_rows.append(
+                {
+                    "direction": direction,
+                    "bin": "(0,.25]",
+                    "dataset_index": i,
+                    "exposure_step": i,
+                    "baseline_p0": p0,
+                    "baseline_p0_completion_length": p0_len,
+                    "prompt_token_count": prompt,
+                }
+            )
+            movement_rows.append(
+                {
+                    "snapshot_pct": 25,
+                    "direction": direction,
+                    "dataset_index": i,
+                    "bin": "(0,.25]",
+                    "delta_R": base + (0.06 if exposed else 0.0),
+                    "delta_T": 2 * base + (0.03 if exposed else 0.0),
+                    "delta_C": base + (0.06 if exposed else 0.0),
+                }
+            )
+
+        # A deliberately unestimable boundary bin: one exposed and one unexposed.
+        for i, step in ((100, 0), (101, 7)):
+            balance_rows.append(
+                {
+                    "direction": direction,
+                    "bin": "(.75,1)",
+                    "dataset_index": i,
+                    "exposure_step": step,
+                    "baseline_p0": 0.9,
+                    "baseline_p0_completion_length": 100.0,
+                    "prompt_token_count": 20.0,
+                }
+            )
+            movement_rows.append(
+                {
+                    "snapshot_pct": 25,
+                    "direction": direction,
+                    "dataset_index": i,
+                    "bin": "(.75,1)",
+                    "delta_R": 0.0,
+                    "delta_T": 0.0,
+                    "delta_C": 0.0,
+                }
+            )
+
+    with balance_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(balance_rows[0]))
+        writer.writeheader()
+        writer.writerows(balance_rows)
+    with movement_path.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(movement_rows[0]))
+        writer.writeheader()
+        writer.writerows(movement_rows)
+
+    result = esa.run_analysis(
+        balance_question_csv=balance_path,
+        per_question_csv=movement_path,
+        output_dir=output_dir,
+        snapshot_schedule={25: 4},
+        target_pcts=(25,),
+    )
+
+    assert len(result["adjusted_symmetric"]) == 1
+    symmetric = result["adjusted_symmetric"][0]
+    assert symmetric["bin"] == "(0,.25]"
+    assert math.isclose(symmetric["adjusted_gap_C_unexposed_minus_exposed"], -0.06, abs_tol=1e-10)
+    assert symmetric["adjusted_transfer_classification"] == "mixed_or_uncertain"
+    assert len(result["skipped_cells"]) == 2
+    assert all(row["reason"] == "group_size_lt_2" for row in result["skipped_cells"])
+    assert (output_dir / "adjusted_directional.csv").exists()
+    assert (output_dir / "adjusted_symmetric.csv").exists()
+    assert (output_dir / "adjusted_skipped_cells.csv").exists()

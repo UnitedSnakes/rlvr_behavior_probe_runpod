@@ -95,8 +95,6 @@ def test_reconstruct_groups_merges_rank_rows_and_validates_group_size() -> None:
     assert math.isclose(group["actual_is_ratio_sum"], 5.0)
     assert math.isclose(group["actual_is_ratio_sq_sum"], 5.0)
     assert group["actual_is_ratio_count"] == 5
-    # Exploratory pre-PPO DAPO numerator-mass proxy:
-    # |1|*2 + |-1|*3 = 5.
     assert math.isclose(group["exploratory_dapo_is_abs_mass"], 5.0)
 
     with pytest.raises(ValueError, match="expected 2 rollout rows"):
@@ -109,7 +107,6 @@ def test_crossfit_cumulative_signal_uses_same_p0_bins_and_snapshot_boundary() ->
         _p0_record(1, 0.25, 0.75),
     ]
     ledger = [
-        # step 0 is visible at snapshot_step=1
         _ledger_row(
             step=0, rank=0, index=0, k=1, g=2, advantage=1.0, length=2,
             actual_is_sum=2.0, actual_is_sq_sum=2.0, actual_is_count=2,
@@ -118,7 +115,6 @@ def test_crossfit_cumulative_signal_uses_same_p0_bins_and_snapshot_boundary() ->
             step=0, rank=1, index=0, k=1, g=2, advantage=-1.0, length=2,
             actual_is_sum=2.0, actual_is_sq_sum=2.0, actual_is_count=2,
         ),
-        # step 1 is not visible until snapshot_step=2
         _ledger_row(
             step=1, rank=0, index=1, k=0, g=2, advantage=0.0, length=3,
             actual_is_sum=3.0, actual_is_sq_sum=3.0, actual_is_count=3,
@@ -148,7 +144,6 @@ def test_crossfit_cumulative_signal_uses_same_p0_bins_and_snapshot_boundary() ->
     assert a_50_zero["active_group_fraction"] == 1.0
     assert math.isclose(a_50_zero["cumulative_abs_advantage_per_panel_question"], 2.0)
 
-    # index 1 is assigned to (0,.25] by A, but has not been exposed by 50%.
     a_50_low = next(
         r for r in rows
         if r["snapshot_pct"] == 50
@@ -159,7 +154,6 @@ def test_crossfit_cumulative_signal_uses_same_p0_bins_and_snapshot_boundary() ->
     assert a_50_low["n_exposed_groups"] == 0
     assert a_50_low["exposure_fraction"] == 0.0
 
-    # At 100%, B-bin uses p0_B: index 0 -> (.25,.5], index 1 -> (.5,.75].
     b_bins = {
         r["bin"]: r
         for r in rows
@@ -193,10 +187,8 @@ def test_token_is_ess_and_cap_fraction_are_token_weighted() -> None:
     )
     row = next(r for r in rows if r["direction"] == "A-bin")
 
-    # Eight unit ratios -> ESS/N = 1.
     assert math.isclose(row["actual_is_ess_fraction"], 1.0)
     assert math.isclose(row["actual_is_mean_ratio"], 1.0)
-    # One capped token in first rollout out of 8 total tokens.
     assert math.isclose(row["actual_is_cap_fraction"], 1.0 / 8.0)
 
 
@@ -243,8 +235,58 @@ def test_symmetric_signal_average_weights_crossfit_directions_equally() -> None:
     sym = lcsa.symmetrize_signal_trajectory(directional)
     row = sym[0]
     assert row["direction"] == "symmetric"
-    # Direction means are equally weighted, not pooled by bin question count.
     assert math.isclose(row["exposure_fraction"], 0.9)
     assert math.isclose(row["active_group_fraction"], 0.75)
     assert math.isclose(row["cumulative_abs_advantage_per_panel_question"], 2.8)
     assert math.isclose(row["exploratory_dapo_is_abs_mass_per_panel_question"], 480.0)
+
+
+def test_sparse_symmetrization_keeps_cumulative_metrics_but_marks_conditionals_undefined() -> None:
+    common_a = {
+        "snapshot_pct": 5,
+        "snapshot_step": 187,
+        "direction": "A-bin",
+        "bin": "0",
+        "n_panel_questions": 3,
+        "n_exposed_groups": 0,
+        "exposure_fraction": 0.0,
+        "active_group_fraction": None,
+        "mean_k_over_G": None,
+        "mean_group_total_abs_advantage": None,
+        "mean_completion_length": None,
+        "cumulative_abs_advantage_per_panel_question": 0.0,
+        "actual_is_ess_fraction": None,
+        "actual_is_mean_ratio": None,
+        "actual_is_cap_fraction": None,
+        "exploratory_dapo_is_abs_mass_per_panel_question": 0.0,
+    }
+    common_b = {
+        "snapshot_pct": 5,
+        "snapshot_step": 187,
+        "direction": "B-bin",
+        "bin": "0",
+        "n_panel_questions": 4,
+        "n_exposed_groups": 1,
+        "exposure_fraction": 0.25,
+        "active_group_fraction": 1.0,
+        "mean_k_over_G": 0.25,
+        "mean_group_total_abs_advantage": 3.0,
+        "mean_completion_length": 120.0,
+        "cumulative_abs_advantage_per_panel_question": 0.75,
+        "actual_is_ess_fraction": 0.99,
+        "actual_is_mean_ratio": 1.0,
+        "actual_is_cap_fraction": 0.0,
+        "exploratory_dapo_is_abs_mass_per_panel_question": 90.0,
+    }
+
+    row = lcsa.symmetrize_signal_trajectory([common_a, common_b])[0]
+    assert math.isclose(row["exposure_fraction"], 0.125)
+    assert math.isclose(row["cumulative_abs_advantage_per_panel_question"], 0.375)
+    assert math.isclose(row["exploratory_dapo_is_abs_mass_per_panel_question"], 45.0)
+    assert row["active_group_fraction"] is None
+    assert row["mean_k_over_G"] is None
+    assert row["mean_group_total_abs_advantage"] is None
+    assert row["mean_completion_length"] is None
+    assert row["actual_is_ess_fraction"] is None
+    assert row["actual_is_mean_ratio"] is None
+    assert row["actual_is_cap_fraction"] is None

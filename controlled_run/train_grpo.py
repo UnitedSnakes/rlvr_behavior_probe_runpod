@@ -192,48 +192,55 @@ def _write_grpo_manifest(
     prompt_audit: dict,
     pilot_steps: int | None,
     runtime_batch: dict,
+    manifest_filename: str = "grpo_run_manifest.json",
+    manifest_extra: dict | None = None,
 ) -> None:
-    write_json(
-        destination / "grpo_run_manifest.json",
-        {
-            "mode": mode,
-            "scientific_use": mode == "canonical",
-            "pilot_steps": pilot_steps,
-            "config": config,
-            "runtime_batch": runtime_batch,
-            "pi0_manifest": pi0_verification["manifest"],
-            "pi0_lineage_id": pi0_verification["lineage_id"],
-            "gsm8k_dataset_sha": gsm8k_sha,
-            "prompt_length_audit": prompt_audit,
-            "signal_ledger": {
-                "enabled": True,
-                "directory": "signal_ledger",
-                "step_semantics": "generation_global_step",
-                "raw_log_rho_semantics": "counterfactual_sequence_sum_of_token_logprob_differences",
-                "actual_is_semantics": config["vllm_importance_sampling_mode"],
-            },
-            "core_diagnostics": [
-                "reward",
-                "frac_reward_zero_std",
-                "completions/clipped_ratio",
-                "completions/max_terminated_length",
-                "entropy",
-                "grad_norm",
-                "clip_ratio",
-                "vllm_sampling_logp_difference",
-                "importance_sampling_ratio",
-            ],
+    payload = {
+        "mode": mode,
+        "scientific_use": mode == "canonical",
+        "pilot_steps": pilot_steps,
+        "config": config,
+        "runtime_batch": runtime_batch,
+        "pi0_manifest": pi0_verification["manifest"],
+        "pi0_lineage_id": pi0_verification["lineage_id"],
+        "gsm8k_dataset_sha": gsm8k_sha,
+        "prompt_length_audit": prompt_audit,
+        "signal_ledger": {
+            "enabled": True,
+            "directory": "signal_ledger",
+            "step_semantics": "generation_global_step",
+            "raw_log_rho_semantics": "counterfactual_sequence_sum_of_token_logprob_differences",
+            "actual_is_semantics": config["vllm_importance_sampling_mode"],
         },
-    )
+        "core_diagnostics": [
+            "reward",
+            "frac_reward_zero_std",
+            "completions/clipped_ratio",
+            "completions/max_terminated_length",
+            "entropy",
+            "grad_norm",
+            "clip_ratio",
+            "vllm_sampling_logp_difference",
+            "importance_sampling_ratio",
+        ],
+    }
+    if manifest_extra is not None:
+        payload.update(manifest_extra)
+    write_json(destination / manifest_filename, payload)
 
 
-def run_grpo(
+def _run_controlled_grpo(
     *,
     config_path: Path,
     pi0_dir: Path,
     output_dir: Path,
     mode: str,
     pilot_steps: int | None = None,
+    recorder_factory=RewardBatchRecorder,
+    trainer_transform=None,
+    manifest_filename: str = "grpo_run_manifest.json",
+    manifest_extra: dict | None = None,
+    result_extra: dict | None = None,
 ) -> dict:
     pilot_steps = validate_pilot_steps(mode, pilot_steps)
     pi0_verification = verify_pi0_for_grpo(pi0_dir)
@@ -271,6 +278,8 @@ def run_grpo(
         prompt_audit=prompt_audit,
         pilot_steps=pilot_steps,
         runtime_batch=runtime_batch,
+        manifest_filename=manifest_filename,
+        manifest_extra=manifest_extra,
     )
 
     model = AutoModelForCausalLM.from_pretrained(
@@ -283,9 +292,12 @@ def run_grpo(
     args = build_grpo_arguments(config, trainer_output, max_steps=pilot_steps)
     _, GRPOTrainer, _ = _load_grpo_classes()
 
-    recorder = RewardBatchRecorder()
+    recorder = recorder_factory()
+    objective_trainer = GRPOTrainer
+    if trainer_transform is not None:
+        objective_trainer = trainer_transform(objective_trainer, recorder=recorder)
     LedgerGRPOTrainer = make_signal_ledger_trainer(
-        GRPOTrainer,
+        objective_trainer,
         recorder=recorder,
         ledger_dir=destination / "signal_ledger",
         importance_sampling_clip_max=config["vllm_importance_sampling_cap"],
@@ -315,7 +327,7 @@ def run_grpo(
     )
     trainer.train()
 
-    return {
+    result = {
         "mode": mode,
         "scientific_use": mode == "canonical",
         "pilot_steps": pilot_steps,
@@ -324,6 +336,26 @@ def run_grpo(
         "prompt_length_audit": prompt_audit,
         "runtime_batch": runtime_batch,
     }
+    if result_extra is not None:
+        result.update(result_extra)
+    return result
+
+
+def run_grpo(
+    *,
+    config_path: Path,
+    pi0_dir: Path,
+    output_dir: Path,
+    mode: str,
+    pilot_steps: int | None = None,
+) -> dict:
+    return _run_controlled_grpo(
+        config_path=config_path,
+        pi0_dir=pi0_dir,
+        output_dir=output_dir,
+        mode=mode,
+        pilot_steps=pilot_steps,
+    )
 
 
 def main(argv: list[str] | None = None) -> None:

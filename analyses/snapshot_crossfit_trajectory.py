@@ -183,7 +183,12 @@ def aggregate_crossfit_rows(question_rows: list[dict]) -> list[dict]:
 
     directional: list[dict] = []
     for (pct, direction, bin_label), rows in sorted(
-        grouped.items(), key=lambda item: (item[0][0], DIRECTIONS.index(item[0][1]), BIN_ORDER.index(item[0][2]))
+        grouped.items(),
+        key=lambda item: (
+            item[0][0],
+            DIRECTIONS.index(item[0][1]),
+            BIN_ORDER.index(item[0][2]),
+        ),
     ):
         out = {
             "snapshot_pct": pct,
@@ -192,7 +197,9 @@ def aggregate_crossfit_rows(question_rows: list[dict]) -> list[dict]:
             "n_questions": len(rows),
         }
         for metric in METRICS:
-            out[f"delta_{metric}"] = _mean([float(row[f"delta_{metric}"]) for row in rows])
+            out[f"delta_{metric}"] = _mean(
+                [float(row[f"delta_{metric}"]) for row in rows]
+            )
         directional.append(out)
 
     by_key = {
@@ -217,7 +224,7 @@ def aggregate_crossfit_rows(question_rows: list[dict]) -> list[dict]:
             }
             for metric in METRICS:
                 row[f"delta_{metric}"] = (
-                    float(a[f"delta_{metric}"]) + float(b[f"delta_{metric"])
+                    float(a[f"delta_{metric}"]) + float(b[f"delta_{metric}"])
                 ) / 2.0
             symmetric.append(row)
 

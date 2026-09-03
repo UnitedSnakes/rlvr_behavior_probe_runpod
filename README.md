@@ -1,27 +1,211 @@
 # RLVR Behavioral Probe
 
-## Current controlled Qwen3 workflow
+Controlled experiments on how reinforcement-learning post-training reallocates training signal and changes model behavior.
 
-The active controlled experiment is now the Qwen3-0.6B causal RLVR study on branch `controlled-qwen3-rlvr-task6`. The older Qwen2.5 material below is retained as preliminary/historical evidence, not as the canonical training recipe.
+The project began with a simple question: if a behavior has pre-RL success probability `p0`, does RL mainly amplify already reachable successes or expand what the model can reach? The current controlled result makes the question more specific:
 
-Current execution lanes:
+> **Does behavioral improvement occur on the same questions that directly generate the training signal?**
+
+For the canonical Qwen3-0.6B GRPO run, the answer is not stably yes.
+
+## Current result — 2026-09-03
+
+Canonical seed42 GRPO was trained from an exactly frozen corrected pre-RL policy. A fixed 256-question GSM8K-train panel was evaluated throughout training. At three analysis cutoffs, each panel question was classified by whether it had already been sampled for training.
+
+The split definition, 25/45/65 cutoffs, interpretation scale, measured-covariate balance audit, and covariate-adjusted OLS estimator were fixed before reading the exposed-vs-unexposed outcomes.
+
+Primary result:
 
 ```text
-M5 Pro / generic CPU dev
-  → pytest
-  → pinned data preparation and contamination/length audit
-  → verified portable SFT data bundle
-
-A40 CUDA runtime
-  → explicit runtime acceptance, including FlashAttention2
-  → 1×A40 SFT engineering smoke
-  → 2×A40 canonical SFT, global optimizer batch 64
-  → exact pi_0 freeze
-  → p0 sampling/evaluation
-  → 1×A40 GRPO pilot and canonical GRPO
+no stable own-exposure advantage
 ```
 
-Use the project `.venv` with the platform-neutral development requirements:
+For low-`p0` questions `(0,.25]`, adjusted symmetric correctness movement was:
+
+| training cutoff | already exposed | not yet exposed | unexposed - exposed |
+|---:|---:|---:|---:|
+| 25% | +6.25 pp | +10.02 pp | +3.77 pp |
+| 45% | +7.42 pp | +12.80 pp | +5.38 pp |
+| 65% | +10.90 pp | +12.80 pp | +1.90 pp |
+
+Across all 15 adjusted symmetric cutoff × `p0`-bin cells, the pre-frozen descriptive labels are:
+
+```text
+transfer_compatible:      8
+unexposed_higher:         3
+mixed_or_uncertain:       2
+not_classifiable:         2
+own_exposure_candidate:   0
+```
+
+This is evidence against a **strong prompt-local account** in which questions should systematically improve more after they themselves generate direct training signal. It is not a randomized causal estimate: exposure order can still contain unmeasured structure, and shared-parameter interference is inherent. The safe interpretation is that the run shows substantial behavioral change before own exposure and no stable own-exposure advantage, consistent with substantial cross-question transfer.
+
+Full provenance and causal caveats:
+
+- `docs/superpowers/checkpoints/2026-09-03-exposure-split-postoutcome-and-paper-claim-freeze.md`
+
+## Why this changes the project
+
+The current scientific chain is:
+
+```text
+objective
+  -> realized training-signal allocation
+  -> parameter update
+  -> shared-parameter transfer / interference
+  -> behavioral-change allocation
+```
+
+So these are different objects:
+
+```text
+where training signal is allocated
+!=
+where behavioral improvement appears
+```
+
+That distinction is now the main motivation for the planned GRPO-versus-MaxRL objective intervention. The next question is not merely whether MaxRL changes nominal difficulty weighting, but whether a verified change in **realized signal allocation** actually changes the **allocation of correctness improvement**.
+
+The pre-MaxRL hypothesis hierarchy is frozen in:
+
+- `docs/superpowers/specs/2026-09-03-maxrl-objective-intervention-amendment.md`
+
+There is no validated MaxRL implementation in this repository yet. The exact finite-`G` estimator must be re-derived and tested before any GPU run.
+
+## Canonical lineage
+
+### Corrected pre-RL policy
+
+```text
+HF repo:
+HKReporter/rlvr-behavior-probe-pi0-corrected-canonical-2026-08-30
+
+pi0_lineage_id:
+f89fc90226a67a6a3c7374f9c13abadfcecda88f397ab812fa4130f1f425605b
+```
+
+### Canonical GRPO seed42
+
+```text
+HF repo:
+HKReporter/rlvr-behavior-probe-grpo-canonical-seed42-2026-09-02
+
+analysis implementation commit:
+386f300e36562ad78063fcfd4b5ed4137325fd9d
+```
+
+Canonical training geometry:
+
+```text
+model: Qwen3-0.6B
+mode: canonical
+scientific_use: true
+world_size: 2
+per_device_train_batch_size: 4
+gradient_accumulation_steps: 4
+global optimizer batch: 32
+generation batch: 32
+G / num_generations: 16
+unique prompts per generation: 2
+TRL steps_per_generation: 4
+optimizer steps: 3736
+prompt groups: 7472
+ledger rows: 119552
+```
+
+The canonical ledger has two rank files, steps `0..3735`, 32 rollout rows per generation step, and exactly 7472 `G=16` prompt groups.
+
+Structural-integrity record:
+
+- `docs/superpowers/checkpoints/2026-09-02-grpo-canonical-integrity.md`
+
+## Fixed-panel measurement
+
+The train allocation panel is GSM8K train `[:256]`.
+
+Baseline probability is estimated with a K=32 pre-RL bank split into independent A/B halves. Primary movement analyses cross-fit the baseline:
+
+```text
+A half defines the p0 bin -> B half supplies the baseline outcome
+B half defines the p0 bin -> A half supplies the baseline outcome
+```
+
+Snapshot outcomes use a separate K=16 C-bank. The frozen bins are:
+
+```text
+0
+(0,.25]
+(.25,.5]
+(.5,.75]
+(.75,1)
+1
+```
+
+The canonical reward is separated into:
+
+```text
+R = terminated and correct
+T = termination
+C = correctness independent of termination
+```
+
+From `pi0` to the final snapshot:
+
+```text
+DeltaR = +18.12 pp
+DeltaT = +31.63 pp
+DeltaC =  +7.29 pp
+```
+
+Termination acquisition dominates the global reward movement, while correctness still improves nontrivially. This is why the own-exposure analysis is stated in terms of `DeltaC`, not reward alone.
+
+## Realized signal allocation
+
+The canonical signal ledger reconstructs each `(generation_global_step, dataset_index)` prompt group and measures realized training-signal allocation across the frozen `p0` bins.
+
+The current result is that the realized signal-allocation shape and the correctness-movement shape are not interchangeable. Prompt-local movement reflects parameter updates produced by many other training questions as well as any own exposure.
+
+Canonical token-level importance sampling is well behaved (`ESS/N` approximately 0.998 across bins). Earlier sequence-level-IS collapse and truncation-mask distortions are retained as implementation/instrumentation history; they must not be presented as the canonical token-level phenomenon.
+
+## Reproduce the current analyses
+
+Use Python module invocation from the repository root:
+
+```bash
+python -m analyses.ledger_crossfit_signal_allocation
+python -m analyses.exposure_split_adjusted
+```
+
+Expected completion markers:
+
+```text
+CANONICAL LEDGER CROSS-FIT SIGNAL ANALYSIS: PASS
+CANONICAL COVARIATE-ADJUSTED EXPOSURE SPLIT: COMPLETE
+```
+
+Key derived outputs:
+
+```text
+analyses/canonical_ledger_crossfit_signal/
+analyses/canonical_snapshot_crossfit/
+analyses/canonical_exposure_split_transfer/
+analyses/canonical_exposure_split_adjusted/
+```
+
+The adjusted exposure analysis writes:
+
+```text
+adjustment_input_rows.csv
+adjusted_directional.csv
+adjusted_symmetric.csv
+adjusted_skipped_cells.csv
+```
+
+A successful script marker is a code/data-pipeline check, not a scientific conclusion by itself.
+
+## Local development
+
+Create the platform-neutral development environment:
 
 ```bash
 python3.12 -m venv .venv
@@ -30,297 +214,69 @@ python -m pip install -r controlled_run/requirements-dev.txt
 python -m pytest -q
 ```
 
-Canonical SFT data are selected with a frozen formatted-token cutoff of **16,384**. A normal materialization writes a hashed bundle; verify it with:
+Canonical SFT data are selected with the frozen formatted-token cutoff of 16,384. Verify the materialized bundle with:
 
 ```bash
 python -m controlled_run.data_bundle
 ```
 
-Canonical SFT refuses audit-only, stale, hash-mismatched, wrong-count, or wrong-cutoff bundles. The canonical A40 runtime must also pass:
+Canonical A40 runtime acceptance remains fail-closed:
 
 ```bash
 python -m controlled_run.runtime_acceptance \
   --attention-backend flash_attention_2
 ```
 
-This check is intentionally fail-closed: it does not silently install FlashAttention or fall back to SDPA.
+Do not silently fall back from the canonical attention/runtime path.
 
-Authoritative current checkpoint and design notes:
+## Authoritative research records
 
-- `docs/superpowers/2026-08-27-controlled-qwen3-rlvr-checkpoint.md`
-- `docs/superpowers/specs/2026-08-27-long-context-sft-compute-amendment.md`
-- `docs/superpowers/specs/2026-08-27-dev-a40-infra-separation-design.md`
+Start with the newest checkpoint rather than reading the whole history.
 
----
+Current post-outcome handoff:
 
-A small study of what changes during RL post-training. I am mainly looking at whether RLVR improves reasoning by putting more probability on solutions the SFT model can already reach, or by expanding observed solution coverage.
+- `docs/superpowers/checkpoints/2026-09-03-exposure-split-postoutcome-and-paper-claim-freeze.md`
 
-## Preliminary results
+Important pre-outcome provenance:
 
-On 30 GSM8K test problems with 8 rollouts per problem and a 2048-token budget:
+- `docs/superpowers/specs/2026-09-01-signal-allocation-analysis-prereg.md`
+- `docs/superpowers/checkpoints/2026-09-02-postrun-preoutcome-analysis-addendum.md`
+- `docs/superpowers/checkpoints/2026-09-03-exposure-split-preoutcome-decision.md`
+- `docs/superpowers/checkpoints/2026-09-03-cutoff-balance-observed-and-adjustment.md`
 
-- Sample accuracy: **55.4% (SFT) -> 72.9% (final RLVR)**.
-- The RL advantage shrinks with larger `k`: **+17.5 pp at pass@1** and **+3.3 pp at pass@8**.
-- Across intermediate checkpoints, about **89–97% of positive gains** come from problems solved at least once by the SFT model.
-- Most of the response-length change happens in the first 100 PPO steps, but accuracy continues to change afterward.
+Next objective-intervention amendment:
 
-This is consistent with substantial probability sharpening, but `0/8` under SFT does not mean a solution had zero probability under the SFT policy.
+- `docs/superpowers/specs/2026-09-03-maxrl-objective-intervention-amendment.md`
 
-![Pass@k comparison](figures/pass_at_k.png)
+Large-artifact / Hugging Face packaging map:
 
-![Accuracy trajectory](figures/trajectory_accuracy.png)
+- `hf_bundles/2026-09-03-canonical-grpo-seed42/README.md`
+- `hf_bundles/2026-09-03-canonical-grpo-seed42/manifest.json`
 
-![Response-length trajectory](figures/trajectory_length.png)
+## Hugging Face artifact policy
 
-## Setup
+Large checkpoints, raw rollout/ledger artifacts, and canonical model snapshots live in private Hugging Face repos under `HKReporter/`. Git stores code, configs, manifests, lightweight tables, and scientific provenance documents.
 
-- Model family: Qwen2.5-1.5B
-- SFT: `ns-0/qwen-2.5-1.5b-instruct-reasoning-sft`
-- RLVR: `expx/qwen-2.5-1.5b-rlvr-ppo`
-- Dataset: fixed 30-problem GSM8K test subset (`seed=42`)
-- 8 rollouts per problem
-- temperature 1.0, top-p 0.95, top-k 0, repetition penalty 1.0
-- main generation budget: 2048 new tokens
+The 2026-09-03 HF bundle manifest records what lightweight analysis files should accompany the canonical seed42 run. The current ChatGPT session has GitHub write access but no authenticated Hugging Face write connector/token, so the manifest explicitly records that the HF-side analysis upload has **not** been performed from this environment.
 
-For a problem with `K=8` rollouts, I call a positive gain **already covered** if SFT gets at least one rollout correct and RL gets more correct rollouts. If SFT gets `0/8` and RL gets at least one, I call it **observed coverage expansion**.
+Do not call an HF backup complete until the remote files have been listed/downloaded and their hashes checked against the local artifacts.
 
-## Apple Silicon vLLM-Metal development runtime
+## Historical Qwen2.5 pilot
 
-The same public command uses `--engine vllm` on both CUDA and Apple Silicon. On macOS, `--device auto` should resolve to `mps`, and the installed vLLM-Metal plugin supplies the Metal runtime.
+Before the controlled Qwen3 run, this project used public Qwen2.5 SFT/PPO checkpoints on a fixed 30-problem GSM8K subset. With 8 rollouts per problem and a 2048-token budget:
 
-Requirements for the current official vLLM-Metal installer are macOS 15+, Apple Silicon, and native arm64 Python 3.12. Rosetta/x86_64 Python is not supported.
+- sample accuracy moved from **55.4% SFT to 72.9% final RLVR**;
+- the apparent RL advantage shrank from **+17.5 pp at pass@1** to **+3.3 pp at pass@8**;
+- roughly **89–97% of positive gains** came from questions solved at least once by the shallow SFT sample;
+- deeper SFT sampling removed the apparent "RL-only" successes in that small panel.
 
-Check the host before installing:
+Those observations motivated the controlled lineage, larger pre-RL bank, cross-fitting, fixed-panel trajectory, and signal ledger. They are preliminary/historical evidence and are **not** the canonical training recipe or the current headline result.
 
-```bash
-sw_vers -productVersion
-uname -m
-python3 -c 'import platform; print(platform.machine())'
-file "$(which python3)"
-```
+## Project discipline
 
-Install the official runtime into its default `~/.venv-vllm-metal` environment:
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/vllm-project/vllm-metal/main/install.sh | bash
-```
-
-Then install only this project's extra dependencies. Do not install `requirements.txt` or `docker/requirements-vllm.txt` into this environment because those files may replace packages owned by the vLLM-Metal stack.
-
-```bash
-uv pip install \
-  --python ~/.venv-vllm-metal/bin/python \
-  -r requirements-macos-vllm.txt
-```
-
-Inspect the installed runtime without importing a model:
-
-```bash
-~/.venv-vllm-metal/bin/python - <<'PY'
-import importlib.metadata
-import platform
-import sys
-
-print("python:", sys.executable)
-print("python version:", platform.python_version())
-print("machine:", platform.machine())
-for package in ["vllm", "vllm-metal", "transformers", "mlx"]:
-    try:
-        version = importlib.metadata.version(package)
-    except importlib.metadata.PackageNotFoundError:
-        version = "not installed"
-    print(f"{package}: {version}")
-PY
-```
-
-Metal results are for development, smoke tests, and small exploratory runs. CUDA vLLM remains the canonical measurement backend. Do not merge Metal rollouts into canonical CUDA probability estimates unless the experiment explicitly studies backend sensitivity.
-
-The first Metal compatibility check must use the exact SFT checkpoint rather than silently replacing it with an MLX-community conversion. Create a one-question file from the canonical subset:
-
-```bash
-head -n 1 data/gsm8k_subset.jsonl > /tmp/gsm8k_subset_q0.jsonl
-```
-
-Then run:
-
-```bash
-~/.venv-vllm-metal/bin/python run_probe.py \
-  --engine vllm \
-  --device auto \
-  --only-sft \
-  --questions 1 \
-  --rollouts 2 \
-  --question-file /tmp/gsm8k_subset_q0.jsonl \
-  --max-new-tokens 256 \
-  --temperature 1.0 \
-  --top-p 0.95 \
-  --top-k 0 \
-  --repetition-penalty 1.0 \
-  --dtype bfloat16 \
-  --sft-revision checkpoint-8-of-10 \
-  --result-dir results_m5_smoke
-```
-
-If vLLM-Metal cannot load `ns-0/qwen-2.5-1.5b-instruct-reasoning-sft` at `checkpoint-8-of-10`, stop there and treat model conversion as a separate design decision. Do not substitute another checkpoint inside this smoke test.
-
-A successful run should record `device_resolved` as `mps`, `runtime.platform` as `metal`, and `runtime.implementation` as `vllm-metal` in `results_m5_smoke/run_config.json`.
-
-## Historical RunPod vLLM image workflow
-
-The following section documents the earlier Qwen2.5 probe runtime. For the active controlled Qwen3 experiment, use the current workflow and checkpoint linked at the top of this README.
-
-Create a RunPod template with these settings:
-
-```text
-Container image: ghcr.io/unitedsnakes/rlvr-vllm:0.27.1
-Container disk: 30 GB
-Network volume: none
-HTTP port: 8888
-TCP port: 22
-```
-
-Secrets such as `HF_TOKEN` and the GitHub deploy key are runtime or template concerns. Never add them to the Dockerfile or commit them to this repository.
-
-Configure these template environment variables:
-
-```text
-HF_TOKEN={{ RUNPOD_SECRET_huggingface_token }}
-GITHUB_DEPLOY_KEY_B64={{ RUNPOD_SECRET_github_rlvr_deploy_key_b64 }}
-RLVR_REPO=git@github.com:UnitedSnakes/rlvr_behavior_probe_runpod.git
-RLVR_BRANCH=difficulty-bin-analysis
-RLVR_REPO_DIR=/workspace/rlvr_behavior_probe_runpod
-```
-
-Use this exact Container start command:
-
-```bash
-/bin/bash -lc '/start.sh & start_pid=$!; rlvr-bootstrap > /workspace/rlvr-bootstrap.log 2>&1; bootstrap_status=$?; if [ "$bootstrap_status" -ne 0 ]; then printf "[rlvr-bootstrap] startup bootstrap failed with exit %s; pod remains available; rerun rlvr-bootstrap manually\n" "$bootstrap_status" >> /workspace/rlvr-bootstrap.log; fi; wait "$start_pid"'
-```
-
-`/start.sh` starts first so RunPod SSH/Jupyter remain available. The bootstrap then
-configures the deploy key and prepares the repository. A bootstrap error is written
-to `/workspace/rlvr-bootstrap.log` but is not allowed to kill the pod. After correcting
-the cause, rerun `rlvr-bootstrap` manually.
-
-Normal Docker-related pushes publish only a `sha-*` image tag. Test that image on a
-fresh pod first. After the fresh-pod bootstrap and one-question vLLM smoke test pass,
-manually dispatch the image workflow with `publish_stable=true` to promote the tested
-build to `0.27.1`.
-
-To back up a completed run automatically, expose `HF_TOKEN` through the
-RunPod environment/Secret and pass a pre-existing Hugging Face Dataset repo:
-
-```bash
-python run_probe.py \
-  --engine vllm \
-  --only-rl \
-  --rollouts 256 \
-  --result-dir results_rl256_vllm \
-  --upload-repo HKReporter/rlvr-behavior-probe-results
-```
-
-The local files are written first. A successful backup is stored under a
-run-start timestamped path such as:
-
-```text
-runs/20260825T235312Z-results_rl256_vllm/
-```
-
-The destination Dataset repo must already exist. If backup fails, the local
-result directory is preserved and the command exits unsuccessfully.
-
-After bootstrap completes on a new pod, run this sanity check before running the probe:
-
-```bash
-which python
-python - <<'PY'
-import os
-import sys
-import torch
-import vllm
-
-print("python:", sys.executable)
-print("torch:", torch.__version__)
-print("cuda:", torch.version.cuda)
-print("vllm:", vllm.__version__)
-print("gpu:", torch.cuda.get_device_name(0))
-print("spawn:", os.environ.get("VLLM_WORKER_MULTIPROC_METHOD"))
-PY
-```
-
-For the fresh SHA-image top-k/JIT acceptance test, derive one canonical question:
-
-```bash
-head -n 1 data/gsm8k_subset.jsonl > /tmp/gsm8k_subset_q0.jsonl
-```
-
-Then run the non-canonical audit configuration that previously exercised the missing `ninja` path:
-
-```bash
-python run_probe.py \
-  --engine vllm \
-  --device cuda \
-  --only-sft \
-  --questions 1 \
-  --rollouts 2 \
-  --question-file /tmp/gsm8k_subset_q0.jsonl \
-  --max-new-tokens 256 \
-  --temperature 1.0 \
-  --top-p 0.95 \
-  --top-k 20 \
-  --repetition-penalty 1.1 \
-  --dtype bfloat16 \
-  --sft-revision checkpoint-8-of-10 \
-  --result-dir results_topk_smoke
-```
-
-This command is an infrastructure smoke test, not the canonical science protocol. Promote the SHA image to `0.27.1` only after both the canonical smoke and this top-k smoke pass on a fresh Pod.
-
-## Reproduce the analysis
-
-The raw rollout text is included, so reproducing the analysis does not require running the models again.
-
-```bash
-uv venv
-source .venv/bin/activate
-uv pip install -r requirements.txt
-
-python summarize_results.py --result-dir results_2048_batched
-python sanity_check_results.py \
-  --result-dir results_2048_batched \
-  --question-file data/gsm8k_subset.jsonl
-python plot_results.py
-```
-
-For the intermediate checkpoints:
-
-```bash
-for d in trajectory/step-*; do
-  python summarize_results.py --result-dir "$d"
-done
-```
-
-If the answer-extraction logic changes, saved rollouts can be rescored without regenerating them:
-
-```bash
-python rescore_results.py --result-dir results_2048_batched --in-place
-```
-
-To regenerate rollouts:
-
-```bash
-python run_probe_batched.py \
-  --questions 30 \
-  --rollouts 8 \
-  --max-new-tokens 2048 \
-  --temperature 1.0 \
-  --top-p 0.95 \
-  --device auto \
-  --dtype bfloat16 \
-  --result-dir results_2048_batched \
-  --resume
-```
-
-## Notes
-
-This is a preliminary result from one model family, one dataset, one fixed 30-problem subset, and 8 rollouts per problem. I am using it as a starting point for larger-scale and more controlled tests of what RL changes during post-training.
+- Never rewrite a preregistration after seeing an outcome; add a dated checkpoint/amendment instead.
+- Never infer truncation or special-token behavior from decoded text when token ids/finish reasons are available.
+- Never treat green tests as scientific validation.
+- Never merge pilot/shakedown outputs into the canonical lineage.
+- Never describe the current exposure split as randomized.
+- Prefer "no stable own-exposure advantage" / "evidence against a strong prompt-local account" over causal claims that the data do not support.

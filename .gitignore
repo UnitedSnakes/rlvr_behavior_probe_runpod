@@ -11,3 +11,9 @@ __MACOSX/
 results*/
 controlled_run_outputs/
 data/controlled_run/generated/
+
+# Local/raw canonical experiment artifacts.
+# Keep lightweight derived analyses in Git; raw rollouts/ledgers/eval banks belong on HF/local storage.
+/p0_train_k32_top_p1_canonical/
+/signal_ledger/
+/snapshot_eval_train256_k16_cbank/

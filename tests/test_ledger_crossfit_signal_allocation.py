@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import csv
+import json
 import math
+from pathlib import Path
 
 import pytest
 
@@ -13,6 +16,41 @@ def _p0_record(index: int, p_a: float, p_b: float) -> dict:
         "p0_A": p_a,
         "p0_B": p_b,
     }
+
+
+def _rollout(reward: int) -> dict:
+    return {
+        "canonical_reward": reward,
+        "terminated": True,
+        "correct": bool(reward),
+    }
+
+
+def _full_p0_record(index: int, a: list[dict], b: list[dict]) -> dict:
+    def mean(key: str, rows: list[dict]) -> float:
+        return sum(float(r[key]) for r in rows) / len(rows)
+
+    all_rows = a + b
+    return {
+        "dataset_index": index,
+        "half_size": len(a),
+        "n_rollouts": len(all_rows),
+        "p0_A": mean("canonical_reward", a),
+        "p0_B": mean("canonical_reward", b),
+        "p0": mean("canonical_reward", all_rows),
+        "correctness_p0": mean("correct", all_rows),
+        "termination_rate": mean("terminated", all_rows),
+        "rollouts_A": a,
+        "rollouts_B": b,
+    }
+
+
+def _write_jsonl(path: Path, rows: list[dict]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as handle:
+        for row in rows:
+            handle.write(json.dumps(row))
+            handle.write("\n")
 
 
 def _ledger_row(
@@ -290,3 +328,102 @@ def test_sparse_symmetrization_keeps_cumulative_metrics_but_marks_conditionals_u
     assert row["actual_is_ess_fraction"] is None
     assert row["actual_is_mean_ratio"] is None
     assert row["actual_is_cap_fraction"] is None
+
+
+def test_run_analysis_reads_canonical_layout_and_joins_fixed_panel_movement(tmp_path: Path) -> None:
+    p0_dir = tmp_path / "p0"
+    ledger_dir = tmp_path / "signal_ledger"
+    output_dir = tmp_path / "analysis"
+    movement_csv = tmp_path / "movement.csv"
+
+    half_mid = [_rollout(1), _rollout(1), _rollout(0), _rollout(0)]
+    half_low = [_rollout(1), _rollout(0), _rollout(0), _rollout(0)]
+    even = _full_p0_record(0, half_mid, half_mid)
+    odd = _full_p0_record(1, half_low, half_low)
+    _write_jsonl(p0_dir / "rollouts_shard0of2.jsonl", [even])
+    _write_jsonl(p0_dir / "rollouts_shard1of2.jsonl", [odd])
+
+    rank0 = [
+        _ledger_row(
+            step=0, rank=0, index=0, k=1, g=2, advantage=1.0, length=2,
+            actual_is_sum=2.0, actual_is_sq_sum=2.0, actual_is_count=2,
+        ),
+        _ledger_row(
+            step=1, rank=0, index=1, k=0, g=2, advantage=0.0, length=3,
+            actual_is_sum=3.0, actual_is_sq_sum=3.0, actual_is_count=3,
+        ),
+    ]
+    rank1 = [
+        _ledger_row(
+            step=0, rank=1, index=0, k=1, g=2, advantage=-1.0, length=2,
+            actual_is_sum=2.0, actual_is_sq_sum=2.0, actual_is_count=2,
+        ),
+        _ledger_row(
+            step=1, rank=1, index=1, k=0, g=2, advantage=0.0, length=3,
+            actual_is_sum=3.0, actual_is_sq_sum=3.0, actual_is_count=3,
+        ),
+    ]
+    _write_jsonl(ledger_dir / "signal_ledger_20260903T000000Z_rank0.jsonl", rank0)
+    _write_jsonl(ledger_dir / "signal_ledger_20260903T000000Z_rank1.jsonl", rank1)
+
+    movement_rows = []
+    for pct in (50, 100):
+        movement_rows.extend(
+            [
+                {
+                    "snapshot_pct": pct,
+                    "direction": "symmetric",
+                    "bin": "(0,.25]",
+                    "delta_R": 0.1,
+                    "delta_T": 0.2,
+                    "delta_C": 0.05,
+                },
+                {
+                    "snapshot_pct": pct,
+                    "direction": "symmetric",
+                    "bin": "(.25,.5]",
+                    "delta_R": 0.2,
+                    "delta_T": 0.3,
+                    "delta_C": 0.1,
+                },
+            ]
+        )
+    with movement_csv.open("w", newline="", encoding="utf-8") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(movement_rows[0]))
+        writer.writeheader()
+        writer.writerows(movement_rows)
+
+    result = lcsa.run_analysis(
+        p0_dir=p0_dir,
+        ledger_dir=ledger_dir,
+        movement_csv=movement_csv,
+        output_dir=output_dir,
+        snapshot_schedule={50: 1, 100: 2},
+        expected_indices=[0, 1],
+        verify_known_integrity=False,
+    )
+
+    assert result["ledger_files"] == 2
+    assert result["ledger_rows"] == 4
+    assert result["prompt_groups"] == 2
+    assert result["panel_prompt_groups"] == 2
+
+    directional = output_dir / "signal_trajectory_directional.csv"
+    symmetric = output_dir / "signal_trajectory_symmetric.csv"
+    joined = output_dir / "signal_movement_join.csv"
+    assert directional.exists()
+    assert symmetric.exists()
+    assert joined.exists()
+    assert (output_dir / "cumulative_abs_advantage_per_panel_question.png").exists()
+    assert (output_dir / "active_group_fraction.png").exists()
+    assert (output_dir / "exploratory_dapo_is_abs_mass_per_panel_question.png").exists()
+
+    with joined.open(newline="", encoding="utf-8") as handle:
+        joined_rows = list(csv.DictReader(handle))
+    assert len(joined_rows) == 4
+    final_mid = next(
+        row for row in joined_rows
+        if int(row["snapshot_pct"]) == 100 and row["bin"] == "(.25,.5]"
+    )
+    assert math.isclose(float(final_mid["delta_C"]), 0.1)
+    assert math.isclose(float(final_mid["cumulative_abs_advantage_per_panel_question"]), 2.0)

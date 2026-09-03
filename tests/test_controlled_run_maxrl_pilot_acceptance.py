@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pytest
 
+import controlled_run.maxrl_pilot_acceptance as acceptance
 from controlled_run.maxrl_pilot_acceptance import (
     CANONICAL_PI0_LINEAGE_ID,
     validate_maxrl_pilot,
@@ -215,3 +216,15 @@ def test_validate_maxrl_pilot_fails_closed_on_token_is_missing(tmp_path):
 
     with pytest.raises(ValueError, match="token-level IS diagnostics"):
         validate_maxrl_pilot(output_dir)
+
+
+def test_maxrl_pilot_acceptance_cli_prints_json_pass_report(tmp_path, capsys):
+    output_dir = tmp_path / "pilot"
+    _write_valid_pilot(output_dir)
+
+    acceptance.main([str(output_dir)])
+
+    report = json.loads(capsys.readouterr().out)
+    assert report["status"] == "PASS"
+    assert report["rows"] == 640
+    assert report["groups"] == 40

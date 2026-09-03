@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import csv
+import json
 import math
+from pathlib import Path
 
 import pytest
 
@@ -43,6 +46,13 @@ def _snapshot_record(index: int, *, reward: int, terminated: int, correct: int, 
         "n_terminated": terminated,
         "n_correct": correct,
     }
+
+
+def _write_jsonl(path: Path, rows: list[dict]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8") as handle:
+        for row in rows:
+            handle.write(json.dumps(row) + "\n")
 
 
 @pytest.mark.parametrize(
@@ -162,3 +172,62 @@ def test_p0_record_validation_recomputes_all_three_metrics() -> None:
     corrupted = dict(record, p0=0.75)
     with pytest.raises(ValueError, match="p0 aggregate mismatch"):
         sct.validate_p0_record(corrupted)
+
+
+def test_run_analysis_merges_parity_shards_and_writes_trajectory_outputs(tmp_path: Path) -> None:
+    p0_dir = tmp_path / "p0"
+    snapshot_dir = tmp_path / "snapshots"
+    output_dir = tmp_path / "analysis"
+
+    even = _p0_record(
+        0,
+        [_rollout(reward=0, terminated=False, correct=True)] * 2,
+        [_rollout(reward=1, terminated=True, correct=True)] * 2,
+    )
+    odd = _p0_record(
+        1,
+        [
+            _rollout(reward=0, terminated=True, correct=False),
+            _rollout(reward=1, terminated=True, correct=True),
+        ],
+        [
+            _rollout(reward=0, terminated=False, correct=True),
+            _rollout(reward=1, terminated=True, correct=True),
+        ],
+    )
+    _write_jsonl(p0_dir / "rollouts_shard0of2.jsonl", [even])
+    _write_jsonl(p0_dir / "rollouts_shard1of2.jsonl", [odd])
+
+    for pct, reward in ((5, 1), (10, 2)):
+        _write_jsonl(
+            snapshot_dir / f"pi_{pct:03d}" / "snapshot_raw.jsonl",
+            [
+                _snapshot_record(0, reward=reward, terminated=3, correct=3),
+                _snapshot_record(1, reward=reward, terminated=3, correct=3),
+            ],
+        )
+
+    result = sct.run_analysis(
+        p0_dir=p0_dir,
+        snapshot_dir=snapshot_dir,
+        output_dir=output_dir,
+        snapshot_pcts=[5, 10],
+        expected_indices=[0, 1],
+        verify_known_aggregates=False,
+    )
+
+    assert result["p0_records"] == 2
+    assert result["snapshots"] == 2
+    assert (output_dir / "per_question_crossfit.csv").is_file()
+    assert (output_dir / "crossfit_trajectory.csv").is_file()
+    assert (output_dir / "aggregate_sanity.csv").is_file()
+    for metric in ("R", "T", "C"):
+        assert (output_dir / f"delta_{metric}_by_p0_bin.png").is_file()
+
+    with (output_dir / "aggregate_sanity.csv").open(newline="", encoding="utf-8") as handle:
+        rows = list(csv.DictReader(handle))
+    assert [int(row["snapshot_pct"]) for row in rows] == [0, 5, 10]
+
+    with (output_dir / "per_question_crossfit.csv").open(newline="", encoding="utf-8") as handle:
+        per_question = list(csv.DictReader(handle))
+    assert len(per_question) == 2 * 2 * 2  # questions × snapshots × directions

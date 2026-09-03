@@ -207,9 +207,11 @@ adjusted_skipped_cells.csv
 
 A successful script marker is a code/data-pipeline check, not a scientific conclusion by itself.
 
-## Local development
+## Execution lanes and artifact boundary
 
-Create the platform-neutral development environment:
+### M5 Pro development lane
+
+The ordinary development environment is platform-neutral Python 3.12:
 
 ```bash
 python3.12 -m venv .venv
@@ -218,39 +220,168 @@ python -m pip install -r controlled_run/requirements-dev.txt
 python -m pytest -q
 ```
 
-Canonical SFT data are selected with the frozen formatted-token cutoff of 16,384. Verify the materialized bundle with:
+The M5 Pro lane is the default home for unit tests, deterministic data preparation,
+analysis, figures/tables, provenance verification, and synthetic MaxRL estimator
+tests. CUDA, NCCL, FlashAttention, and canonical TRL/vLLM training do not belong
+in the ordinary M5 development environment.
+
+Canonical SFT data are selected with the frozen formatted-token cutoff of 16,384.
+Verify a materialized bundle with:
 
 ```bash
 python -m controlled_run.data_bundle
 ```
 
-Canonical A40 runtime acceptance remains fail-closed:
+### Artifact boundary
 
-```bash
-python -m controlled_run.runtime_acceptance \
-  --attention-backend flash_attention_2
+Git stores source code, configs, scientific specs/checkpoints, manifests/hashes,
+lightweight derived CSV/JSON tables, and paper-facing figures.
+
+Raw/generated experiment artifacts belong in local storage or private Hugging
+Face repositories, including model checkpoints, raw rollout JSONL, raw
+signal-ledger JSONL, snapshot-evaluation raw banks, large logs, and large
+intermediate files.
+
+Prefer writing raw computational outputs below:
+
+```text
+controlled_run_outputs/
 ```
 
-Do not silently fall back from the canonical attention/runtime path.
+which is intentionally Git-ignored. Do not use `git add .` as an
+experiment-backup mechanism; explicitly stage the small analysis/provenance
+files intended for Git.
 
-## Historical Apple-Silicon development runtime
+### Optional Apple-Silicon vLLM-Metal runtime
 
-This path is retained only for reproducibility of the earlier local-development workflow. It is not the canonical measurement backend.
-
-The vLLM-Metal development environment requires **macOS 15+**, native **arm64**, and **Python 3.12**. The official installer creates `~/.venv-vllm-metal`:
+The vLLM-Metal environment remains separate from the ordinary M5 development
+environment. It requires **macOS 15+**, native **arm64**, and **Python 3.12**.
+The official installer creates `~/.venv-vllm-metal`:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/vllm-project/vllm-metal/main/install.sh | bash
 uv pip install --python ~/.venv-vllm-metal/bin/python -r requirements-macos-vllm.txt
 ```
 
-The historical compatibility smoke used the exact public SFT revision `checkpoint-8-of-10`; it must not silently substitute an MLX-community conversion or another checkpoint.
+The historical compatibility smoke used the exact public SFT revision
+`checkpoint-8-of-10`; it must not silently substitute an MLX-community
+conversion or another checkpoint.
 
-**Metal results are for development, smoke tests, and small exploratory runs. CUDA vLLM remains the canonical measurement backend.**
+**Metal results are for development, smoke tests, and small exploratory runs.
+CUDA vLLM remains the canonical measurement backend.**
 
-## Historical RunPod image/bootstrap workflow
+### Active controlled 2×A40 RunPod workflow
 
-This block preserves the earlier image/bootstrap contract and is not the active branch selector for the present `codex/signal-ledger` work. The historical template used:
+The controlled CUDA lane uses the repository-owned image:
+
+```text
+ghcr.io/unitedsnakes/rlvr-vllm
+```
+
+For a new image revision, first use the immutable `sha-*` image produced by
+GitHub Actions. Promote a tested image to the stable `0.27.1` tag only after
+fresh-pod bootstrap and distributed preflight pass.
+
+Recommended active template:
+
+```text
+GPU: 2 × NVIDIA A40
+Container disk: enough local space for the intended trajectory/snapshots (80 GB recommended)
+Network volume: optional; not part of scientific identity
+HTTP port: 8888
+TCP port: 22
+```
+
+RunPod Secrets / environment:
+
+```text
+HF_TOKEN={{ RUNPOD_SECRET_huggingface_token }}
+GITHUB_DEPLOY_KEY_B64={{ RUNPOD_SECRET_github_rlvr_deploy_key_b64 }}
+
+RLVR_REPO=git@github.com:UnitedSnakes/rlvr_behavior_probe_runpod.git
+RLVR_BRANCH=codex/signal-ledger
+RLVR_REPO_DIR=/workspace/rlvr_behavior_probe_runpod
+
+RLVR_EXPECT_COMMIT=<approved exact execution commit SHA>
+RLVR_RUN_2XA40_PREFLIGHT=1
+```
+
+Use the existing Container start command:
+
+```bash
+/bin/bash -lc '/start.sh & start_pid=$!; rlvr-bootstrap > /workspace/rlvr-bootstrap.log 2>&1; bootstrap_status=$?; if [ "$bootstrap_status" -ne 0 ]; then printf "[rlvr-bootstrap] startup bootstrap failed with exit %s; pod remains available; rerun rlvr-bootstrap manually\n" "$bootstrap_status" >> /workspace/rlvr-bootstrap.log; fi; wait "$start_pid"'
+```
+
+`/start.sh` remains the long-lived RunPod SSH/Jupyter service. Bootstrap
+failure is intentionally non-fatal to the pod so the instance remains
+inspectable.
+
+For the active controlled lane, bootstrap performs:
+
+```text
+GitHub/deploy-key setup
+→ branch synchronization
+→ exact commit gate when RLVR_EXPECT_COMMIT is set
+→ static A40/runtime acceptance
+→ fail-closed 2-rank NCCL all-reduce preflight
+```
+
+The distributed preflight is equivalent to:
+
+```bash
+TORCH_NCCL_ASYNC_ERROR_HANDLING=1 \
+TORCH_NCCL_DESYNC_DEBUG=1 \
+torchrun --nproc_per_node=2 \
+  -m controlled_run.distributed_preflight \
+  --collective-timeout-seconds 30 \
+  --output-json /workspace/rlvr-2xa40-preflight.json
+```
+
+It requires a real NCCL all-reduce on the default transport path. Rank-local
+values 1 and 2 must both observe sum 3. A pod that fails or hangs in the
+default NCCL path is rejected for controlled training.
+
+Do not make `NCCL_P2P_DISABLE=1`, `NCCL_CUMEM_ENABLE=0`, or another
+transport workaround part of the canonical runtime merely to make a bad host
+pass. Such settings are diagnostic unless a later written infrastructure
+decision explicitly changes the canonical transport policy.
+
+Canonical A40 static acceptance can also be run manually:
+
+```bash
+python -m controlled_run.runtime_acceptance \
+  --attention-backend flash_attention_2
+```
+
+An optional real Qwen3 BF16 FlashAttention2 forward/backward probe is:
+
+```bash
+python -m controlled_run.runtime_acceptance \
+  --attention-backend flash_attention_2 \
+  --probe-model
+```
+
+For the corrected canonical pre-RL policy, the current Hugging Face download
+layout places the actual model one level below the download root. The training
+argument must point to the directory that directly contains
+`pi0_manifest.json`:
+
+```text
+controlled_run_outputs/sft/pi_0/pi_0
+```
+
+The required canonical lineage remains:
+
+```text
+f89fc90226a67a6a3c7374f9c13abadfcecda88f397ab812fa4130f1f425605b
+```
+
+Do not infer the model directory from the outer download folder; verify the
+manifest explicitly.
+
+### Historical RunPod image/bootstrap workflow
+
+The earlier template used:
 
 ```text
 HF_TOKEN={{ RUNPOD_SECRET_huggingface_token }}
@@ -260,20 +391,23 @@ RLVR_BRANCH=difficulty-bin-analysis
 RLVR_REPO_DIR=/workspace/rlvr_behavior_probe_runpod
 ```
 
-The bootstrap command is `rlvr-bootstrap`; failures were logged to `/workspace/rlvr-bootstrap.log` without killing the pod. Historical result backups targeted the pre-existing private Dataset repo:
+The bootstrap command is `rlvr-bootstrap`; failures were logged to
+`/workspace/rlvr-bootstrap.log` without killing the pod. Historical result
+backups targeted:
 
 ```text
 HKReporter/rlvr-behavior-probe-results
 ```
 
-The image acceptance path also retained a non-canonical top-k/JIT smoke test with:
+The old image smoke also used:
 
 ```text
 --top-k 20
 --repetition-penalty 1.1
 ```
 
-These values are historical infrastructure tests, not current canonical science settings.
+These historical values are retained for reproducibility only and are not
+current canonical science settings.
 
 ## Authoritative research records
 

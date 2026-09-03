@@ -64,18 +64,38 @@ The paper-facing claim hierarchy is frozen in the latest checkpoint. In particul
 
 ## MaxRL status
 
-There is **no MaxRL implementation or validated estimator yet**.
+Practical MaxRL-15 is implemented and has passed the CPU/TDD implementation
+gate. The estimator changes only the group advantage while preserving the
+matched canonical GRPO outer stack.
 
-Do not treat MaxRL as a config toggle on `train_grpo.py`. Before any GPU run, follow `docs/superpowers/specs/2026-09-03-maxrl-objective-intervention-amendment.md`.
+Frozen implementation semantics:
 
-The pre-outcome hypothesis hierarchy is:
+```text
+G = N = 16
+effective MaxRL order = 15
+K = sum_i r_i
+K = 0: A_i = 0
+K > 0: A_i = (r_i - K/16) / (K/16)
+epsilon = 0
+```
+
+The real 2×A40 engineering pilot has not yet produced an accepted GPU outcome.
+Do not treat CPU tests, a disposable pilot, or infrastructure smoke results as
+scientific MaxRL evidence.
+
+Before GPU interpretation, read:
+
+- `docs/superpowers/specs/2026-09-03-maxrl-objective-intervention-amendment.md`
+- `docs/superpowers/specs/2026-09-03-maxrl-practical-estimator-implementation-amendment.md`
+- `docs/superpowers/checkpoints/2026-09-03-maxrl-implementation-ready-for-gpu-pilot.md`
+- `docs/superpowers/checkpoints/2026-09-03-maxrl-pilot-acceptance-checker-complete.md`
+
+The pre-outcome hypothesis hierarchy remains:
 
 1. H1 mechanism gate: realized signal allocation should qualitatively shift toward lower `p0` relative to GRPO if MaxRL is implemented faithfully.
 2. H2 primary behavioral prediction: signal allocation may move materially while `DeltaC` allocation changes much less.
 3. H3 predeclared alternative: if signal and behavior both shift, objective allocation influences behavioral allocation.
 4. H4: if signal does not move as expected, stop interpretation and inspect estimator/implementation.
-
-The exact finite-G estimator, scale/temperature parameter, interaction with DAPO normalization, and number of paired seeds are intentionally not frozen yet. Re-derive them from the source paper before code.
 
 ## Designs and amendments
 
@@ -117,34 +137,105 @@ Historical sequence-level IS and truncation masking effects are instrumentation 
 
 ## Compute lanes
 
-CPU / local dev:
+M5 Pro / ordinary local development:
 
 ```text
 pytest
 analysis scripts
 figures/tables
 provenance and bundle verification
+deterministic data preparation
 MaxRL estimator derivation and synthetic tests
 ```
 
-A40:
+The ordinary M5 `.venv` must remain independent of CUDA, NCCL,
+FlashAttention, canonical TRL/vLLM training, and vLLM-Metal. The optional
+Apple-Silicon vLLM-Metal runtime remains a separate development/smoke
+environment.
+
+Controlled A40 lane:
 
 ```text
-runtime acceptance
+static runtime acceptance
+2×A40 distributed NCCL preflight
 canonical CUDA evaluation
-MaxRL pilot/shakedown/canonical only after implementation gate
+GRPO/MaxRL pilot and shakedown
+canonical GRPO/MaxRL training
 ```
 
-Canonical SFT and canonical GRPO used 2 x A40. Do not silently change canonical batch/topology semantics.
+Canonical SFT and canonical GRPO used 2 × A40. Do not silently change canonical
+batch/topology semantics.
+
+Before controlled 2-GPU training, require the default NCCL path to pass:
+
+```bash
+torchrun --nproc_per_node=2 \
+  -m controlled_run.distributed_preflight
+```
+
+A failed default NCCL/P2P path rejects the pod. Do not make
+`NCCL_P2P_DISABLE=1` a canonical runtime workaround.
 
 ## Artifact registry
 
-Large generated artifacts live in private Hugging Face repos under `HKReporter/`. Git holds code, configs, manifests, lightweight analysis summaries, and scientific provenance docs. Large checkpoints/raw rollouts do not belong in git.
+Git contains code, configs, scientific specs/checkpoints, manifests/provenance,
+lightweight derived tables, and paper-facing figures.
+
+Private Hugging Face/local storage contains model checkpoints, raw rollout
+JSONL, raw signal ledgers, snapshot raw banks, and large logs/intermediate
+artifacts.
+
+Prefer raw computational outputs under `controlled_run_outputs/`, which is
+Git-ignored. Do not use `git add .` as an experiment-backup strategy.
 
 For the 2026-09-03 analysis packaging map, read:
 
 - `hf_bundles/2026-09-03-canonical-grpo-seed42/README.md`
 - `hf_bundles/2026-09-03-canonical-grpo-seed42/manifest.json`
+
+## RunPod execution contract
+
+The active controlled branch is:
+
+```text
+codex/signal-ledger
+```
+
+The active template may set:
+
+```text
+RLVR_EXPECT_COMMIT=<approved exact execution commit SHA>
+RLVR_RUN_2XA40_PREFLIGHT=1
+```
+
+Bootstrap keeps `/start.sh` alive, verifies the requested Git commit, runs
+static A40 acceptance, and then runs the real two-rank NCCL all-reduce
+preflight. The distributed preflight writes:
+
+```text
+/workspace/rlvr-2xa40-preflight.json
+```
+
+A pod that fails the default collective path is rejected. P2P/cuMem transport
+overrides are diagnostic only unless a later written amendment changes that
+policy.
+
+The corrected canonical pi0 path passed to training must be the directory that
+directly contains `pi0_manifest.json`; under the current HF download layout:
+
+```text
+controlled_run_outputs/sft/pi_0/pi_0
+```
+
+Required lineage:
+
+```text
+f89fc90226a67a6a3c7374f9c13abadfcecda88f397ab812fa4130f1f425605b
+```
+
+For the infrastructure rationale and failure record, read:
+
+- `docs/superpowers/specs/2026-09-03-m5-a40-execution-infra-amendment.md`
 
 ## Commands
 

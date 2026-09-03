@@ -128,14 +128,16 @@ def _write_valid_pilot(output_dir: Path, *, steps: int = 20) -> None:
     ]
     try:
         for step in range(steps):
+            # Match the current distributed wrapper contract: global G-sized groups are
+            # formed before the contiguous rank-local slice. With global generation
+            # batch 32 and G=16, each rank receives one whole prompt group per step.
             groups = [
-                (1000 + 2 * step, 1),
-                (1001 + 2 * step, 0 if step % 2 == 0 else 16),
+                (1000 + 2 * step, 1, 0),
+                (1001 + 2 * step, 0 if step % 2 == 0 else 16, 1),
             ]
-            for dataset_index, k in groups:
+            for dataset_index, k, rank in groups:
                 rewards = [1.0] * k + [0.0] * (16 - k)
-                for rollout_index, reward in enumerate(rewards):
-                    rank = 0 if rollout_index < 8 else 1
+                for reward in rewards:
                     row = _ledger_row(
                         step=step,
                         rank=rank,
@@ -215,6 +217,24 @@ def test_validate_maxrl_pilot_fails_closed_on_token_is_missing(tmp_path):
     )
 
     with pytest.raises(ValueError, match="token-level IS diagnostics"):
+        validate_maxrl_pilot(output_dir)
+
+
+def test_validate_maxrl_pilot_fails_closed_on_wrong_per_step_rank_count(tmp_path):
+    output_dir = tmp_path / "pilot"
+    _write_valid_pilot(output_dir)
+    rank0 = output_dir / "signal_ledger" / "signal_ledger_test_rank0.jsonl"
+    rank1 = output_dir / "signal_ledger" / "signal_ledger_test_rank1.jsonl"
+    rows0 = rank0.read_text(encoding="utf-8").splitlines()
+    rows1 = rank1.read_text(encoding="utf-8").splitlines()
+    moved = json.loads(rows0[0])
+    moved["rank"] = 1
+    rows0 = rows0[1:]
+    rows1.append(json.dumps(moved))
+    rank0.write_text("\n".join(rows0) + "\n", encoding="utf-8")
+    rank1.write_text("\n".join(rows1) + "\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="16 rollout rows per rank per generation step"):
         validate_maxrl_pilot(output_dir)
 
 

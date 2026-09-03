@@ -28,19 +28,25 @@ from analyses.snapshot_crossfit_trajectory import BIN_ORDER, assign_reward_bin
 
 DIRECTIONS = ("A-bin", "B-bin")
 
-# Scalar direction-level quantities that can be meaningfully symmetrized by an
-# equal-weight average across A-bin and B-bin analyses.
-SYMMETRIC_SCALARS = (
+# These quantities are defined even when a direction has seen zero panel
+# prompts: zero exposure implies zero cumulative signal mass for that direction.
+CUMULATIVE_SYMMETRIC_SCALARS = (
     "exposure_fraction",
+    "cumulative_abs_advantage_per_panel_question",
+    "exploratory_dapo_is_abs_mass_per_panel_question",
+)
+
+# These are conditional on at least one exposed group/token. If either
+# cross-fit direction is undefined at an early sparse snapshot, the symmetric
+# value remains undefined rather than borrowing the other direction.
+CONDITIONAL_SYMMETRIC_SCALARS = (
     "active_group_fraction",
     "mean_k_over_G",
     "mean_group_total_abs_advantage",
     "mean_completion_length",
-    "cumulative_abs_advantage_per_panel_question",
     "actual_is_ess_fraction",
     "actual_is_mean_ratio",
     "actual_is_cap_fraction",
-    "exploratory_dapo_is_abs_mass_per_panel_question",
 )
 
 
@@ -330,16 +336,25 @@ def build_crossfit_signal_trajectory(
     return rows
 
 
-def _equal_direction_average(a, b):
-    if a is None and b is None:
-        return None
+def _equal_direction_average(a, b) -> float:
     if a is None or b is None:
-        raise ValueError("cannot symmetrize when only one cross-fit direction is defined")
+        raise ValueError("cumulative cross-fit quantities must be defined in both directions")
+    return (float(a) + float(b)) / 2.0
+
+
+def _conditional_direction_average(a, b) -> float | None:
+    if a is None or b is None:
+        return None
     return (float(a) + float(b)) / 2.0
 
 
 def symmetrize_signal_trajectory(directional_rows: Iterable[dict]) -> list[dict]:
-    """Average A-bin and B-bin direction means with equal direction weight."""
+    """Average A-bin and B-bin direction means with equal direction weight.
+
+    Cumulative quantities remain defined through zero exposure. Conditional
+    quantities remain undefined unless both cross-fit directions have observed
+    at least one relevant group/token at that snapshot.
+    """
     indexed: dict[tuple[int, str, str], dict] = {}
     for row in directional_rows:
         direction = row["direction"]
@@ -373,8 +388,10 @@ def symmetrize_signal_trajectory(directional_rows: Iterable[dict]) -> list[dict]
                 "n_exposed_groups_A": int(a["n_exposed_groups"]),
                 "n_exposed_groups_B": int(b["n_exposed_groups"]),
             }
-            for field in SYMMETRIC_SCALARS:
+            for field in CUMULATIVE_SYMMETRIC_SCALARS:
                 row[field] = _equal_direction_average(a[field], b[field])
+            for field in CONDITIONAL_SYMMETRIC_SCALARS:
+                row[field] = _conditional_direction_average(a[field], b[field])
             result.append(row)
 
     return result

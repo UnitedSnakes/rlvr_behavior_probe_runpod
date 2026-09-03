@@ -20,19 +20,32 @@ unstable or sign interpretation would be misleading.
 
 from __future__ import annotations
 
+import argparse
+import csv
 import math
 from collections import defaultdict
+from pathlib import Path
 from typing import Iterable
 
+from analyses.ledger_crossfit_signal_allocation import (
+    DEFAULT_SNAPSHOT_SCHEDULE,
+    load_ledger_rows,
+)
 from analyses.snapshot_crossfit_trajectory import (
     BIN_ORDER,
     assign_reward_bin,
+    load_p0_records,
     validate_p0_record,
+    write_csv,
 )
+from controlled_run.constants import BASE_MODEL, CONTROLLED_SYSTEM_PROMPT
 
 
 DIRECTIONS = ("A-bin/B-base", "B-bin/A-base")
 DEFAULT_SPLIT_PCTS = (25, 45, 65)
+DEFAULT_EXPECTED_INDICES = tuple(range(256))
+DEFAULT_TOTAL_STEPS = 3736
+DEFAULT_GROUP_SIZE = 16
 OWN_EXPOSURE_RATIO_MAX = 0.25
 TRANSFER_RATIO_MIN = 0.75
 
@@ -238,7 +251,6 @@ def build_exposure_split_directional(
         raise ValueError(f"target snapshots missing from schedule: {missing_schedule}")
 
     selected: list[dict] = []
-    observed_indices: set[int] = set()
     for raw in per_question_rows:
         pct = int(raw["snapshot_pct"])
         if pct not in target:
@@ -249,7 +261,6 @@ def build_exposure_split_directional(
         index = int(raw["dataset_index"])
         if index not in exposure_steps:
             raise ValueError(f"missing exposure step for dataset_index={index}")
-        observed_indices.add(index)
         step = int(snapshot_schedule[pct])
         status = "exposed" if int(exposure_steps[index]) < step else "unexposed"
         selected.append(
@@ -330,8 +341,6 @@ def symmetrize_exposure_split(directional_rows: Iterable[dict]) -> list[dict]:
             for status in ("exposed", "unexposed"):
                 a = indexed.get((pct, "A-bin/B-base", bin_label, status))
                 b = indexed.get((pct, "B-bin/A-base", bin_label, status))
-                # Do not borrow a single cross-fit direction when a subgroup is
-                # empty in the other direction.
                 if a is None or b is None:
                     continue
                 if int(a["snapshot_step"]) != int(b["snapshot_step"]):
@@ -395,3 +404,343 @@ def build_transfer_contrasts(symmetric_rows: Iterable[dict]) -> list[dict]:
                 }
             )
     return out
+
+
+def build_exposure_steps(
+    ledger_rows: Iterable[dict],
+    *,
+    expected_indices: Iterable[int],
+    expected_group_size: int,
+) -> dict[int, int]:
+    """Recover each panel question's unique own-exposure ledger step."""
+    indices = [int(index) for index in expected_indices]
+    expected = set(indices)
+    if len(expected) != len(indices) or not indices:
+        raise ValueError("expected_indices must be non-empty and unique")
+    if expected_group_size <= 0:
+        raise ValueError("expected_group_size must be positive")
+
+    steps: dict[int, set[int]] = {index: set() for index in indices}
+    counts: dict[int, int] = {index: 0 for index in indices}
+    for row in ledger_rows:
+        index = int(row["dataset_index"])
+        if index not in expected:
+            continue
+        group_size = int(row["group_size"])
+        if group_size != expected_group_size:
+            raise ValueError(
+                f"dataset_index={index}: expected group_size={expected_group_size}, got {group_size}"
+            )
+        steps[index].add(int(row["generation_global_step"]))
+        counts[index] += 1
+
+    result: dict[int, int] = {}
+    for index in indices:
+        if len(steps[index]) != 1:
+            raise ValueError(
+                f"dataset_index={index}: expected exactly one own-exposure step, got {sorted(steps[index])}"
+            )
+        if counts[index] != expected_group_size:
+            raise ValueError(
+                f"dataset_index={index}: expected {expected_group_size} rollout rows at own exposure, got {counts[index]}"
+            )
+        result[index] = next(iter(steps[index]))
+    return result
+
+
+def compute_prompt_token_counts(
+    p0_records: Iterable[dict],
+    *,
+    tokenizer_name: str = BASE_MODEL,
+) -> dict[int, int]:
+    """Count frozen pre-exposure prompt tokens using the canonical chat template."""
+    from transformers import AutoTokenizer
+
+    tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
+    counts: dict[int, int] = {}
+    for record in p0_records:
+        index = int(record["dataset_index"])
+        question = record.get("question")
+        if not isinstance(question, str) or not question:
+            raise ValueError(f"dataset_index={index}: missing p0 question text")
+        messages = [
+            {"role": "system", "content": CONTROLLED_SYSTEM_PROMPT},
+            {"role": "user", "content": question},
+        ]
+        rendered = tokenizer.apply_chat_template(
+            messages,
+            tokenize=False,
+            add_generation_prompt=True,
+        )
+        token_ids = tokenizer(rendered, add_special_tokens=False)["input_ids"]
+        if not token_ids:
+            raise ValueError(f"dataset_index={index}: empty rendered prompt tokenization")
+        if index in counts:
+            raise ValueError(f"duplicate p0 dataset_index={index}")
+        counts[index] = len(token_ids)
+    return counts
+
+
+def load_per_question_movement(path: Path) -> list[dict]:
+    """Read the fixed-panel question-level cross-fit outcome file."""
+    rows: list[dict] = []
+    required = {
+        "snapshot_pct",
+        "direction",
+        "dataset_index",
+        "bin",
+        "delta_R",
+        "delta_T",
+        "delta_C",
+    }
+    with Path(path).open(newline="", encoding="utf-8") as handle:
+        reader = csv.DictReader(handle)
+        if reader.fieldnames is None or not required.issubset(reader.fieldnames):
+            raise ValueError(
+                f"per-question movement CSV missing required fields {sorted(required)}: {reader.fieldnames}"
+            )
+        for raw in reader:
+            if raw["direction"] not in DIRECTIONS:
+                continue
+            rows.append(
+                {
+                    "snapshot_pct": int(raw["snapshot_pct"]),
+                    "direction": raw["direction"],
+                    "dataset_index": int(raw["dataset_index"]),
+                    "bin": raw["bin"],
+                    "delta_R": float(raw["delta_R"]),
+                    "delta_T": float(raw["delta_T"]),
+                    "delta_C": float(raw["delta_C"]),
+                }
+            )
+    if not rows:
+        raise ValueError(f"no direction-level per-question movement rows found in {path}")
+    return rows
+
+
+def run_balance_analysis(
+    *,
+    p0_dir: Path,
+    ledger_dir: Path,
+    output_dir: Path,
+    expected_indices: Iterable[int] = DEFAULT_EXPECTED_INDICES,
+    total_steps: int = DEFAULT_TOTAL_STEPS,
+    expected_group_size: int = DEFAULT_GROUP_SIZE,
+    prompt_token_counts: dict[int, int] | None = None,
+    tokenizer_name: str = BASE_MODEL,
+) -> dict:
+    """Run only pre-outcome balance diagnostics; no outcome file is opened."""
+    indices = [int(index) for index in expected_indices]
+    p0_records = load_p0_records(Path(p0_dir), indices)
+    ledger_files, ledger_rows = load_ledger_rows(Path(ledger_dir))
+    exposure_steps = build_exposure_steps(
+        ledger_rows,
+        expected_indices=indices,
+        expected_group_size=expected_group_size,
+    )
+    token_counts = (
+        {int(k): int(v) for k, v in prompt_token_counts.items()}
+        if prompt_token_counts is not None
+        else compute_prompt_token_counts(p0_records, tokenizer_name=tokenizer_name)
+    )
+    if set(token_counts) != set(indices):
+        raise ValueError("prompt-token indices must match expected panel indices exactly")
+
+    balance_rows = build_balance_rows(
+        p0_records,
+        exposure_steps=exposure_steps,
+        prompt_token_counts=token_counts,
+    )
+    balance_summary = summarize_balance(balance_rows, total_steps=total_steps)
+
+    destination = Path(output_dir)
+    destination.mkdir(parents=True, exist_ok=True)
+    write_csv(destination / "balance_question_rows.csv", balance_rows)
+    write_csv(destination / "balance_summary.csv", balance_summary)
+    write_csv(
+        destination / "exposure_steps.csv",
+        [
+            {
+                "dataset_index": index,
+                "exposure_step": exposure_steps[index],
+                "prompt_token_count": token_counts[index],
+            }
+            for index in indices
+        ],
+    )
+
+    return {
+        "n_ledger_files": len(ledger_files),
+        "n_panel_questions": len(indices),
+        "n_balance_rows": len(balance_rows),
+        "exposure_steps": exposure_steps,
+        "prompt_token_counts": token_counts,
+        "balance_rows": balance_rows,
+        "balance_summary": balance_summary,
+        "output_dir": str(destination),
+    }
+
+
+def run_analysis(
+    *,
+    p0_dir: Path,
+    ledger_dir: Path,
+    per_question_csv: Path,
+    output_dir: Path,
+    expected_indices: Iterable[int] = DEFAULT_EXPECTED_INDICES,
+    total_steps: int = DEFAULT_TOTAL_STEPS,
+    expected_group_size: int = DEFAULT_GROUP_SIZE,
+    snapshot_schedule: dict[int, int] = DEFAULT_SNAPSHOT_SCHEDULE,
+    target_pcts: Iterable[int] = DEFAULT_SPLIT_PCTS,
+    prompt_token_counts: dict[int, int] | None = None,
+    tokenizer_name: str = BASE_MODEL,
+) -> dict:
+    """Run balance diagnostics, then the predeclared 25/45/65 split."""
+    indices = [int(index) for index in expected_indices]
+    balance = run_balance_analysis(
+        p0_dir=p0_dir,
+        ledger_dir=ledger_dir,
+        output_dir=output_dir,
+        expected_indices=indices,
+        total_steps=total_steps,
+        expected_group_size=expected_group_size,
+        prompt_token_counts=prompt_token_counts,
+        tokenizer_name=tokenizer_name,
+    )
+
+    per_question = load_per_question_movement(Path(per_question_csv))
+    directional = build_exposure_split_directional(
+        per_question,
+        exposure_steps=balance["exposure_steps"],
+        snapshot_schedule=snapshot_schedule,
+        target_pcts=target_pcts,
+    )
+    symmetric = symmetrize_exposure_split(directional)
+    contrasts = build_transfer_contrasts(symmetric)
+
+    destination = Path(output_dir)
+    write_csv(destination / "split_directional.csv", directional)
+    write_csv(destination / "split_symmetric.csv", symmetric)
+    write_csv(destination / "split_contrasts.csv", contrasts)
+
+    return {
+        **balance,
+        "target_pcts": [int(pct) for pct in target_pcts],
+        "split_directional": directional,
+        "split_symmetric": symmetric,
+        "split_contrasts": contrasts,
+    }
+
+
+def _fmt(value, *, scale: float = 1.0, digits: int = 3) -> str:
+    if value is None:
+        return "NA"
+    return f"{scale * float(value):.{digits}f}"
+
+
+def _print_balance(summary: list[dict]) -> None:
+    print("Exposure-timing balance diagnostics (pre-outcome):")
+    print(
+        f"{'direction':<15} {'bin':<10} {'n':>4} {'r(p0)':>8} {'r(p0len)':>9} "
+        f"{'r(prompt)':>9} {'KS_D':>7} {'Q1':>6} {'Q2':>6} {'Q3':>6} {'Q4':>6}"
+    )
+    for row in summary:
+        print(
+            f"{row['direction']:<15} {row['bin']:<10} {int(row['n_questions']):>4} "
+            f"{_fmt(row['corr_exposure_baseline_p0']):>8} "
+            f"{_fmt(row['corr_exposure_p0_completion_length']):>9} "
+            f"{_fmt(row['corr_exposure_prompt_tokens']):>9} "
+            f"{_fmt(row['uniform_ks_D']):>7} "
+            f"{_fmt(row['exposure_q1_fraction'], scale=100, digits=1):>6} "
+            f"{_fmt(row['exposure_q2_fraction'], scale=100, digits=1):>6} "
+            f"{_fmt(row['exposure_q3_fraction'], scale=100, digits=1):>6} "
+            f"{_fmt(row['exposure_q4_fraction'], scale=100, digits=1):>6}"
+        )
+
+
+def _print_split(contrasts: list[dict]) -> None:
+    for pct in DEFAULT_SPLIT_PCTS:
+        rows = [row for row in contrasts if int(row["snapshot_pct"]) == pct]
+        print(f"\n{pct}% exposed vs unexposed symmetric cross-fit:")
+        print(
+            f"{'bin':<10} {'nE A/B':>11} {'nU A/B':>11} "
+            f"{'dR_E':>7} {'dR_U':>7} {'dT_E':>7} {'dT_U':>7} "
+            f"{'dC_E':>7} {'dC_U':>7} {'ratioC':>7} {'class':>22}"
+        )
+        for row in rows:
+            print(
+                f"{row['bin']:<10} "
+                f"{int(row['n_exposed_A'])}/{int(row['n_exposed_B']):<5} "
+                f"{int(row['n_unexposed_A'])}/{int(row['n_unexposed_B']):<5} "
+                f"{_fmt(row['delta_R_exposed'], scale=100, digits=2):>7} "
+                f"{_fmt(row['delta_R_unexposed'], scale=100, digits=2):>7} "
+                f"{_fmt(row['delta_T_exposed'], scale=100, digits=2):>7} "
+                f"{_fmt(row['delta_T_unexposed'], scale=100, digits=2):>7} "
+                f"{_fmt(row['delta_C_exposed'], scale=100, digits=2):>7} "
+                f"{_fmt(row['delta_C_unexposed'], scale=100, digits=2):>7} "
+                f"{_fmt(row['transfer_ratio_C'], digits=2):>7} "
+                f"{row['transfer_classification']:>22}"
+            )
+
+
+def main(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(
+        description="Balance-first own-exposure versus transfer analysis on the canonical train panel."
+    )
+    parser.add_argument(
+        "--p0-dir", type=Path, default=Path("p0_train_k32_top_p1_canonical")
+    )
+    parser.add_argument("--ledger-dir", type=Path, default=Path("signal_ledger"))
+    parser.add_argument(
+        "--per-question-csv",
+        type=Path,
+        default=Path("analyses/canonical_snapshot_crossfit/per_question_crossfit.csv"),
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        default=Path("analyses/canonical_exposure_split_transfer"),
+    )
+    parser.add_argument("--tokenizer", default=BASE_MODEL)
+    parser.add_argument(
+        "--balance-only",
+        action="store_true",
+        help="Run only pre-outcome balance diagnostics; do not read movement outcomes.",
+    )
+    args = parser.parse_args(argv)
+
+    if args.balance_only:
+        result = run_balance_analysis(
+            p0_dir=args.p0_dir,
+            ledger_dir=args.ledger_dir,
+            output_dir=args.output_dir,
+            expected_indices=DEFAULT_EXPECTED_INDICES,
+            total_steps=DEFAULT_TOTAL_STEPS,
+            expected_group_size=DEFAULT_GROUP_SIZE,
+            tokenizer_name=args.tokenizer,
+        )
+        _print_balance(result["balance_summary"])
+        print(f"\noutputs: {result['output_dir']}")
+        print("EXPOSURE TIMING BALANCE DIAGNOSTICS: COMPLETE")
+        return
+
+    result = run_analysis(
+        p0_dir=args.p0_dir,
+        ledger_dir=args.ledger_dir,
+        per_question_csv=args.per_question_csv,
+        output_dir=args.output_dir,
+        expected_indices=DEFAULT_EXPECTED_INDICES,
+        total_steps=DEFAULT_TOTAL_STEPS,
+        expected_group_size=DEFAULT_GROUP_SIZE,
+        snapshot_schedule=DEFAULT_SNAPSHOT_SCHEDULE,
+        target_pcts=DEFAULT_SPLIT_PCTS,
+        tokenizer_name=args.tokenizer,
+    )
+    _print_balance(result["balance_summary"])
+    _print_split(result["split_contrasts"])
+    print(f"\noutputs: {result['output_dir']}")
+    print("CANONICAL EXPOSED-VS-UNEXPOSED ANALYSIS: COMPLETE")
+
+
+if __name__ == "__main__":
+    main()

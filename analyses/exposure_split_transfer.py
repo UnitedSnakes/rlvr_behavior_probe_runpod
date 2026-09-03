@@ -32,6 +32,7 @@ from analyses.snapshot_crossfit_trajectory import (
 
 
 DIRECTIONS = ("A-bin/B-base", "B-bin/A-base")
+DEFAULT_SPLIT_PCTS = (25, 45, 65)
 OWN_EXPOSURE_RATIO_MAX = 0.25
 TRANSFER_RATIO_MIN = 0.75
 
@@ -214,3 +215,183 @@ def classify_transfer_ratio(
     else:
         classification = "mixed"
     return {"ratio": ratio, "classification": classification}
+
+
+def build_exposure_split_directional(
+    per_question_rows: Iterable[dict],
+    *,
+    exposure_steps: dict[int, int],
+    snapshot_schedule: dict[int, int],
+    target_pcts: Iterable[int] = DEFAULT_SPLIT_PCTS,
+) -> list[dict]:
+    """Split direction-level fixed-panel movement by own-exposure status.
+
+    A question is exposed to snapshot S iff its unique ledger exposure step is
+    strictly less than S. This matches the saved-policy boundary used by the
+    canonical ledger/snapshot join.
+    """
+    target = tuple(int(pct) for pct in target_pcts)
+    if len(set(target)) != len(target):
+        raise ValueError("target_pcts must be unique")
+    missing_schedule = sorted(set(target) - {int(p) for p in snapshot_schedule})
+    if missing_schedule:
+        raise ValueError(f"target snapshots missing from schedule: {missing_schedule}")
+
+    selected: list[dict] = []
+    observed_indices: set[int] = set()
+    for raw in per_question_rows:
+        pct = int(raw["snapshot_pct"])
+        if pct not in target:
+            continue
+        direction = raw["direction"]
+        if direction not in DIRECTIONS:
+            continue
+        index = int(raw["dataset_index"])
+        if index not in exposure_steps:
+            raise ValueError(f"missing exposure step for dataset_index={index}")
+        observed_indices.add(index)
+        step = int(snapshot_schedule[pct])
+        status = "exposed" if int(exposure_steps[index]) < step else "unexposed"
+        selected.append(
+            {
+                "snapshot_pct": pct,
+                "snapshot_step": step,
+                "direction": direction,
+                "bin": raw["bin"],
+                "dataset_index": index,
+                "exposure_status": status,
+                "delta_R": float(raw["delta_R"]),
+                "delta_T": float(raw["delta_T"]),
+                "delta_C": float(raw["delta_C"]),
+            }
+        )
+
+    if not selected:
+        raise ValueError("no per-question rows matched target snapshots/directions")
+
+    grouped: dict[tuple[int, str, str, str], list[dict]] = defaultdict(list)
+    for row in selected:
+        key = (
+            int(row["snapshot_pct"]),
+            row["direction"],
+            row["bin"],
+            row["exposure_status"],
+        )
+        grouped[key].append(row)
+
+    out: list[dict] = []
+    for (pct, direction, bin_label, status), group in sorted(
+        grouped.items(),
+        key=lambda item: (
+            item[0][0],
+            DIRECTIONS.index(item[0][1]),
+            BIN_ORDER.index(item[0][2]),
+            0 if item[0][3] == "exposed" else 1,
+        ),
+    ):
+        snapshot_steps = {int(row["snapshot_step"]) for row in group}
+        if len(snapshot_steps) != 1:
+            raise ValueError("inconsistent snapshot step within split cell")
+        out.append(
+            {
+                "snapshot_pct": pct,
+                "snapshot_step": next(iter(snapshot_steps)),
+                "direction": direction,
+                "bin": bin_label,
+                "exposure_status": status,
+                "n_questions": len(group),
+                "delta_R": _mean([float(row["delta_R"]) for row in group]),
+                "delta_T": _mean([float(row["delta_T"]) for row in group]),
+                "delta_C": _mean([float(row["delta_C"]) for row in group]),
+            }
+        )
+    return out
+
+
+def symmetrize_exposure_split(directional_rows: Iterable[dict]) -> list[dict]:
+    """Equal-weight A/B direction means within each exposure-status cell."""
+    indexed: dict[tuple[int, str, str, str], dict] = {}
+    for row in directional_rows:
+        direction = row["direction"]
+        if direction not in DIRECTIONS:
+            raise ValueError(f"unexpected direction {direction}")
+        status = row["exposure_status"]
+        if status not in {"exposed", "unexposed"}:
+            raise ValueError(f"unexpected exposure status {status}")
+        key = (int(row["snapshot_pct"]), direction, row["bin"], status)
+        if key in indexed:
+            raise ValueError(f"duplicate directional split row {key}")
+        indexed[key] = row
+
+    pcts = sorted({key[0] for key in indexed})
+    out: list[dict] = []
+    for pct in pcts:
+        for bin_label in BIN_ORDER:
+            for status in ("exposed", "unexposed"):
+                a = indexed.get((pct, "A-bin/B-base", bin_label, status))
+                b = indexed.get((pct, "B-bin/A-base", bin_label, status))
+                # Do not borrow a single cross-fit direction when a subgroup is
+                # empty in the other direction.
+                if a is None or b is None:
+                    continue
+                if int(a["snapshot_step"]) != int(b["snapshot_step"]):
+                    raise ValueError("snapshot step mismatch between cross-fit directions")
+                out.append(
+                    {
+                        "snapshot_pct": pct,
+                        "snapshot_step": int(a["snapshot_step"]),
+                        "direction": "symmetric",
+                        "bin": bin_label,
+                        "exposure_status": status,
+                        "n_questions_A": int(a["n_questions"]),
+                        "n_questions_B": int(b["n_questions"]),
+                        "delta_R": (float(a["delta_R"]) + float(b["delta_R"])) / 2.0,
+                        "delta_T": (float(a["delta_T"]) + float(b["delta_T"])) / 2.0,
+                        "delta_C": (float(a["delta_C"]) + float(b["delta_C"])) / 2.0,
+                    }
+                )
+    return out
+
+
+def build_transfer_contrasts(symmetric_rows: Iterable[dict]) -> list[dict]:
+    """Pair exposed/unexposed cells and apply the frozen DeltaC ratio rule."""
+    indexed: dict[tuple[int, str, str], dict] = {}
+    for row in symmetric_rows:
+        if row.get("direction") != "symmetric":
+            raise ValueError("transfer contrasts require symmetric rows")
+        key = (int(row["snapshot_pct"]), row["bin"], row["exposure_status"])
+        if key in indexed:
+            raise ValueError(f"duplicate symmetric split row {key}")
+        indexed[key] = row
+
+    out: list[dict] = []
+    for pct in sorted({key[0] for key in indexed}):
+        for bin_label in BIN_ORDER:
+            exposed = indexed.get((pct, bin_label, "exposed"))
+            unexposed = indexed.get((pct, bin_label, "unexposed"))
+            if exposed is None or unexposed is None:
+                continue
+            criterion = classify_transfer_ratio(
+                delta_c_exposed=float(exposed["delta_C"]),
+                delta_c_unexposed=float(unexposed["delta_C"]),
+            )
+            out.append(
+                {
+                    "snapshot_pct": pct,
+                    "snapshot_step": int(exposed["snapshot_step"]),
+                    "bin": bin_label,
+                    "n_exposed_A": int(exposed["n_questions_A"]),
+                    "n_exposed_B": int(exposed["n_questions_B"]),
+                    "n_unexposed_A": int(unexposed["n_questions_A"]),
+                    "n_unexposed_B": int(unexposed["n_questions_B"]),
+                    "delta_R_exposed": float(exposed["delta_R"]),
+                    "delta_R_unexposed": float(unexposed["delta_R"]),
+                    "delta_T_exposed": float(exposed["delta_T"]),
+                    "delta_T_unexposed": float(unexposed["delta_T"]),
+                    "delta_C_exposed": float(exposed["delta_C"]),
+                    "delta_C_unexposed": float(unexposed["delta_C"]),
+                    "transfer_ratio_C": criterion["ratio"],
+                    "transfer_classification": criterion["classification"],
+                }
+            )
+    return out

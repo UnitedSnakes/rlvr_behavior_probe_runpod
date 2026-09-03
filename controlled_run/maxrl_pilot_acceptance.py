@@ -151,6 +151,7 @@ def validate_maxrl_pilot(output_dir: Path) -> dict[str, object]:
 
     rank_counts: dict[int, int] = defaultdict(int)
     step_counts: dict[int, int] = defaultdict(int)
+    step_rank_counts: dict[tuple[int, int], int] = defaultdict(int)
     groups: dict[tuple[int, int], list[dict]] = defaultdict(list)
     token_ratio_count = 0
     token_ratio_sum = 0.0
@@ -166,6 +167,7 @@ def validate_maxrl_pilot(output_dir: Path) -> dict[str, object]:
         _require(rank in {0, 1}, "MaxRL pilot ledger rank must be 0 or 1")
         rank_counts[rank] += 1
         step_counts[step] += 1
+        step_rank_counts[(step, rank)] += 1
         groups[(step, dataset_index)].append(row)
 
         count = row.get("actual_is_ratio_count")
@@ -188,14 +190,18 @@ def validate_maxrl_pilot(output_dir: Path) -> dict[str, object]:
         token_ratio_sq_sum += ratio_sq_sum_value
 
     _require(set(rank_counts) == {0, 1}, "MaxRL pilot must contain ranks 0 and 1")
-    _require(
-        rank_counts[0] == 320 and rank_counts[1] == 320,
-        "MaxRL pilot requires 320 rollout rows per rank",
-    )
     _require(set(step_counts) == set(range(20)), "MaxRL pilot steps must be exactly 0..19")
     _require(
         all(count == 32 for count in step_counts.values()),
         "MaxRL pilot requires exactly 32 rollout rows per generation step",
+    )
+    _require(
+        all(step_rank_counts[(step, rank)] == 16 for step in range(20) for rank in (0, 1)),
+        "MaxRL pilot requires exactly 16 rollout rows per rank per generation step",
+    )
+    _require(
+        rank_counts[0] == 320 and rank_counts[1] == 320,
+        "MaxRL pilot requires 320 rollout rows per rank",
     )
     _require(len(groups) == 40, "MaxRL 20-step pilot requires exactly 40 prompt groups")
 
@@ -204,13 +210,6 @@ def validate_maxrl_pilot(output_dir: Path) -> dict[str, object]:
         _require(
             len(group_rows) == 16,
             f"MaxRL group ({step}, {dataset_index}) must contain exactly 16 rows",
-        )
-        per_rank = defaultdict(int)
-        for row in group_rows:
-            per_rank[int(row["rank"])] += 1
-        _require(
-            per_rank == {0: 8, 1: 8},
-            f"MaxRL group ({step}, {dataset_index}) must contain 8 rows per rank",
         )
 
         rewards = [

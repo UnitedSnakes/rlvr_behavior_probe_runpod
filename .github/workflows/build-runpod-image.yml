@@ -12,6 +12,7 @@ on:
     branches:
       - difficulty-bin-analysis
       - controlled-qwen3-rlvr-task6
+      - codex/signal-ledger
     paths:
       - docker/**
       - .github/workflows/build-runpod-image.yml

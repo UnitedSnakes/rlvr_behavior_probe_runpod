@@ -108,6 +108,25 @@ sync_repository() {
     git -C "$repo_dir" merge --ff-only "origin/$RLVR_BRANCH"
 }
 
+verify_expected_commit() {
+    local repo_dir="$1"
+    local expected="${RLVR_EXPECT_COMMIT:-}"
+    local actual
+
+    if [ -z "$expected" ]; then
+        log "no exact commit gate requested"
+        return
+    fi
+
+    actual="$(git -C "$repo_dir" rev-parse HEAD)"
+
+    if [ "$actual" != "$expected" ]; then
+        fail "repository HEAD $actual does not match RLVR_EXPECT_COMMIT $expected"
+    fi
+
+    log "exact commit gate passed: $actual"
+}
+
 configure_git_identity() {
     local repo_dir="$1"
     local user_name="${RLVR_GIT_USER_NAME:-$DEFAULT_GIT_USER_NAME}"
@@ -171,6 +190,29 @@ run_runtime_acceptance() {
     )
 }
 
+run_distributed_preflight() {
+    local repo_dir="$1"
+
+    if [ "${RLVR_RUN_2XA40_PREFLIGHT:-0}" != "1" ]; then
+        log "2xA40 distributed preflight not requested"
+        return
+    fi
+
+    log "running fail-closed 2xA40 NCCL preflight"
+
+    (
+        cd "$repo_dir"
+
+        TORCH_NCCL_ASYNC_ERROR_HANDLING=1 \
+        TORCH_NCCL_DESYNC_DEBUG=1 \
+        timeout 90s \
+        torchrun --nproc_per_node=2 \
+            -m controlled_run.distributed_preflight \
+            --collective-timeout-seconds 30 \
+            --output-json /workspace/rlvr-2xa40-preflight.json
+    )
+}
+
 main() {
     local repo_dir
 
@@ -184,8 +226,10 @@ main() {
     configure_known_hosts
     sync_repository "$repo_dir"
     configure_git_identity "$repo_dir"
+    verify_expected_commit "$repo_dir"
     print_runtime_summary "$repo_dir"
     run_runtime_acceptance "$repo_dir"
+    run_distributed_preflight "$repo_dir"
     log "bootstrap complete"
 }
 

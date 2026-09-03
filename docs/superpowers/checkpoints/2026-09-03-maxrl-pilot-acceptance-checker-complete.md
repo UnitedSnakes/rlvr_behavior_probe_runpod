@@ -4,7 +4,7 @@ Date: 2026-09-03
 
 ## Status
 
-The fail-closed CPU checker for the frozen disposable 20-step practical MaxRL-15 GPU pilot is implemented and has completed a fresh RED -> GREEN cycle.
+The fail-closed CPU checker for the frozen disposable 20-step practical MaxRL-15 GPU pilot is implemented and has completed fresh RED -> GREEN cycles, including a post-implementation review correction to the distributed rank-layout assumption.
 
 This checker is an engineering/runtime validation instrument. It does not inspect or gate on reward improvement, difficulty-bin left shift, `DeltaC`, or any other scientific outcome.
 
@@ -116,11 +116,13 @@ For exactly 20 steps, the checker requires:
 640 total rollout rows
 steps exactly 0..19
 32 rows per step
+16 rows per rank per step
 320 rows per rank
 40 (generation_global_step, dataset_index) groups
 16 rows per group
-8 rows from each rank within every group
 ```
+
+There is deliberately **no** requirement that every prompt group contain an `8/8` split across ranks. The current wrapper forms global contiguous `G`-sized groups before taking the rank-local contiguous slice. Under the frozen global generation batch `32`, `G=16`, and world size `2`, a prompt group can therefore be rank-local. The engineering invariant is the per-step rank load (`16` rows per rank), not a fabricated within-group rank ratio.
 
 ### Exact practical MaxRL-15 identities
 
@@ -227,11 +229,57 @@ job:      100795564191
 result:   251 passed, 14 warnings in 7.19s
 ```
 
-This is the final CPU/code gate before the first real MaxRL GPU pilot.
+### Post-implementation review: distributed rank-layout correction
+
+A final review compared the acceptance checker against the existing distributed MaxRL wrapper test and the signal-ledger gather/slice implementation. It found one important checker bug: the first checker version assumed that every `G=16` prompt group must contain exactly eight rows from each rank.
+
+That assumption was not part of the trainer contract. The wrapper gathers global rewards, constructs contiguous global `G` groups, and then takes a contiguous rank-local slice. The existing distributed trainer test already encodes this ordering. A correct pilot could therefore have been rejected by the old checker.
+
+RED commit:
+
+```text
+3de9beff370d2888b990132d1487a3650235615f
+```
+
+Fresh RED result:
+
+```text
+4 failed, 248 passed, 14 warnings
+```
+
+The primary valid-layout test failed exactly on the obsolete message:
+
+```text
+MaxRL group (...) must contain 8 rows per rank
+```
+
+GREEN commit:
+
+```text
+4e48754f3832ddfafa49621c3e20bfc5da77653f
+```
+
+The corrected checker now requires the actual geometry-derived rank invariant:
+
+```text
+16 rollout rows per rank per generation step
+```
+
+and does not impose a within-group rank split.
+
+Fresh GitHub Actions verification:
+
+```text
+workflow: 33800504256
+job:      100798582485
+result:   252 passed, 14 warnings in 10.73s
+```
+
+This is the current final CPU/code gate before the first real MaxRL GPU pilot.
 
 ## Next live command
 
-On a fresh 2-GPU A40 RunPod checkout at `401fef72451fe452149b2e1912a1497453a7625a` or a later verified documentation-only descendant, first verify that the `--pi0-dir` points to the untouched corrected canonical pre-RL policy.
+On a fresh 2-GPU A40 RunPod checkout at `4e48754f3832ddfafa49621c3e20bfc5da77653f` or a later verified documentation-only descendant, first verify that the `--pi0-dir` points to the untouched corrected canonical pre-RL policy.
 
 Then run a new disposable output directory:
 

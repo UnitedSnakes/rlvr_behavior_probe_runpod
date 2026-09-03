@@ -1,0 +1,69 @@
+{
+  "bundle_name": "canonical-grpo-seed42-analysis-2026-09-03",
+  "bundle_date": "2026-09-03",
+  "status": "git_package_prepared_hf_upload_not_performed",
+  "repository": "UnitedSnakes/rlvr_behavior_probe_runpod",
+  "branch": "codex/signal-ledger",
+  "analysis_code_commit": "386f300e36562ad78063fcfd4b5ed4137325fd9d",
+  "packaging_basis_commit": "4696b6f2c417377adcc0c66fed914c8da8a8b0b5",
+  "canonical_pi0": {
+    "hf_repo": "HKReporter/rlvr-behavior-probe-pi0-corrected-canonical-2026-08-30",
+    "pi0_lineage_id": "f89fc90226a67a6a3c7374f9c13abadfcecda88f397ab812fa4130f1f425605b"
+  },
+  "canonical_grpo": {
+    "hf_repo": "HKReporter/rlvr-behavior-probe-grpo-canonical-seed42-2026-09-02",
+    "training_seed": 42,
+    "optimizer_steps": 3736,
+    "world_size": 2,
+    "generation_batch_size": 32,
+    "global_optimizer_batch_size": 32,
+    "num_generations": 16,
+    "unique_prompts_per_generation": 2
+  },
+  "fixed_panel": {
+    "dataset": "GSM8K train",
+    "questions": 256,
+    "baseline_rollouts": 32,
+    "baseline_crossfit_halves": 2,
+    "snapshot_bank_rollouts": 16,
+    "exposure_cutoffs_pct": [25, 45, 65]
+  },
+  "frozen_primary_result": "no stable own-exposure advantage",
+  "adjusted_symmetric_cell_counts": {
+    "transfer_compatible": 8,
+    "unexposed_higher": 3,
+    "mixed_or_uncertain": 2,
+    "not_classifiable": 2,
+    "own_exposure_candidate": 0
+  },
+  "expected_lightweight_files": [
+    "analyses/canonical_snapshot_crossfit/crossfit_trajectory.csv",
+    "analyses/canonical_snapshot_crossfit/per_question_crossfit.csv",
+    "analyses/canonical_ledger_crossfit_signal/signal_trajectory_directional.csv",
+    "analyses/canonical_ledger_crossfit_signal/signal_trajectory_symmetric.csv",
+    "analyses/canonical_ledger_crossfit_signal/signal_movement_join.csv",
+    "analyses/canonical_ledger_crossfit_signal/ledger_integrity.json",
+    "analyses/canonical_ledger_crossfit_signal/cumulative_abs_advantage_per_panel_question.png",
+    "analyses/canonical_ledger_crossfit_signal/active_group_fraction.png",
+    "analyses/canonical_ledger_crossfit_signal/exploratory_dapo_is_abs_mass_per_panel_question.png",
+    "analyses/canonical_exposure_split_transfer/balance_question_rows.csv",
+    "analyses/canonical_exposure_split_adjusted/adjustment_input_rows.csv",
+    "analyses/canonical_exposure_split_adjusted/adjusted_directional.csv",
+    "analyses/canonical_exposure_split_adjusted/adjusted_symmetric.csv",
+    "analyses/canonical_exposure_split_adjusted/adjusted_skipped_cells.csv"
+  ],
+  "provenance_docs": [
+    "docs/superpowers/specs/2026-09-01-signal-allocation-analysis-prereg.md",
+    "docs/superpowers/checkpoints/2026-09-02-postrun-preoutcome-analysis-addendum.md",
+    "docs/superpowers/checkpoints/2026-09-03-exposure-split-preoutcome-decision.md",
+    "docs/superpowers/checkpoints/2026-09-03-cutoff-balance-observed-and-adjustment.md",
+    "docs/superpowers/checkpoints/2026-09-03-exposure-split-postoutcome-and-paper-claim-freeze.md",
+    "docs/superpowers/specs/2026-09-03-maxrl-objective-intervention-amendment.md"
+  ],
+  "hf_upload": {
+    "performed": false,
+    "reason": "No authenticated Hugging Face write connector or HF_TOKEN is available in the current ChatGPT environment.",
+    "remote_repo_name_frozen": false,
+    "remote_hash_verification_required": true
+  }
+}

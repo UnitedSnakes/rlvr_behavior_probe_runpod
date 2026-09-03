@@ -66,11 +66,15 @@ where behavioral improvement appears
 
 That distinction is now the main motivation for the planned GRPO-versus-MaxRL objective intervention. The next question is not merely whether MaxRL changes nominal difficulty weighting, but whether a verified change in **realized signal allocation** actually changes the **allocation of correctness improvement**.
 
-The pre-MaxRL hypothesis hierarchy is frozen in:
+The scientific hypothesis hierarchy is frozen in:
 
 - `docs/superpowers/specs/2026-09-03-maxrl-objective-intervention-amendment.md`
 
-There is no validated MaxRL implementation in this repository yet. The exact finite-`G` estimator must be re-derived and tested before any GPU run.
+The implementation semantics are frozen separately in:
+
+- `docs/superpowers/specs/2026-09-03-maxrl-practical-estimator-implementation-amendment.md`
+
+For the frozen `G=16` comparison, the paper's dropped-baseline practical estimator corresponds to **order `T=15` (practical MaxRL-15)**. This changes only the group advantage estimator; the matched canonical DAPO/token-IS outer stack remains fixed. No MaxRL GPU outcome exists yet.
 
 ## Canonical lineage
 
@@ -229,6 +233,48 @@ python -m controlled_run.runtime_acceptance \
 
 Do not silently fall back from the canonical attention/runtime path.
 
+## Historical Apple-Silicon development runtime
+
+This path is retained only for reproducibility of the earlier local-development workflow. It is not the canonical measurement backend.
+
+The vLLM-Metal development environment requires **macOS 15+**, native **arm64**, and **Python 3.12**. The official installer creates `~/.venv-vllm-metal`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/vllm-project/vllm-metal/main/install.sh | bash
+uv pip install --python ~/.venv-vllm-metal/bin/python -r requirements-macos-vllm.txt
+```
+
+The historical compatibility smoke used the exact public SFT revision `checkpoint-8-of-10`; it must not silently substitute an MLX-community conversion or another checkpoint.
+
+**Metal results are for development, smoke tests, and small exploratory runs. CUDA vLLM remains the canonical measurement backend.**
+
+## Historical RunPod image/bootstrap workflow
+
+This block preserves the earlier image/bootstrap contract and is not the active branch selector for the present `codex/signal-ledger` work. The historical template used:
+
+```text
+HF_TOKEN={{ RUNPOD_SECRET_huggingface_token }}
+GITHUB_DEPLOY_KEY_B64={{ RUNPOD_SECRET_github_rlvr_deploy_key_b64 }}
+RLVR_REPO=git@github.com:UnitedSnakes/rlvr_behavior_probe_runpod.git
+RLVR_BRANCH=difficulty-bin-analysis
+RLVR_REPO_DIR=/workspace/rlvr_behavior_probe_runpod
+```
+
+The bootstrap command is `rlvr-bootstrap`; failures were logged to `/workspace/rlvr-bootstrap.log` without killing the pod. Historical result backups targeted the pre-existing private Dataset repo:
+
+```text
+HKReporter/rlvr-behavior-probe-results
+```
+
+The image acceptance path also retained a non-canonical top-k/JIT smoke test with:
+
+```text
+--top-k 20
+--repetition-penalty 1.1
+```
+
+These values are historical infrastructure tests, not current canonical science settings.
+
 ## Authoritative research records
 
 Start with the newest checkpoint rather than reading the whole history.
@@ -244,9 +290,10 @@ Important pre-outcome provenance:
 - `docs/superpowers/checkpoints/2026-09-03-exposure-split-preoutcome-decision.md`
 - `docs/superpowers/checkpoints/2026-09-03-cutoff-balance-observed-and-adjustment.md`
 
-Next objective-intervention amendment:
+Next objective-intervention records:
 
 - `docs/superpowers/specs/2026-09-03-maxrl-objective-intervention-amendment.md`
+- `docs/superpowers/specs/2026-09-03-maxrl-practical-estimator-implementation-amendment.md`
 
 Large-artifact / Hugging Face packaging map:
 

@@ -94,6 +94,31 @@ class MaxRLRewardBatchRecorder(RewardBatchRecorder):
         return [dict(row) for row in self._pending]
 
 
+def _replace_latest_trl_advantage_log(trainer, global_advantages: torch.Tensor) -> None:
+    """Make TRL's completion-table advantage log match the actual MaxRL signal.
+
+    TRL logs its global GRPO advantages inside the base scoring method before
+    this wrapper can replace the returned local tensor. When that standard log
+    buffer is present, replace exactly the latest global batch in place so the
+    diagnostic table and the loss/ledger share the same advantage semantics.
+    """
+    logs = getattr(trainer, "_logs", None)
+    if logs is None or "advantages" not in logs:
+        return
+
+    advantage_log = logs["advantages"]
+    if not isinstance(advantage_log, list):
+        raise RuntimeError("Practical MaxRL expects TRL _logs['advantages'] to be a list")
+
+    batch_size = int(global_advantages.numel())
+    if len(advantage_log) < batch_size:
+        raise RuntimeError(
+            "TRL advantage log is shorter than the just-scored global MaxRL batch: "
+            f"{len(advantage_log)} < {batch_size}"
+        )
+    advantage_log[-batch_size:] = global_advantages.tolist()
+
+
 def make_practical_maxrl_trainer(base_trainer_class, *, recorder: MaxRLRewardBatchRecorder):
     """Wrap a TRL-compatible trainer by replacing only its group advantages.
 
@@ -136,6 +161,7 @@ def make_practical_maxrl_trainer(base_trainer_class, *, recorder: MaxRLRewardBat
                 global_rewards,
                 group_size=group_size,
             )
+            _replace_latest_trl_advantage_log(self, global_advantages)
 
             start = int(self.accelerator.process_index) * local_count
             stop = start + local_count

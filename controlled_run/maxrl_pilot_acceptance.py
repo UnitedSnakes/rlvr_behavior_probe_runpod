@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import math
 from collections import defaultdict
@@ -259,3 +260,17 @@ def validate_maxrl_pilot(output_dir: Path) -> dict[str, object]:
         "max_advantage_error": max_advantage_error,
         "aggregate_token_is_ess_fraction": aggregate_ess_fraction,
     }
+
+
+def main(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(
+        description="Validate the frozen 20-step controlled MaxRL GPU pilot."
+    )
+    parser.add_argument("output_dir", type=Path)
+    args = parser.parse_args(argv)
+    report = validate_maxrl_pilot(args.output_dir)
+    print(json.dumps(report, indent=2, sort_keys=True))
+
+
+if __name__ == "__main__":
+    main()

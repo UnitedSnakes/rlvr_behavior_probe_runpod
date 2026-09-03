@@ -48,6 +48,18 @@ class FakeBaseTrainer:
         return {"advantages": self._output_advantages.clone()}
 
 
+class FakeLoggingBaseTrainer(FakeBaseTrainer):
+    def __init__(self, output_advantages, *, global_logged_advantages, accelerator=None):
+        super().__init__(output_advantages, accelerator=accelerator)
+        self._global_logged_advantages = list(global_logged_advantages)
+        self._logs = {"advantages": [999.0]}
+
+    def _generate_and_score_completions(self, inputs):
+        output = super()._generate_and_score_completions(inputs)
+        self._logs["advantages"].extend(self._global_logged_advantages)
+        return output
+
+
 def _capture_group(recorder: MaxRLRewardBatchRecorder, rewards, *, dataset_index=10) -> None:
     recorder.capture(
         dataset_indices=[dataset_index] * len(rewards),
@@ -107,6 +119,35 @@ def test_maxrl_wrapper_uses_global_groups_then_returns_only_rank_slice(tmp_path)
     expected = torch.tensor([1.0, 1.0, -1.0, -1.0])
     assert torch.equal(output["advantages"], expected)
     assert _ledger_advantages(tmp_path, rank=1) == [1.0, 1.0, -1.0, -1.0]
+
+
+def test_maxrl_wrapper_replaces_latest_trl_global_advantage_log_batch():
+    recorder = MaxRLRewardBatchRecorder()
+    _capture_group(recorder, [1.0, 1.0, 0.0, 0.0], dataset_index=20)
+    global_rewards = torch.tensor(
+        [1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0],
+        dtype=torch.float32,
+    )
+    trainer_cls = make_practical_maxrl_trainer(FakeLoggingBaseTrainer, recorder=recorder)
+    trainer = trainer_cls(
+        torch.tensor([10.0, 11.0, 12.0, 13.0]),
+        global_logged_advantages=[10.0, 11.0, 12.0, 13.0, 20.0, 21.0, 22.0, 23.0],
+        accelerator=FakeRankOneAccelerator(global_rewards),
+    )
+
+    trainer._generate_and_score_completions([])
+
+    assert trainer._logs["advantages"] == [
+        999.0,
+        3.0,
+        -1.0,
+        -1.0,
+        -1.0,
+        1.0,
+        1.0,
+        -1.0,
+        -1.0,
+    ]
 
 
 def test_maxrl_reward_peek_does_not_consume_batch():

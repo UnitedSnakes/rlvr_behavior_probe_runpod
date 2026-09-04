@@ -76,7 +76,9 @@ The implementation semantics are frozen separately in:
 
 For the frozen `G=16` comparison, the paper's dropped-baseline practical estimator corresponds to **order `T=15` (practical MaxRL-15)**. This changes only the group advantage estimator; the matched canonical DAPO/token-IS outer stack remains fixed.
 
-The disposable 20-step real 2×A40 engineering pilot now passes its frozen structural checker after a TRL `deque` integration fix. This is **not** a scientific MaxRL outcome. The next gate is a disposable 150-step shakedown from the untouched corrected canonical `pi0`.
+The disposable 20-step real 2×A40 engineering pilot and 150-step shakedown both pass structural acceptance. The pre-frozen matched first-150 H1 mechanism comparison has also been deblinded: signal-weighted mean `p0` moves from **0.3172 under GRPO to 0.2295 under MaxRL**, while the MaxRL/GRPO cumulative absolute-advantage ratio is **3.21× in `(0,.25]`**, **1.28× in `(.25,.5]`**, and **1.04× in `(.5,.75]`**. This supports the predeclared qualitative H1 mechanism gate that practical MaxRL-15 reallocates realized signal toward lower-but-nonzero `p0`.
+
+The shakedown remains disposable and is not a canonical behavioral result. A full canonical MaxRL seed42 trajectory is now authorized after a fresh test/clean-checkout gate; H2/H3 remain unobserved.
 
 ## Canonical lineage
 
@@ -460,6 +462,9 @@ Next objective-intervention records:
 - `docs/superpowers/specs/2026-09-03-maxrl-objective-intervention-amendment.md`
 - `docs/superpowers/specs/2026-09-03-maxrl-practical-estimator-implementation-amendment.md`
 - `docs/superpowers/checkpoints/2026-09-03-maxrl-20step-gpu-pilot-pass.md`
+- `docs/superpowers/checkpoints/2026-09-03-maxrl-150step-shakedown-structural-pass.md`
+- `docs/superpowers/specs/2026-09-03-maxrl-finite-g-signal-shape-pre-h1-outcome-addendum.md`
+- `docs/superpowers/checkpoints/2026-09-03-maxrl-h1-shakedown-postoutcome-gate.md`
 
 Large-artifact / Hugging Face packaging map:
 

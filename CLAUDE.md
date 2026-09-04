@@ -14,7 +14,7 @@ As of 2026-09-03 the current scientific post-outcome handoff is:
 
 The current live MaxRL execution handoff is:
 
-- `docs/superpowers/checkpoints/2026-09-03-maxrl-150step-shakedown-structural-pass.md`
+- `docs/superpowers/checkpoints/2026-09-03-maxrl-h1-shakedown-postoutcome-gate.md`
 - `docs/superpowers/specs/2026-09-03-maxrl-finite-g-signal-shape-pre-h1-outcome-addendum.md`
 
 For the MaxRL scientific hypothesis, also read:
@@ -114,10 +114,26 @@ aggregate_token_is_ess_fraction = 0.997971078180227
 status = PASS
 ```
 
-The next gate is the pre-frozen matched first-150 H1 signal-allocation
-comparison against canonical GRPO. The p0-binned shakedown allocation must not
-be interpreted before reading the finite-G pre-H1-outcome addendum. Pilot and
-shakedown outputs remain disposable and are not canonical MaxRL evidence.
+The pre-frozen matched first-150 H1 signal-allocation comparison has now been
+deblinded and the mechanism gate is supported:
+
+```text
+GRPO signal-weighted mean p0  = 0.317237
+MaxRL signal-weighted mean p0 = 0.229517
+delta                          = -0.087720
+
+MaxRL / GRPO cumulative |A| per panel question:
+p0=0       2.519x
+(0,.25]    3.210x
+(.25,.5]   1.281x
+(.5,.75]   1.041x
+```
+
+The strongest relative amplification occurs in the predeclared low-but-nonzero
+region and falls toward one with increasing p0. This satisfies the qualitative
+H1 mechanism gate on the disposable seed42 shakedown. Canonical MaxRL seed42 is
+authorized after a fresh full-test and clean-checkout gate. H2/H3 remain
+unobserved.
 
 Before GPU interpretation, read:
 
@@ -128,6 +144,7 @@ Before GPU interpretation, read:
 - `docs/superpowers/checkpoints/2026-09-03-maxrl-20step-gpu-pilot-pass.md`
 - `docs/superpowers/checkpoints/2026-09-03-maxrl-150step-shakedown-structural-pass.md`
 - `docs/superpowers/specs/2026-09-03-maxrl-finite-g-signal-shape-pre-h1-outcome-addendum.md`
+- `docs/superpowers/checkpoints/2026-09-03-maxrl-h1-shakedown-postoutcome-gate.md`
 
 The pre-outcome hypothesis hierarchy remains:
 

@@ -6,7 +6,7 @@
       "repo_type": "model",
       "repo_id": "HKReporter/rlvr-behavior-probe-grpo-canonical-seed42-2026-09-02",
       "revision": "main",
-      "expected_revision_sha": null,
+      "expected_revision_sha": "0ff3639832078fefd5131438d916800cd5319155",
       "files": [
         {
           "remote_path": "grpo_run_manifest.json",

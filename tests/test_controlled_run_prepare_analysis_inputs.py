@@ -62,6 +62,7 @@ def test_repository_registry_records_current_canonical_reference_paths():
         bundle["repo_id"]
         == "HKReporter/rlvr-behavior-probe-grpo-canonical-seed42-2026-09-02"
     )
+    assert bundle["expected_revision_sha"] == "0ff3639832078fefd5131438d916800cd5319155"
     paths = {item["remote_path"] for item in bundle["files"]}
     assert "grpo_run_manifest.json" in paths
     assert (

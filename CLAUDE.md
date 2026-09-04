@@ -14,8 +14,8 @@ As of 2026-09-03 the current scientific post-outcome handoff is:
 
 The current live MaxRL execution handoff is:
 
-- `docs/superpowers/checkpoints/2026-09-03-maxrl-h1-shakedown-postoutcome-gate.md`
-- `docs/superpowers/specs/2026-09-03-maxrl-finite-g-signal-shape-pre-h1-outcome-addendum.md`
+- `docs/superpowers/checkpoints/2026-09-04-maxrl-canonical-structural-pass.md`
+- `docs/superpowers/specs/2026-09-04-maxrl-canonical-fixed-panel-preoutcome-addendum.md`
 
 For the MaxRL scientific hypothesis, also read:
 
@@ -145,6 +145,24 @@ Before GPU interpretation, read:
 - `docs/superpowers/checkpoints/2026-09-03-maxrl-150step-shakedown-structural-pass.md`
 - `docs/superpowers/specs/2026-09-03-maxrl-finite-g-signal-shape-pre-h1-outcome-addendum.md`
 - `docs/superpowers/checkpoints/2026-09-03-maxrl-h1-shakedown-postoutcome-gate.md`
+
+Canonical MaxRL seed42 has now completed and passed structural acceptance:
+
+```text
+steps = 3736
+rows = 119552
+groups = 7472
+rank_files = 2
+snapshots = 20
+max_advantage_error = 1.5894571969710114e-07
+aggregate_token_is_ess_fraction = 0.9980541312524671
+nonfinite_numeric_fields = 0
+status = PASS
+```
+
+The canonical MaxRL fixed-panel K=16 C-bank behavior has not yet been deblinded.
+Evaluate all 20 snapshots using the pre-outcome 2026-09-04 protocol before
+interpreting H2/H3.
 
 The pre-outcome hypothesis hierarchy remains:
 

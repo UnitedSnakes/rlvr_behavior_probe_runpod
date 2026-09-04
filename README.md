@@ -74,7 +74,9 @@ The implementation semantics are frozen separately in:
 
 - `docs/superpowers/specs/2026-09-03-maxrl-practical-estimator-implementation-amendment.md`
 
-For the frozen `G=16` comparison, the paper's dropped-baseline practical estimator corresponds to **order `T=15` (practical MaxRL-15)**. This changes only the group advantage estimator; the matched canonical DAPO/token-IS outer stack remains fixed. No MaxRL GPU outcome exists yet.
+For the frozen `G=16` comparison, the paper's dropped-baseline practical estimator corresponds to **order `T=15` (practical MaxRL-15)**. This changes only the group advantage estimator; the matched canonical DAPO/token-IS outer stack remains fixed.
+
+The disposable 20-step real 2×A40 engineering pilot now passes its frozen structural checker after a TRL `deque` integration fix. This is **not** a scientific MaxRL outcome. The next gate is a disposable 150-step shakedown from the untouched corrected canonical `pi0`.
 
 ## Canonical lineage
 
@@ -428,6 +430,7 @@ Next objective-intervention records:
 
 - `docs/superpowers/specs/2026-09-03-maxrl-objective-intervention-amendment.md`
 - `docs/superpowers/specs/2026-09-03-maxrl-practical-estimator-implementation-amendment.md`
+- `docs/superpowers/checkpoints/2026-09-03-maxrl-20step-gpu-pilot-pass.md`
 
 Large-artifact / Hugging Face packaging map:
 

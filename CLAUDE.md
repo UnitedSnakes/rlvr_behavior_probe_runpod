@@ -8,11 +8,15 @@ The current question is no longer only "given pre-RL probability `p0`, where doe
 
 Start every session by reading the newest file in `docs/superpowers/checkpoints/`. It is the authoritative handoff record.
 
-As of 2026-09-03 the current post-outcome handoff is:
+As of 2026-09-03 the current scientific post-outcome handoff is:
 
 - `docs/superpowers/checkpoints/2026-09-03-exposure-split-postoutcome-and-paper-claim-freeze.md`
 
-For the next MaxRL phase, also read:
+The current live MaxRL execution handoff is:
+
+- `docs/superpowers/checkpoints/2026-09-03-maxrl-20step-gpu-pilot-pass.md`
+
+For the MaxRL scientific hypothesis, also read:
 
 - `docs/superpowers/specs/2026-09-03-maxrl-objective-intervention-amendment.md`
 
@@ -79,9 +83,27 @@ K > 0: A_i = (r_i - K/16) / (K/16)
 epsilon = 0
 ```
 
-The real 2×A40 engineering pilot has not yet produced an accepted GPU outcome.
-Do not treat CPU tests, a disposable pilot, or infrastructure smoke results as
-scientific MaxRL evidence.
+The real 2×A40 20-step engineering pilot has passed its frozen structural
+acceptance gate after one pre-step integration failure exposed that real TRL
+1.12 stores `_logs["advantages"]` in a `deque`, not the list used by the
+earlier CPU test double.
+
+Accepted 20-step pilot summary:
+
+```text
+steps = 20
+rows = 640
+groups = 40
+rank_files = 2
+group_size = 16
+max_advantage_error = 1.5894571969710114e-07
+aggregate_token_is_ess_fraction = 0.9979146076241244
+status = PASS
+```
+
+This remains an engineering/runtime result only. The next gate is a disposable
+150-step MaxRL shakedown from the untouched corrected canonical pi0. Do not
+treat the 20-step pilot as a scientific MaxRL outcome.
 
 Before GPU interpretation, read:
 
@@ -89,6 +111,7 @@ Before GPU interpretation, read:
 - `docs/superpowers/specs/2026-09-03-maxrl-practical-estimator-implementation-amendment.md`
 - `docs/superpowers/checkpoints/2026-09-03-maxrl-implementation-ready-for-gpu-pilot.md`
 - `docs/superpowers/checkpoints/2026-09-03-maxrl-pilot-acceptance-checker-complete.md`
+- `docs/superpowers/checkpoints/2026-09-03-maxrl-20step-gpu-pilot-pass.md`
 
 The pre-outcome hypothesis hierarchy remains:
 

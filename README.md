@@ -254,6 +254,35 @@ which is intentionally Git-ignored. Do not use `git add .` as an
 experiment-backup mechanism; explicitly stage the small analysis/provenance
 files intended for Git.
 
+Canonical remote reference inputs are registered separately from host
+infrastructure in:
+
+```text
+controlled_run/artifact_registry.json
+```
+
+The registry records exact Hugging Face repositories and file paths used by
+controlled analyses. Provisioning is explicit and fail-closed rather than part
+of RunPod bootstrap. Before the first download of a newly registered bundle,
+resolve the remote immutable revision:
+
+```bash
+python -m controlled_run.prepare_analysis_inputs \
+  --bundle canonical_grpo_seed42_h1_reference \
+  --resolve-only
+```
+
+Pin that SHA as `expected_revision_sha` in the registry and commit it before
+provisioning:
+
+```bash
+python -m controlled_run.prepare_analysis_inputs \
+  --bundle canonical_grpo_seed42_h1_reference
+```
+
+Provisioned files and their SHA256 hashes are recorded under
+`controlled_run_outputs/reference_inputs/<bundle>/provision_manifest.json`.
+
 ### Optional Apple-Silicon vLLM-Metal runtime
 
 The vLLM-Metal environment remains separate from the ordinary M5 development

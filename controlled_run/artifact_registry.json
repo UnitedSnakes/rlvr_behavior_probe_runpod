@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "bundles": {
+    "canonical_grpo_seed42_h1_reference": {
+      "description": "Canonical GRPO seed42 ledger plus the frozen train-256 K=32 p0 A/B bank used for matched MaxRL signal-allocation analysis.",
+      "repo_type": "model",
+      "repo_id": "HKReporter/rlvr-behavior-probe-grpo-canonical-seed42-2026-09-02",
+      "revision": "main",
+      "expected_revision_sha": null,
+      "files": [
+        {
+          "remote_path": "grpo_run_manifest.json",
+          "role": "canonical_grpo_run_manifest"
+        },
+        {
+          "remote_path": "signal_ledger/signal_ledger_20260902T042720Z_rank0.jsonl",
+          "role": "canonical_grpo_signal_ledger_rank0"
+        },
+        {
+          "remote_path": "signal_ledger/signal_ledger_20260902T042720Z_rank1.jsonl",
+          "role": "canonical_grpo_signal_ledger_rank1"
+        },
+        {
+          "remote_path": "p0_train_k32_top_p1_canonical/rollouts_shard0of2.jsonl",
+          "role": "canonical_p0_train_k32_rollouts_shard0"
+        },
+        {
+          "remote_path": "p0_train_k32_top_p1_canonical/rollouts_shard1of2.jsonl",
+          "role": "canonical_p0_train_k32_rollouts_shard1"
+        },
+        {
+          "remote_path": "p0_train_k32_top_p1_canonical/summary_shard0of2.json",
+          "role": "canonical_p0_train_k32_summary_shard0"
+        },
+        {
+          "remote_path": "p0_train_k32_top_p1_canonical/summary_shard1of2.json",
+          "role": "canonical_p0_train_k32_summary_shard1"
+        }
+      ]
+    }
+  }
+}

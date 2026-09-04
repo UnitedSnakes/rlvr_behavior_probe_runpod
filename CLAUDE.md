@@ -14,7 +14,8 @@ As of 2026-09-03 the current scientific post-outcome handoff is:
 
 The current live MaxRL execution handoff is:
 
-- `docs/superpowers/checkpoints/2026-09-03-maxrl-20step-gpu-pilot-pass.md`
+- `docs/superpowers/checkpoints/2026-09-03-maxrl-150step-shakedown-structural-pass.md`
+- `docs/superpowers/specs/2026-09-03-maxrl-finite-g-signal-shape-pre-h1-outcome-addendum.md`
 
 For the MaxRL scientific hypothesis, also read:
 
@@ -101,9 +102,22 @@ aggregate_token_is_ess_fraction = 0.9979146076241244
 status = PASS
 ```
 
-This remains an engineering/runtime result only. The next gate is a disposable
-150-step MaxRL shakedown from the untouched corrected canonical pi0. Do not
-treat the 20-step pilot as a scientific MaxRL outcome.
+The disposable 150-step MaxRL shakedown has also completed its structural gate:
+
+```text
+steps = 150
+rows = 4800
+groups = 300
+rank_files = 2
+max_advantage_error = 1.5894571969710114e-07
+aggregate_token_is_ess_fraction = 0.997971078180227
+status = PASS
+```
+
+The next gate is the pre-frozen matched first-150 H1 signal-allocation
+comparison against canonical GRPO. The p0-binned shakedown allocation must not
+be interpreted before reading the finite-G pre-H1-outcome addendum. Pilot and
+shakedown outputs remain disposable and are not canonical MaxRL evidence.
 
 Before GPU interpretation, read:
 
@@ -112,6 +126,8 @@ Before GPU interpretation, read:
 - `docs/superpowers/checkpoints/2026-09-03-maxrl-implementation-ready-for-gpu-pilot.md`
 - `docs/superpowers/checkpoints/2026-09-03-maxrl-pilot-acceptance-checker-complete.md`
 - `docs/superpowers/checkpoints/2026-09-03-maxrl-20step-gpu-pilot-pass.md`
+- `docs/superpowers/checkpoints/2026-09-03-maxrl-150step-shakedown-structural-pass.md`
+- `docs/superpowers/specs/2026-09-03-maxrl-finite-g-signal-shape-pre-h1-outcome-addendum.md`
 
 The pre-outcome hypothesis hierarchy remains:
 

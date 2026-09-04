@@ -104,6 +104,12 @@ def bootstrap_env(tmp_path: Path) -> dict[str, str]:
 
     secret = base64.b64encode(b"fake-private-key").decode("ascii")
     env = os.environ.copy()
+
+    # Bootstrap tests must not inherit optional RunPod execution gates from
+    # the host environment. Individual tests opt into these explicitly.
+    env.pop("RLVR_EXPECT_COMMIT", None)
+    env.pop("RLVR_RUN_2XA40_PREFLIGHT", None)
+
     env.update(
         {
             "HOME": str(tmp_path / "home"),

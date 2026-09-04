@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections import deque
 
 import torch
 
@@ -52,7 +53,7 @@ class FakeLoggingBaseTrainer(FakeBaseTrainer):
     def __init__(self, output_advantages, *, global_logged_advantages, accelerator=None):
         super().__init__(output_advantages, accelerator=accelerator)
         self._global_logged_advantages = list(global_logged_advantages)
-        self._logs = {"advantages": [999.0]}
+        self._logs = {"advantages": deque([999.0], maxlen=9)}
 
     def _generate_and_score_completions(self, inputs):
         output = super()._generate_and_score_completions(inputs)
@@ -137,7 +138,7 @@ def test_maxrl_wrapper_replaces_latest_trl_global_advantage_log_batch():
 
     trainer._generate_and_score_completions([])
 
-    assert trainer._logs["advantages"] == [
+    assert list(trainer._logs["advantages"]) == [
         999.0,
         3.0,
         -1.0,

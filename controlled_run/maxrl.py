@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from collections import deque
+
 import torch
 
 from controlled_run.signal_ledger import RewardBatchRecorder
@@ -107,16 +109,31 @@ def _replace_latest_trl_advantage_log(trainer, global_advantages: torch.Tensor) 
         return
 
     advantage_log = logs["advantages"]
-    if not isinstance(advantage_log, list):
-        raise RuntimeError("Practical MaxRL expects TRL _logs['advantages'] to be a list")
+    batch_values = global_advantages.detach().cpu().tolist()
+    batch_size = len(batch_values)
 
-    batch_size = int(global_advantages.numel())
     if len(advantage_log) < batch_size:
         raise RuntimeError(
             "TRL advantage log is shorter than the just-scored global MaxRL batch: "
             f"{len(advantage_log)} < {batch_size}"
         )
-    advantage_log[-batch_size:] = global_advantages.tolist()
+
+    if isinstance(advantage_log, list):
+        advantage_log[-batch_size:] = batch_values
+        return
+
+    if isinstance(advantage_log, deque):
+        prefix = list(advantage_log)[:-batch_size]
+        advantage_log.clear()
+        advantage_log.extend(prefix)
+        advantage_log.extend(batch_values)
+        return
+
+    raise RuntimeError(
+        "Practical MaxRL expects TRL _logs['advantages'] "
+        "to be a list or collections.deque; "
+        f"got {type(advantage_log).__name__}"
+    )
 
 
 def make_practical_maxrl_trainer(base_trainer_class, *, recorder: MaxRLRewardBatchRecorder):

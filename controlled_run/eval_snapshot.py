@@ -45,15 +45,49 @@ def _load_json(path: Path) -> dict:
     return payload
 
 
+def _resolve_canonical_run_manifest(run_dir: Path) -> tuple[Path, dict]:
+    root = Path(run_dir)
+    candidates = [
+        root / "grpo_run_manifest.json",
+        root / "maxrl_run_manifest.json",
+    ]
+    existing = [path for path in candidates if path.is_file()]
+    if not existing:
+        raise FileNotFoundError(
+            f"no canonical GRPO/MaxRL run manifest found under {root}"
+        )
+    if len(existing) != 1:
+        raise ValueError(
+            "canonical snapshot evaluation requires exactly one of "
+            "grpo_run_manifest.json or maxrl_run_manifest.json"
+        )
+
+    path = existing[0]
+    manifest = _load_json(path)
+    if manifest.get("mode") != "canonical" or manifest.get("scientific_use") is not True:
+        raise ValueError(
+            "snapshot evaluation requires a scientific canonical GRPO/MaxRL run"
+        )
+
+    if path.name == "maxrl_run_manifest.json":
+        objective = manifest.get("objective")
+        if not isinstance(objective, dict):
+            raise ValueError("canonical MaxRL manifest is missing objective metadata")
+        if objective.get("objective_family") != "MaxRL":
+            raise ValueError("canonical MaxRL manifest objective_family mismatch")
+        if objective.get("advantage_estimator") != "practical_maxrl":
+            raise ValueError("canonical MaxRL manifest advantage estimator mismatch")
+
+    return path, manifest
+
+
 def resolve_snapshot_policy(canonical_run_dir: Path, snapshot_pct: int) -> dict:
     run_dir = Path(canonical_run_dir)
     percentage = int(snapshot_pct)
     if percentage not in range(5, 101, 5):
         raise ValueError("snapshot percentage must be one of 5,10,...,100")
 
-    manifest = _load_json(run_dir / "grpo_run_manifest.json")
-    if manifest.get("mode") != "canonical" or manifest.get("scientific_use") is not True:
-        raise ValueError("snapshot evaluation requires a scientific canonical GRPO run")
+    manifest_path, manifest = _resolve_canonical_run_manifest(run_dir)
     lineage = manifest.get("pi0_lineage_id")
     if not isinstance(lineage, str) or not lineage:
         raise ValueError("canonical manifest is missing pi0 lineage")
@@ -84,6 +118,12 @@ def resolve_snapshot_policy(canonical_run_dir: Path, snapshot_pct: int) -> dict:
         "target_percentage": percentage,
         "pi0_lineage_id": lineage,
         "canonical_manifest": manifest,
+        "canonical_manifest_filename": manifest_path.name,
+        "objective_family": (
+            "MaxRL"
+            if manifest_path.name == "maxrl_run_manifest.json"
+            else "GRPO"
+        ),
     }
 
 
@@ -259,6 +299,10 @@ def build_snapshot_manifest(
     return {
         "mode": "canonical_snapshot_eval",
         "canonical_run_dir": str(Path(canonical_run_dir)),
+        "canonical_manifest_filename": str(
+            snapshot.get("canonical_manifest_filename", "grpo_run_manifest.json")
+        ),
+        "objective_family": str(snapshot.get("objective_family", "GRPO")),
         "snapshot": snapshot_record,
         "pi0_lineage_id": str(snapshot["pi0_lineage_id"]),
         "panel": {
@@ -371,7 +415,7 @@ def run_snapshot_eval(
 
 
 def main(argv: list[str] | None = None) -> None:
-    parser = argparse.ArgumentParser(description="Evaluate a canonical GRPO policy snapshot")
+    parser = argparse.ArgumentParser(description="Evaluate a canonical GRPO/MaxRL policy snapshot")
     parser.add_argument("--canonical-run-dir", type=Path, required=True)
     parser.add_argument("--snapshot-pct", type=int, required=True)
     parser.add_argument("--panel", choices=("train256", "heldout"), required=True)

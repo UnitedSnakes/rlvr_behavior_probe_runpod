@@ -52,6 +52,53 @@ def _make_canonical_snapshot(tmp_path: Path, pct: int = 25) -> Path:
     return run_dir
 
 
+def test_resolve_snapshot_policy_accepts_canonical_maxrl_manifest(tmp_path):
+    import controlled_run.eval_snapshot as eval_snapshot
+
+    run_dir = tmp_path / "maxrl_canonical"
+    lineage = "canonical-lineage"
+    pct = 25
+    step = 934
+    _write_json(
+        run_dir / "maxrl_run_manifest.json",
+        {
+            "mode": "canonical",
+            "scientific_use": True,
+            "pi0_lineage_id": lineage,
+            "gsm8k_dataset_sha": "gsm8k-sha",
+            "objective": {
+                "objective_family": "MaxRL",
+                "advantage_estimator": "practical_maxrl",
+            },
+        },
+    )
+    _write_json(
+        run_dir / "policy_snapshot_schedule.json",
+        {
+            "max_steps": 3736,
+            "percentage_to_step": {str(pct): step},
+            "pi0_lineage_id": lineage,
+        },
+    )
+    policy_dir = run_dir / f"pi_{pct:03d}"
+    policy_dir.mkdir(parents=True)
+    _write_json(
+        policy_dir / "policy_metadata.json",
+        {
+            "actual_step": step,
+            "target_percentage": pct,
+            "pi0_lineage_id": lineage,
+        },
+    )
+    (policy_dir / "config.json").write_text("{}", encoding="utf-8")
+
+    resolved = eval_snapshot.resolve_snapshot_policy(run_dir, pct)
+
+    assert resolved["policy_dir"] == policy_dir
+    assert resolved["canonical_manifest_filename"] == "maxrl_run_manifest.json"
+    assert resolved["objective_family"] == "MaxRL"
+
+
 def test_resolve_snapshot_policy_fail_closes_on_lineage_and_schedule(tmp_path):
     import controlled_run.eval_snapshot as eval_snapshot
 

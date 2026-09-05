@@ -1,7 +1,7 @@
 {
   "bundle_name": "canonical-maxrl-seed42-2026-09-05",
   "bundle_date": "2026-09-05",
-  "status": "backup_code_prepared_remote_upload_not_yet_verified",
+  "status": "REMOTE_BACKUP_VERIFIED",
   "repository": "UnitedSnakes/rlvr_behavior_probe_runpod",
   "branch": "codex/signal-ledger",
   "training_execution_commit": "981475795538eee391c7e86aa022ee609b539770",
@@ -34,5 +34,15 @@
     "model": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
     "dataset": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05"
   },
-  "remote_upload_verified": false
+  "remote_upload_verified": true,
+  "remote_commits": {
+    "model": "e67069c666ea372ce4fc4f0dc14617f35a1fce0f",
+    "analysis": "88b7f3244de0c61488ff53dab63d29e2f8669642"
+  },
+  "remote_verification": {
+    "expected_files": 313,
+    "verified_present": 313,
+    "size_verified": 313,
+    "lfs_sha256_verified": 99
+  }
 }

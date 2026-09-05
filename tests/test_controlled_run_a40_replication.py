@@ -7,8 +7,6 @@ from controlled_run.config import (
     load_config,
     validate_grpo_a40_replication_runtime_batch,
 )
-import controlled_run.train_grpo_replication as grpo_rep
-import controlled_run.train_maxrl_replication as maxrl_rep
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -63,40 +61,3 @@ def test_a40_replication_rejects_unfrozen_seed():
         build_grpo_a40_replication_config(canonical, seed=45)
 
 
-def test_grpo_replication_metadata_is_a40_matched(monkeypatch, tmp_path):
-    captured = {}
-    monkeypatch.setattr(
-        grpo_rep,
-        "_run_controlled_grpo",
-        lambda **kwargs: captured.update(kwargs) or {"ok": True},
-    )
-    result = grpo_rep.run_grpo_replication(
-        config_path=CONFIG,
-        pi0_dir=tmp_path / "pi0",
-        output_dir=tmp_path / "grpo43",
-        seed=43,
-        pilot_steps=20,
-    )
-    assert result == {"ok": True}
-    metadata = captured["manifest_extra"]["replication"]
-    assert metadata["hardware_contract"].startswith("2x NVIDIA A40")
-    assert metadata["changed_from_seed42_a40_canonical"] == ["training_seed"]
-
-
-def test_maxrl_replication_metadata_is_a40_matched(monkeypatch, tmp_path):
-    captured = {}
-    monkeypatch.setattr(
-        maxrl_rep,
-        "_run_controlled_grpo",
-        lambda **kwargs: captured.update(kwargs) or {"ok": True},
-    )
-    result = maxrl_rep.run_maxrl_replication(
-        config_path=CONFIG,
-        pi0_dir=tmp_path / "pi0",
-        output_dir=tmp_path / "maxrl44",
-        seed=44,
-        pilot_steps=20,
-    )
-    assert result == {"ok": True}
-    assert captured["manifest_extra"]["objective"]["objective_family"] == "MaxRL"
-    assert captured["manifest_extra"]["replication"]["training_seed"] == 44

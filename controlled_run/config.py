@@ -319,6 +319,11 @@ def _validate_grpo_runtime_geometry(
 
 def validate_grpo_runtime_batch(config: dict, *, world_size: int) -> dict:
     validate_grpo_config(config)
+    if world_size != 2:
+        raise ValueError(
+            "Controlled GRPO requires exactly 2 GPUs; "
+            f"WORLD_SIZE={world_size}"
+        )
     return _validate_grpo_runtime_geometry(
         config,
         world_size=world_size,

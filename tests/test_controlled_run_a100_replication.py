@@ -118,7 +118,10 @@ def test_grpo_replication_delegates_frozen_metadata(monkeypatch, tmp_path):
     assert result == {"ok": True}
     assert captured["mode"] == "pilot"
     assert captured["pilot_steps"] == 20
-    assert captured["manifest_extra"]["replication"]["training_seed"] == 43
+    metadata = captured["manifest_extra"]["replication"]
+    assert metadata["training_seed"] == 43
+    assert metadata["hardware_contract"].startswith("1x NVIDIA A100 80GB")
+    assert metadata["execution_topology"] == "single_process_single_gpu"
 
 
 def test_maxrl_replication_delegates_frozen_objective(monkeypatch, tmp_path):

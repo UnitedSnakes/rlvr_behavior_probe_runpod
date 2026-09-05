@@ -20,6 +20,16 @@ _EXPECTED_RUNTIME_BATCH = {
     "num_generations": 16,
     "unique_prompts_per_generation_batch": 2,
 }
+_EXPECTED_A100_REPLICATION_RUNTIME_BATCH = {
+    "world_size": 1,
+    "per_device_train_batch_size": 8,
+    "gradient_accumulation_steps": 4,
+    "global_optimizer_batch_size": 32,
+    "generation_batch_size": 32,
+    "steps_per_generation": 4,
+    "num_generations": 16,
+    "unique_prompts_per_generation_batch": 2,
+}
 _EXPECTED_OBJECTIVE = {
     "objective_family": "MaxRL",
     "objective_intervention": "replace_group_advantages_only",
@@ -78,8 +88,20 @@ def _read_jsonl(path: Path) -> list[dict]:
     return rows
 
 
-def validate_maxrl_pilot(output_dir: Path) -> dict[str, object]:
-    """Fail-closed structural acceptance check for the frozen 20-step MaxRL pilot."""
+def validate_maxrl_pilot(
+    output_dir: Path,
+    *,
+    profile: str = "a40",
+) -> dict[str, object]:
+    """Fail-closed structural acceptance check for a frozen 20-step MaxRL pilot."""
+    if profile == "a40":
+        expected_runtime_batch = _EXPECTED_RUNTIME_BATCH
+        expected_ranks = {0, 1}
+    elif profile == "a100-replication":
+        expected_runtime_batch = _EXPECTED_A100_REPLICATION_RUNTIME_BATCH
+        expected_ranks = {0}
+    else:
+        raise ValueError("profile must be 'a40' or 'a100-replication'")
     destination = Path(output_dir)
     manifest_path = destination / "maxrl_run_manifest.json"
     _require(manifest_path.is_file(), "missing maxrl_run_manifest.json")
@@ -101,9 +123,33 @@ def validate_maxrl_pilot(output_dir: Path) -> dict[str, object]:
         "MaxRL pilot pi0_lineage_id does not match corrected canonical pi0",
     )
     _require(
-        manifest.get("runtime_batch") == _EXPECTED_RUNTIME_BATCH,
-        "MaxRL pilot runtime_batch does not match the frozen 2xA40 geometry",
+        manifest.get("runtime_batch") == expected_runtime_batch,
+        f"MaxRL pilot runtime_batch does not match the frozen {profile} geometry",
     )
+    if profile == "a100-replication":
+        replication = manifest.get("replication")
+        _require(
+            isinstance(replication, dict),
+            "A100 replication pilot must include replication metadata",
+        )
+        _require(
+            replication.get("hardware_contract")
+            == "1x NVIDIA A100 80GB; exactly one visible CUDA device",
+            "A100 replication pilot hardware contract mismatch",
+        )
+        config_for_profile = manifest.get("config")
+        _require(
+            isinstance(config_for_profile, dict),
+            "MaxRL pilot manifest config must be present",
+        )
+        _require(
+            config_for_profile.get("gradient_checkpointing") is True,
+            "A100 replication pilot requires gradient_checkpointing=true",
+        )
+        _require(
+            config_for_profile.get("vllm_gpu_memory_utilization") == 0.30,
+            "A100 replication pilot requires vLLM memory utilization 0.30",
+        )
 
     config = manifest.get("config")
     _require(isinstance(config, dict), "MaxRL pilot manifest config must be present")
@@ -142,7 +188,10 @@ def validate_maxrl_pilot(output_dir: Path) -> dict[str, object]:
     ledger_dir = destination / str(ledger_meta.get("directory", "signal_ledger"))
     _require(ledger_dir.is_dir(), "missing MaxRL signal_ledger directory")
     ledger_files = sorted(ledger_dir.glob("*.jsonl"))
-    _require(len(ledger_files) == 2, "MaxRL pilot requires exactly 2 rank ledger files")
+    _require(
+        len(ledger_files) == len(expected_ranks),
+        f"MaxRL pilot requires exactly {len(expected_ranks)} rank ledger file(s)",
+    )
 
     rows: list[dict] = []
     for path in ledger_files:
@@ -164,7 +213,7 @@ def validate_maxrl_pilot(output_dir: Path) -> dict[str, object]:
         _require(isinstance(step, int) and not isinstance(step, bool), "invalid generation_global_step")
         _require(isinstance(rank, int) and not isinstance(rank, bool), "invalid rank")
         _require(isinstance(dataset_index, int) and not isinstance(dataset_index, bool), "invalid dataset_index")
-        _require(rank in {0, 1}, "MaxRL pilot ledger rank must be 0 or 1")
+        _require(rank in expected_ranks, "MaxRL pilot ledger rank is outside the frozen profile")
         rank_counts[rank] += 1
         step_counts[step] += 1
         step_rank_counts[(step, rank)] += 1
@@ -189,19 +238,24 @@ def validate_maxrl_pilot(output_dir: Path) -> dict[str, object]:
         token_ratio_sum += ratio_sum_value
         token_ratio_sq_sum += ratio_sq_sum_value
 
-    _require(set(rank_counts) == {0, 1}, "MaxRL pilot must contain ranks 0 and 1")
+    _require(set(rank_counts) == expected_ranks, "MaxRL pilot rank set mismatch")
     _require(set(step_counts) == set(range(20)), "MaxRL pilot steps must be exactly 0..19")
     _require(
         all(count == 32 for count in step_counts.values()),
         "MaxRL pilot requires exactly 32 rollout rows per generation step",
     )
+    expected_rows_per_rank_step = 32 // len(expected_ranks)
     _require(
-        all(step_rank_counts[(step, rank)] == 16 for step in range(20) for rank in (0, 1)),
-        "MaxRL pilot requires exactly 16 rollout rows per rank per generation step",
+        all(
+            step_rank_counts[(step, rank)] == expected_rows_per_rank_step
+            for step in range(20)
+            for rank in expected_ranks
+        ),
+        "MaxRL pilot has wrong rollout rows per rank per generation step",
     )
     _require(
-        rank_counts[0] == 320 and rank_counts[1] == 320,
-        "MaxRL pilot requires 320 rollout rows per rank",
+        all(rank_counts[rank] == 640 // len(expected_ranks) for rank in expected_ranks),
+        "MaxRL pilot has wrong rollout rows per rank",
     )
     _require(len(groups) == 40, "MaxRL 20-step pilot requires exactly 40 prompt groups")
 
@@ -266,8 +320,13 @@ def main(argv: list[str] | None = None) -> None:
         description="Validate the frozen 20-step controlled MaxRL GPU pilot."
     )
     parser.add_argument("output_dir", type=Path)
+    parser.add_argument(
+        "--profile",
+        choices=("a40", "a100-replication"),
+        default="a40",
+    )
     args = parser.parse_args(argv)
-    report = validate_maxrl_pilot(args.output_dir)
+    report = validate_maxrl_pilot(args.output_dir, profile=args.profile)
     print(json.dumps(report, indent=2, sort_keys=True))
 
 

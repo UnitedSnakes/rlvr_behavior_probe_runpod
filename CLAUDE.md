@@ -18,10 +18,11 @@ The current live MaxRL scientific handoff is:
 
 The active pre-outcome replication plan is:
 
-- `docs/superpowers/specs/2026-09-05-a40-seed43-44-replication-preoutcome-amendment.md`
+- `docs/superpowers/specs/2026-09-05-a100-six-run-deadline-replication-preoutcome-amendment.md`
 
-The same-day single-A100 plan was superseded before any A100 replication
-outcome and is retained only as provenance.
+The same-day A40 seed43/44 plan was superseded before any replication outcome
+after the available 8xA40 host failed the default NCCL gate. Earlier same-day
+A100/A40 plans are retained as provenance only.
 
 For pre-outcome provenance, also read:
 

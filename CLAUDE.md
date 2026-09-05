@@ -16,6 +16,10 @@ The current live MaxRL scientific handoff is:
 
 - `docs/superpowers/checkpoints/2026-09-05-maxrl-h2-h3-postoutcome-gate.md`
 
+The active pre-outcome replication plan is:
+
+- `docs/superpowers/specs/2026-09-05-single-a100-seed-replication-preoutcome-amendment.md`
+
 For pre-outcome provenance, also read:
 
 - `docs/superpowers/checkpoints/2026-09-04-maxrl-canonical-structural-pass.md`

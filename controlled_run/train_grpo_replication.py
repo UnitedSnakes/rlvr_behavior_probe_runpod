@@ -5,27 +5,25 @@ import json
 from pathlib import Path
 
 from controlled_run.config import (
-    GRPO_1XA100_REPLICATION_ALLOWED_SEEDS,
-    build_grpo_1xa100_replication_config,
-    validate_grpo_1xa100_replication_config,
-    validate_grpo_1xa100_replication_runtime_batch,
+    GRPO_A40_REPLICATION_ALLOWED_SEEDS,
+    build_grpo_a40_replication_config,
+    validate_grpo_a40_replication_config,
+    validate_grpo_a40_replication_runtime_batch,
 )
 from controlled_run.train_grpo import DEFAULT_CONFIG, _run_controlled_grpo
 
 
 def replication_metadata(seed: int) -> dict:
     return {
-        "suite": "a100_seed42_43_44_h1_h2_replication",
+        "suite": "a40_seed43_44_h1_h2_replication",
         "training_seed": int(seed),
-        "hardware_contract": "1x NVIDIA A100 80GB; exactly one visible CUDA device",
-        "execution_topology": "single_process_single_gpu",
-        "changed_from_seed42_a40_canonical": [
-            "training_seed",
-            "world_size",
-            "per_device_train_batch_size",
-            "gpu_sku",
-        ],
+        "hardware_contract": "2x NVIDIA A40; WORLD_SIZE=2",
+        "execution_topology": "two_rank_ddp",
+        "changed_from_seed42_a40_canonical": ["training_seed"],
         "preserved_batch_geometry": {
+            "world_size": 2,
+            "per_device_train_batch_size": 4,
+            "gradient_accumulation_steps": 4,
             "global_optimizer_batch_size": 32,
             "generation_batch_size": 32,
             "steps_per_generation": 4,
@@ -33,9 +31,9 @@ def replication_metadata(seed: int) -> dict:
             "unique_prompts_per_generation_batch": 2,
         },
         "interpretation": (
-            "Seeds 42-44 within this A100 suite are hardware/topology matched. "
-            "The original A40 seed42 run remains the canonical discovery run; "
-            "cross-platform seed42 is a hardware/topology bridge."
+            "Seeds 43 and 44 are matched replications of the canonical seed42 "
+            "execution contract. Physical A40 device identity may differ, but GPU SKU, "
+            "software stack, topology, and scientific batch semantics are frozen."
         ),
     }
 
@@ -49,10 +47,8 @@ def run_grpo_replication(
     pilot_steps: int | None = None,
 ) -> dict:
     seed = int(seed)
-    if seed not in GRPO_1XA100_REPLICATION_ALLOWED_SEEDS:
-        raise ValueError(
-            f"seed must be one of {GRPO_1XA100_REPLICATION_ALLOWED_SEEDS}"
-        )
+    if seed not in GRPO_A40_REPLICATION_ALLOWED_SEEDS:
+        raise ValueError(f"seed must be one of {GRPO_A40_REPLICATION_ALLOWED_SEEDS}")
 
     mode = "pilot" if pilot_steps is not None else "replication"
     metadata = replication_metadata(seed)
@@ -65,18 +61,18 @@ def run_grpo_replication(
         pilot_steps=pilot_steps,
         manifest_extra={"replication": metadata},
         result_extra={"replication": metadata},
-        config_transform=lambda canonical: build_grpo_1xa100_replication_config(
+        config_transform=lambda canonical: build_grpo_a40_replication_config(
             canonical,
             seed=seed,
         ),
-        config_validator=validate_grpo_1xa100_replication_config,
-        runtime_batch_validator=validate_grpo_1xa100_replication_runtime_batch,
+        config_validator=validate_grpo_a40_replication_config,
+        runtime_batch_validator=validate_grpo_a40_replication_runtime_batch,
     )
 
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
-        description="Run the frozen 1xA100 GRPO replication lane."
+        description="Run the frozen matched 2xA40 GRPO seed-replication lane."
     )
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--pi0-dir", type=Path, required=True)
@@ -84,7 +80,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument(
         "--seed",
         type=int,
-        choices=GRPO_1XA100_REPLICATION_ALLOWED_SEEDS,
+        choices=GRPO_A40_REPLICATION_ALLOWED_SEEDS,
         required=True,
     )
     parser.add_argument(

@@ -74,6 +74,13 @@ GRPO_INVARIANTS = {
 }
 
 
+GRPO_1XA100_REPLICATION_ALLOWED_SEEDS = (42, 43, 44)
+GRPO_1XA100_REPLICATION_OVERRIDES = {
+    "canonical_world_size": 1,
+    "per_device_train_batch_size": 8,
+}
+
+
 def load_config(path: Path) -> dict:
     path = Path(path)
     payload = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -135,20 +142,18 @@ def validate_sft_runtime_batch(
     }
 
 
-def validate_grpo_config(config: dict) -> None:
-    _validate_exact(config, GRPO_INVARIANTS, "GRPO")
-
+def _validate_grpo_structure(config: dict, *, label: str) -> None:
     if config["vllm_max_model_length"] != (
         config["max_prompt_tokens"] + config["max_completion_length"]
     ):
         raise ValueError(
-            "GRPO vllm_max_model_length must equal max_prompt_tokens + "
+            f"{label} vllm_max_model_length must equal max_prompt_tokens + "
             "max_completion_length"
         )
 
     if config["generation_batch_size"] % config["num_generations"] != 0:
         raise ValueError(
-            "GRPO generation_batch_size must be divisible by num_generations"
+            f"{label} generation_batch_size must be divisible by num_generations"
         )
 
     if config["generation_batch_size"] // config["num_generations"] < 2:
@@ -158,16 +163,58 @@ def validate_grpo_config(config: dict) -> None:
         )
 
 
-def validate_grpo_runtime_batch(config: dict, *, world_size: int) -> dict:
-    validate_grpo_config(config)
-    if not isinstance(world_size, int) or isinstance(world_size, bool) or world_size <= 0:
-        raise ValueError("GRPO world_size must be a positive integer")
+def validate_grpo_config(config: dict) -> None:
+    _validate_exact(config, GRPO_INVARIANTS, "GRPO")
+    _validate_grpo_structure(config, label="GRPO")
 
-    expected_world_size = int(config["canonical_world_size"])
+
+def build_grpo_1xa100_replication_config(
+    canonical_config: dict,
+    *,
+    seed: int,
+) -> dict:
+    validate_grpo_config(canonical_config)
+    seed = int(seed)
+    if seed not in GRPO_1XA100_REPLICATION_ALLOWED_SEEDS:
+        raise ValueError(
+            "1xA100 replication seed must be one of "
+            f"{GRPO_1XA100_REPLICATION_ALLOWED_SEEDS}; got {seed}"
+        )
+    config = dict(canonical_config)
+    config.update(GRPO_1XA100_REPLICATION_OVERRIDES)
+    config["seed"] = seed
+    validate_grpo_1xa100_replication_config(config)
+    return config
+
+
+def validate_grpo_1xa100_replication_config(config: dict) -> None:
+    seed = config.get("seed")
+    if not isinstance(seed, int) or isinstance(seed, bool):
+        raise ValueError("1xA100 replication seed must be an integer")
+    if seed not in GRPO_1XA100_REPLICATION_ALLOWED_SEEDS:
+        raise ValueError(
+            "1xA100 replication seed must be one of "
+            f"{GRPO_1XA100_REPLICATION_ALLOWED_SEEDS}; got {seed}"
+        )
+    expected = dict(GRPO_INVARIANTS)
+    expected.update(GRPO_1XA100_REPLICATION_OVERRIDES)
+    expected["seed"] = seed
+    _validate_exact(config, expected, "1xA100 GRPO replication")
+    _validate_grpo_structure(config, label="1xA100 GRPO replication")
+
+
+def _validate_grpo_runtime_geometry(
+    config: dict,
+    *,
+    world_size: int,
+    expected_world_size: int,
+    label: str,
+) -> dict:
+    if not isinstance(world_size, int) or isinstance(world_size, bool) or world_size <= 0:
+        raise ValueError(f"{label} world_size must be a positive integer")
     if world_size != expected_world_size:
         raise ValueError(
-            "Controlled GRPO requires exactly 2 GPUs; "
-            f"WORLD_SIZE={world_size}"
+            f"{label} requires WORLD_SIZE={expected_world_size}; got {world_size}"
         )
 
     per_device = int(config["per_device_train_batch_size"])
@@ -176,8 +223,8 @@ def validate_grpo_runtime_batch(config: dict, *, world_size: int) -> dict:
     target_global_optimizer_batch = int(config["global_optimizer_batch_size"])
     if global_optimizer_batch != target_global_optimizer_batch:
         raise ValueError(
-            "Controlled GRPO global optimizer batch mismatch; "
-            f"got {per_device} x {world_size} x {grad_accum} = "
+            f"{label} global optimizer batch mismatch; got "
+            f"{per_device} x {world_size} x {grad_accum} = "
             f"{global_optimizer_batch}, expected {target_global_optimizer_batch}"
         )
 
@@ -185,26 +232,25 @@ def validate_grpo_runtime_batch(config: dict, *, world_size: int) -> dict:
     generation_batch = int(config["generation_batch_size"])
     if generation_batch % per_step_global_batch != 0:
         raise ValueError(
-            "GRPO generation_batch_size must be divisible by the global per-step "
-            "training batch"
+            f"{label} generation_batch_size must be divisible by the global "
+            "per-step training batch"
         )
     steps_per_generation = generation_batch // per_step_global_batch
 
     num_generations = int(config["num_generations"])
     if generation_batch % num_generations != 0:
         raise ValueError(
-            "GRPO generation_batch_size must be divisible by num_generations"
+            f"{label} generation_batch_size must be divisible by num_generations"
         )
     unique_prompts = generation_batch // num_generations
 
     if steps_per_generation != 4:
         raise ValueError(
-            "Controlled GRPO requires steps_per_generation=4; "
-            f"got {steps_per_generation}"
+            f"{label} requires steps_per_generation=4; got {steps_per_generation}"
         )
     if unique_prompts != 2:
         raise ValueError(
-            "Controlled GRPO requires exactly 2 unique prompts per generation batch; "
+            f"{label} requires exactly 2 unique prompts per generation batch; "
             f"got {unique_prompts}"
         )
 
@@ -218,3 +264,27 @@ def validate_grpo_runtime_batch(config: dict, *, world_size: int) -> dict:
         "num_generations": num_generations,
         "unique_prompts_per_generation_batch": unique_prompts,
     }
+
+
+def validate_grpo_runtime_batch(config: dict, *, world_size: int) -> dict:
+    validate_grpo_config(config)
+    return _validate_grpo_runtime_geometry(
+        config,
+        world_size=world_size,
+        expected_world_size=2,
+        label="Controlled GRPO",
+    )
+
+
+def validate_grpo_1xa100_replication_runtime_batch(
+    config: dict,
+    *,
+    world_size: int,
+) -> dict:
+    validate_grpo_1xa100_replication_config(config)
+    return _validate_grpo_runtime_geometry(
+        config,
+        world_size=world_size,
+        expected_world_size=1,
+        label="1xA100 GRPO replication",
+    )

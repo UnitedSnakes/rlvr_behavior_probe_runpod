@@ -2,7 +2,13 @@
 
 Studying RLVR as behavior-probability dynamics, not benchmark optimization.
 
-The current question is no longer only "given pre-RL probability `p0`, where does the objective allocate signal?" The canonical GRPO result shows that **question-level behavioral improvement is not stably localized to direct own exposure**. The next objective-level question is whether changing realized signal allocation with MaxRL actually changes where the model improves.
+The current seed42 evidence separates local training signal from local behavioral
+change in two ways. Canonical GRPO shows that **question-level behavioral
+improvement is not stably localized to direct own exposure**. The matched
+practical MaxRL-15 intervention then materially reallocates realized signal
+toward lower-p0 questions without a corresponding stable relocation of
+question-level correctness improvement. The immediate task is to write this
+two-part result clearly and conservatively, not to open a new experiment.
 
 ## Read first
 

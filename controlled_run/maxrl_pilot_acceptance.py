@@ -251,7 +251,7 @@ def validate_maxrl_pilot(
             for step in range(20)
             for rank in expected_ranks
         ),
-        "MaxRL pilot has wrong rollout rows per rank per generation step",
+        f"MaxRL pilot requires exactly {expected_rows_per_rank_step} rollout rows per rank per generation step",
     )
     _require(
         all(rank_counts[rank] == 640 // len(expected_ranks) for rank in expected_ranks),

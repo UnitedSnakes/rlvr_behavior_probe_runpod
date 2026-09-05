@@ -330,6 +330,46 @@ def test_sparse_symmetrization_keeps_cumulative_metrics_but_marks_conditionals_u
     assert row["actual_is_cap_fraction"] is None
 
 
+def test_load_ledger_rows_allows_rank_local_launch_ids_only_when_explicit(
+    tmp_path: Path,
+) -> None:
+    ledger_dir = tmp_path / "signal_ledger"
+    ledger_dir.mkdir()
+
+    rank0 = [
+        _ledger_row(
+            step=0, rank=0, index=0, k=1, g=2, advantage=1.0, length=2,
+            actual_is_sum=2.0, actual_is_sq_sum=2.0, actual_is_count=2,
+        )
+    ]
+    rank1 = [
+        _ledger_row(
+            step=0, rank=1, index=0, k=1, g=2, advantage=-1.0, length=2,
+            actual_is_sum=2.0, actual_is_sq_sum=2.0, actual_is_count=2,
+        )
+    ]
+
+    _write_jsonl(
+        ledger_dir / "signal_ledger_20260904T015650Z_rank0.jsonl",
+        rank0,
+    )
+    _write_jsonl(
+        ledger_dir / "signal_ledger_20260904T015651Z_rank1.jsonl",
+        rank1,
+    )
+
+    with pytest.raises(ValueError, match="span multiple launches"):
+        lcsa.load_ledger_rows(ledger_dir)
+
+    files, rows = lcsa.load_ledger_rows(
+        ledger_dir,
+        allow_rank_local_launch_ids=True,
+    )
+    assert len(files) == 2
+    assert len(rows) == 2
+    assert {int(row["rank"]) for row in rows} == {0, 1}
+
+
 def test_run_analysis_reads_canonical_layout_and_joins_fixed_panel_movement(tmp_path: Path) -> None:
     p0_dir = tmp_path / "p0"
     ledger_dir = tmp_path / "signal_ledger"

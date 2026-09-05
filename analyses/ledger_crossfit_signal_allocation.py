@@ -442,8 +442,18 @@ def symmetrize_signal_trajectory(directional_rows: Iterable[dict]) -> list[dict]
     return result
 
 
-def load_ledger_rows(ledger_dir: Path) -> tuple[list[Path], list[dict]]:
-    """Load one canonical launch's per-rank signal-ledger JSONL files."""
+def load_ledger_rows(
+    ledger_dir: Path,
+    *,
+    allow_rank_local_launch_ids: bool = False,
+) -> tuple[list[Path], list[dict]]:
+    """Load one canonical distributed signal ledger.
+
+    Some distributed launches stamp each rank's filename independently, so
+    adjacent ranks can legitimately differ in the filename launch token.
+    Filename launch-token equality is therefore optional; rank/file
+    consistency and downstream canonical geometry checks remain mandatory.
+    """
     root = Path(ledger_dir)
     files = sorted(root.glob("signal_ledger_*_rank*.jsonl"))
     if not files:
@@ -472,7 +482,7 @@ def load_ledger_rows(ledger_dir: Path) -> tuple[list[Path], list[dict]]:
                 )
         rows.extend(file_rows)
 
-    if len(launches) != 1:
+    if len(launches) != 1 and not allow_rank_local_launch_ids:
         raise ValueError(f"ledger files span multiple launches: {sorted(launches)}")
     return files, rows
 
@@ -657,6 +667,7 @@ def run_analysis(
     snapshot_schedule: dict[int, int] = DEFAULT_SNAPSHOT_SCHEDULE,
     expected_indices: Iterable[int] = DEFAULT_EXPECTED_INDICES,
     verify_known_integrity: bool = True,
+    allow_rank_local_launch_ids: bool = False,
 ) -> dict:
     schedule = {int(pct): int(step) for pct, step in snapshot_schedule.items()}
     indices = [int(index) for index in expected_indices]
@@ -666,7 +677,10 @@ def run_analysis(
         raise ValueError("expected_indices must be non-empty")
 
     p0_records = load_p0_records(Path(p0_dir), indices)
-    ledger_files, ledger_rows = load_ledger_rows(Path(ledger_dir))
+    ledger_files, ledger_rows = load_ledger_rows(
+        Path(ledger_dir),
+        allow_rank_local_launch_ids=allow_rank_local_launch_ids,
+    )
     groups = reconstruct_prompt_groups(ledger_rows)
     integrity = (
         verify_canonical_ledger_integrity(ledger_files, ledger_rows, groups)
@@ -765,6 +779,15 @@ def main(argv: list[str] | None = None) -> None:
         action="store_true",
         help="Skip canonical transport-geometry verification; not recommended for canonical data.",
     )
+    parser.add_argument(
+        "--allow-rank-local-launch-ids",
+        action="store_true",
+        help=(
+            "Allow per-rank ledger filenames to carry different launch tokens. "
+            "Use only when distributed-run provenance has been independently "
+            "validated; rank/file and canonical geometry checks still apply."
+        ),
+    )
     args = parser.parse_args(argv)
 
     result = run_analysis(
@@ -775,6 +798,7 @@ def main(argv: list[str] | None = None) -> None:
         snapshot_schedule=DEFAULT_SNAPSHOT_SCHEDULE,
         expected_indices=DEFAULT_EXPECTED_INDICES,
         verify_known_integrity=not args.skip_known_integrity_check,
+        allow_rank_local_launch_ids=args.allow_rank_local_launch_ids,
     )
 
     integrity = result["integrity"]

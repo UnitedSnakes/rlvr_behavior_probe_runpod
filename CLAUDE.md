@@ -6,38 +6,38 @@ The current question is no longer only "given pre-RL probability `p0`, where doe
 
 ## Read first
 
-Start every session by reading the newest file in `docs/superpowers/checkpoints/`. It is the authoritative handoff record.
+Start every session by reading the newest file in `docs/superpowers/checkpoints/`.
+The authoritative writing handoff is now:
 
-As of 2026-09-03 the current scientific post-outcome handoff is:
+- `docs/superpowers/checkpoints/2026-09-05-attrib-writing-handoff.md`
+
+For the two paper-facing scientific results, also read:
 
 - `docs/superpowers/checkpoints/2026-09-03-exposure-split-postoutcome-and-paper-claim-freeze.md`
-
-The current live MaxRL scientific handoff is:
-
 - `docs/superpowers/checkpoints/2026-09-05-maxrl-h2-h3-postoutcome-gate.md`
 
-The active replication status is:
-
-- `docs/superpowers/checkpoints/2026-09-05-a100-full-replication-aborted-before-scientific-use.md`
-
-The single-A100 path is engineering-qualified but no longer active for full
-scientific replication. Any partial A100 full-run artifacts are provenance only
-and must not enter scientific claims. For the imminent ATTRIB submission, the
-accepted scientific evidence remains the matched A40 seed42 GRPO/MaxRL result
-bundle. If multi-seed replication is resumed, prefer matched A40 seed43/44 runs
-under the original A40 execution contract unless a new pre-outcome topology
-migration decision explicitly establishes A100 as the new replication block.
-For pre-outcome provenance, also read:
+For canonical MaxRL evaluation provenance, read only when needed:
 
 - `docs/superpowers/checkpoints/2026-09-04-maxrl-canonical-structural-pass.md`
 - `docs/superpowers/specs/2026-09-04-maxrl-canonical-fixed-panel-preoutcome-addendum.md`
 - `docs/superpowers/checkpoints/2026-09-04-maxrl-cbank-batching-parity-fail.md`
 
-For the MaxRL scientific hypothesis, also read:
+The A100 replication detour is closed:
 
-- `docs/superpowers/specs/2026-09-03-maxrl-objective-intervention-amendment.md`
+- `docs/superpowers/checkpoints/2026-09-05-a100-full-replication-aborted-before-scientific-use.md`
 
-Do not read the entire historical docs tree at startup. Open older checkpoints/specs only when the current handoff points to them or the task requires provenance.
+Any partial A100 full-run artifacts are engineering/provenance only and must not
+enter scientific claims. The preferred future replication plan, if the project
+continues, is matched A40 seed43/44 GRPO+MaxRL under the original 2xA40
+execution contract.
+
+**Current priority:** write the ATTRIB paper from the already accepted seed42
+evidence. Do not start new GPU experiments during drafting merely because
+hardware is available.
+
+Do not read the entire historical docs tree at startup. Open older
+checkpoints/specs only when the current handoff points to them or the task
+requires provenance.
 
 ## Current canonical result
 
@@ -76,6 +76,13 @@ objective
 
 Do not equate local signal allocation with eventual local behavioral movement.
 
+Paper limitation:
+
+> All behavioral and signal-allocation comparisons reported here are from a
+> single matched training seed. We therefore do not estimate between-seed
+> variability in either bin-level behavioral changes or objective-induced
+> signal reallocation.
+
 The paper-facing claim hierarchy is frozen in the latest checkpoint. In particular:
 
 1. main result: no stable own-exposure advantage;
@@ -85,9 +92,8 @@ The paper-facing claim hierarchy is frozen in the latest checkpoint. In particul
 
 ## MaxRL status
 
-Practical MaxRL-15 is implemented and has passed the CPU/TDD implementation
-gate. The estimator changes only the group advantage while preserving the
-matched canonical GRPO outer stack.
+Practical MaxRL-15 is complete as a canonical matched seed42 objective
+intervention.
 
 Frozen implementation semantics:
 
@@ -100,69 +106,7 @@ K > 0: A_i = (r_i - K/16) / (K/16)
 epsilon = 0
 ```
 
-The real 2×A40 20-step engineering pilot has passed its frozen structural
-acceptance gate after one pre-step integration failure exposed that real TRL
-1.12 stores `_logs["advantages"]` in a `deque`, not the list used by the
-earlier CPU test double.
-
-Accepted 20-step pilot summary:
-
-```text
-steps = 20
-rows = 640
-groups = 40
-rank_files = 2
-group_size = 16
-max_advantage_error = 1.5894571969710114e-07
-aggregate_token_is_ess_fraction = 0.9979146076241244
-status = PASS
-```
-
-The disposable 150-step MaxRL shakedown has also completed its structural gate:
-
-```text
-steps = 150
-rows = 4800
-groups = 300
-rank_files = 2
-max_advantage_error = 1.5894571969710114e-07
-aggregate_token_is_ess_fraction = 0.997971078180227
-status = PASS
-```
-
-The pre-frozen matched first-150 H1 signal-allocation comparison has now been
-deblinded and the mechanism gate is supported:
-
-```text
-GRPO signal-weighted mean p0  = 0.317237
-MaxRL signal-weighted mean p0 = 0.229517
-delta                          = -0.087720
-
-MaxRL / GRPO cumulative |A| per panel question:
-p0=0       2.519x
-(0,.25]    3.210x
-(.25,.5]   1.281x
-(.5,.75]   1.041x
-```
-
-The strongest relative amplification occurs in the predeclared low-but-nonzero
-region and falls toward one with increasing p0. This satisfies the qualitative
-H1 mechanism gate on the disposable seed42 shakedown. Canonical MaxRL seed42 is
-authorized after a fresh full-test and clean-checkout gate. H2/H3 remain
-unobserved.
-
-Before GPU interpretation, read:
-
-- `docs/superpowers/specs/2026-09-03-maxrl-objective-intervention-amendment.md`
-- `docs/superpowers/specs/2026-09-03-maxrl-practical-estimator-implementation-amendment.md`
-- `docs/superpowers/checkpoints/2026-09-03-maxrl-implementation-ready-for-gpu-pilot.md`
-- `docs/superpowers/checkpoints/2026-09-03-maxrl-pilot-acceptance-checker-complete.md`
-- `docs/superpowers/checkpoints/2026-09-03-maxrl-20step-gpu-pilot-pass.md`
-- `docs/superpowers/checkpoints/2026-09-03-maxrl-150step-shakedown-structural-pass.md`
-- `docs/superpowers/specs/2026-09-03-maxrl-finite-g-signal-shape-pre-h1-outcome-addendum.md`
-- `docs/superpowers/checkpoints/2026-09-03-maxrl-h1-shakedown-postoutcome-gate.md`
-
-Canonical MaxRL seed42 has now completed and passed structural acceptance:
+Canonical training structural acceptance:
 
 ```text
 steps = 3736
@@ -176,10 +120,10 @@ nonfinite_numeric_fields = 0
 status = PASS
 ```
 
-The canonical MaxRL fixed-panel K=16 C-bank behavior has now been fully
-deblinded under the same sequential evaluator structure as canonical GRPO.
+The canonical fixed train-256 K=16 C-bank evaluation completed under the same
+sequential evaluator structure used for canonical GRPO.
 
-The frozen H2/H3 comparison supports H2:
+Frozen scientific judgment:
 
 ```text
 H1 mechanism gate: SUPPORTED
@@ -188,8 +132,8 @@ H3 alternative as the primary explanation: NOT SUPPORTED
 H4 diagnostic stop: NOT ACTIVE
 ```
 
-At 100%, MaxRL/GRPO cumulative signal ratios across increasing frozen p0 bins
-are approximately:
+At the 100% endpoint, MaxRL/GRPO cumulative signal ratios across increasing
+frozen p0 bins are:
 
 ```text
 0          2.205x
@@ -199,7 +143,7 @@ are approximately:
 (.75,1)    0.463x
 ```
 
-while the corresponding MaxRL-minus-GRPO DeltaC contrasts are:
+The corresponding MaxRL-minus-GRPO DeltaC contrasts are:
 
 ```text
 0         -4.712 pp
@@ -210,14 +154,62 @@ while the corresponding MaxRL-minus-GRPO DeltaC contrasts are:
 ```
 
 The full 5%-through-100% trajectory shows the same qualitative separation:
-signal allocation is persistently left-shifted, whereas the DeltaC objective
-contrast fluctuates rather than moving persistently in the corresponding
-direction. This supports the predeclared H2 claim that local signal
-reallocation does not automatically localize behavioral improvement.
+signal allocation is persistently left-shifted, while
+`DeltaC_MaxRL - DeltaC_GRPO` fluctuates rather than moving persistently in the
+corresponding direction.
 
-The canonical MaxRL behavioral result must remain separated into DeltaC,
-DeltaT, and DeltaR. Do not reinterpret reward movement alone as correctness
-movement.
+Paper-safe conclusion:
+
+> Changing the objective materially reallocates realized training signal, but
+> question-level correctness improvement does not correspondingly and stably
+> reallocate.
+
+Do not claim that representations uniquely cause this effect, that transfer is
+the unique causal channel, or that objective allocation can never affect
+behavioral allocation. The supported interpretation is that shared-parameter
+transfer/interference substantially mediates the mapping from local signal to
+local behavioral change.
+
+Keep `DeltaC`, `DeltaT`, and `DeltaR` separate. Canonical MaxRL aggregate
+movement is approximately:
+
+```text
+DeltaR = +16.63 pp
+DeltaT = +29.11 pp
+DeltaC =  +5.95 pp
+```
+
+The original GRPO exposed-vs-unexposed finding remains the main paper result;
+MaxRL is the second independent intervention.
+
+Canonical MaxRL large artifacts are backed up and remotely verified:
+
+```text
+model repo:
+HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05
+commit:
+e67069c666ea372ce4fc4f0dc14617f35a1fce0f
+
+analysis repo:
+HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05
+commit:
+88b7f3244de0c61488ff53dab63d29e2f8669642
+
+verification:
+313/313 files present
+313 size-verified
+99 LFS SHA256-verified
+```
+
+For the frozen hypothesis and outcome records, read:
+
+- `docs/superpowers/specs/2026-09-03-maxrl-objective-intervention-amendment.md`
+- `docs/superpowers/checkpoints/2026-09-05-maxrl-h2-h3-postoutcome-gate.md`
+- `hf_bundles/2026-09-05-canonical-maxrl-seed42/README.md`
+
+The A100 no-checkpointing/vLLM tuning path and six-run A100 replication plan
+were both closed before scientific use. Do not revive them during paper
+drafting.
 
 ## Designs and amendments
 

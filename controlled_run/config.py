@@ -78,8 +78,6 @@ GRPO_1XA100_REPLICATION_ALLOWED_SEEDS = (42, 43, 44)
 GRPO_1XA100_REPLICATION_OVERRIDES = {
     "canonical_world_size": 1,
     "per_device_train_batch_size": 8,
-    "gradient_checkpointing": False,
-    "vllm_gpu_memory_utilization": 0.20,
 }
 
 

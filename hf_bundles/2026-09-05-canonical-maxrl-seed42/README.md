@@ -20,6 +20,18 @@ H3 alternative as the primary explanation: NOT SUPPORTED
 H4 diagnostic stop: NOT ACTIVE
 ```
 
+Remote backup status:
+
+```text
+REMOTE_BACKUP_VERIFIED
+model repo commit    = e67069c666ea372ce4fc4f0dc14617f35a1fce0f
+analysis repo commit = 88b7f3244de0c61488ff53dab63d29e2f8669642
+expected files       = 313
+verified present     = 313
+size verified        = 313
+LFS SHA256 verified  = 99
+```
+
 ## Large-artifact boundary
 
 Git remains the source of truth for code, frozen scientific documents, and

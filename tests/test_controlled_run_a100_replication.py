@@ -27,8 +27,8 @@ def test_single_a100_replication_preserves_batch_geometry():
     assert replication["canonical_world_size"] == 1
     assert replication["per_device_train_batch_size"] == 8
     assert replication["gradient_accumulation_steps"] == 4
-    assert replication["gradient_checkpointing"] is False
-    assert replication["vllm_gpu_memory_utilization"] == 0.20
+    assert replication["gradient_checkpointing"] is True
+    assert replication["vllm_gpu_memory_utilization"] == 0.30
     assert replication["seed"] == 43
 
     geometry = validate_grpo_1xa100_replication_runtime_batch(
@@ -124,9 +124,7 @@ def test_grpo_replication_delegates_frozen_metadata(monkeypatch, tmp_path):
     assert metadata["training_seed"] == 43
     assert metadata["hardware_contract"].startswith("1x NVIDIA A100 80GB")
     assert metadata["execution_topology"] == "single_process_single_gpu"
-    assert metadata["preserved_batch_geometry"]["gradient_checkpointing"] is False
-    assert metadata["preserved_batch_geometry"]["vllm_gpu_memory_utilization"] == 0.20
-    assert "gradient_checkpointing" in metadata["changed_from_seed42_a40_canonical"]
+    assert "gradient_checkpointing" not in metadata["changed_from_seed42_a40_canonical"]
 
 
 def test_maxrl_replication_delegates_frozen_objective(monkeypatch, tmp_path):

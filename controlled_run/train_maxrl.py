@@ -18,9 +18,13 @@ DEFAULT_OUTPUT_DIR = Path("controlled_run_outputs/maxrl")
 MAXRL_MANIFEST_NAME = "maxrl_run_manifest.json"
 
 
-def build_maxrl_objective_metadata(config: dict) -> dict[str, object]:
+def build_maxrl_objective_metadata(
+    config: dict,
+    *,
+    config_validator=validate_grpo_config,
+) -> dict[str, object]:
     """Freeze the practical MaxRL intervention attached to a matched GRPO recipe."""
-    validate_grpo_config(config)
+    config_validator(config)
     metadata = practical_maxrl_metadata(group_size=int(config["num_generations"]))
     return {
         "objective_family": "MaxRL",

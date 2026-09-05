@@ -1,0 +1,34 @@
+{
+  "bins": [
+    "(.25,.5]",
+    "(.5,.75]",
+    "(.75,1)",
+    "(0,.25]",
+    "0"
+  ],
+  "interpretation": "The predeclared H2/H3 decision remains qualitative. Compare the magnitude/shape of realized signal reallocation with the matched DeltaC contrast; DeltaT and DeltaR remain separate supporting outcomes.",
+  "rows": 100,
+  "snapshots": [
+    5,
+    10,
+    15,
+    20,
+    25,
+    30,
+    35,
+    40,
+    45,
+    50,
+    55,
+    60,
+    65,
+    70,
+    75,
+    80,
+    85,
+    90,
+    95,
+    100
+  ],
+  "status": "COMPLETE_NO_AUTOMATIC_H2_H3_VERDICT"
+}

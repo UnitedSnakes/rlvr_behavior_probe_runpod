@@ -1,0 +1,15 @@
+{
+  "analysis_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+  "analysis_repo_commit": "88b7f3244de0c61488ff53dab63d29e2f8669642",
+  "bundle_date": "2026-09-05",
+  "local_manifest": "hf_bundles/2026-09-05-canonical-maxrl-seed42/backup_manifest.json",
+  "model_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+  "model_repo_commit": "e67069c666ea372ce4fc4f0dc14617f35a1fce0f",
+  "status": "REMOTE_BACKUP_VERIFIED",
+  "verification": {
+    "expected_files": 313,
+    "lfs_sha256_verified": 99,
+    "size_verified": 313,
+    "verified_present": 313
+  }
+}

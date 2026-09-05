@@ -1,0 +1,2520 @@
+{
+  "analysis_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+  "bundle_date": "2026-09-05",
+  "file_count": 313,
+  "files": [
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/distributed_preflight.json",
+      "remote_path": "distributed_preflight.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "63476ed030d2cece17a45d3cabe9c9d25014bdeee65e3331569b2d865848c581",
+      "size_bytes": 504
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/execution_git_commit.txt",
+      "remote_path": "execution_git_commit.txt",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "4995c2ba40c49410fb6a6cbbd54607ad50db482dd30d4ff160ecba0091e0984d",
+      "size_bytes": 41
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/maxrl_run_manifest.json",
+      "remote_path": "maxrl_run_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "cabf884ddd981c4f5e8479b7d2d0b7d0f102eeac5a9f664833fe360df4aa9865",
+      "size_bytes": 4117
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_005/chat_template.jinja",
+      "remote_path": "pi_005/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_005/config.json",
+      "remote_path": "pi_005/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_005/generation_config.json",
+      "remote_path": "pi_005/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_005/model.safetensors",
+      "remote_path": "pi_005/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "89b3fd7f29274d0d94fd4500a38a71a880237ef6eb78614232f1862a35b8d595",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_005/policy_metadata.json",
+      "remote_path": "pi_005/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "3f023142d4671b3b253b75bbb96227da0c1a7238711720774ca3ae0a581f867c",
+      "size_bytes": 139
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_005/tokenizer.json",
+      "remote_path": "pi_005/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_005/tokenizer_config.json",
+      "remote_path": "pi_005/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_010/chat_template.jinja",
+      "remote_path": "pi_010/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_010/config.json",
+      "remote_path": "pi_010/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_010/generation_config.json",
+      "remote_path": "pi_010/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_010/model.safetensors",
+      "remote_path": "pi_010/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "f9559c35d3c6c45cf9b725e1eb68901e4a1b6a9dd2e76b71983b55bcee8f791a",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_010/policy_metadata.json",
+      "remote_path": "pi_010/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "3ad6a3a2b89362a00b87d9029c3d57e0dabbc2db24c54c77f9bab57e8d261ddd",
+      "size_bytes": 140
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_010/tokenizer.json",
+      "remote_path": "pi_010/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_010/tokenizer_config.json",
+      "remote_path": "pi_010/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_015/chat_template.jinja",
+      "remote_path": "pi_015/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_015/config.json",
+      "remote_path": "pi_015/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_015/generation_config.json",
+      "remote_path": "pi_015/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_015/model.safetensors",
+      "remote_path": "pi_015/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "46ad52fb0702d19087dbb04c0a1ce2a4f36be43e380d75a452a4bcadc67d91bb",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_015/policy_metadata.json",
+      "remote_path": "pi_015/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "2aae4403c86d26edc38677bc7fc52b5049ab53117b93a6e501596fd4015032c7",
+      "size_bytes": 140
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_015/tokenizer.json",
+      "remote_path": "pi_015/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_015/tokenizer_config.json",
+      "remote_path": "pi_015/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_020/chat_template.jinja",
+      "remote_path": "pi_020/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_020/config.json",
+      "remote_path": "pi_020/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_020/generation_config.json",
+      "remote_path": "pi_020/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_020/model.safetensors",
+      "remote_path": "pi_020/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "1e9f4cf0759dd7d19b68b4e07e260680fb003d6a7dbbd22533b34308b087c756",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_020/policy_metadata.json",
+      "remote_path": "pi_020/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "4603156e671cf3cda5368ef8f8b82192fe97f557b796868d3c896deb959d97c0",
+      "size_bytes": 140
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_020/tokenizer.json",
+      "remote_path": "pi_020/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_020/tokenizer_config.json",
+      "remote_path": "pi_020/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_025/chat_template.jinja",
+      "remote_path": "pi_025/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_025/config.json",
+      "remote_path": "pi_025/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_025/generation_config.json",
+      "remote_path": "pi_025/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_025/model.safetensors",
+      "remote_path": "pi_025/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9053f5dc1f6857990b1f8d11f973b240a1ad72fe01de72d1eb9a81b0d412a65d",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_025/policy_metadata.json",
+      "remote_path": "pi_025/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "ebd17c5466ce04914e11ab0add7b239e846b6dd704f3343a4c16f1409f65ff1b",
+      "size_bytes": 140
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_025/tokenizer.json",
+      "remote_path": "pi_025/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_025/tokenizer_config.json",
+      "remote_path": "pi_025/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_030/chat_template.jinja",
+      "remote_path": "pi_030/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_030/config.json",
+      "remote_path": "pi_030/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_030/generation_config.json",
+      "remote_path": "pi_030/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_030/model.safetensors",
+      "remote_path": "pi_030/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "c8749011867c9af615b52cc89a53296bd10875f946687c7dc7baec117de92052",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_030/policy_metadata.json",
+      "remote_path": "pi_030/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "a7e251dcd5f54e5069a25946493707c2f0b1c5ba9e73039453e759b3e5c3d61c",
+      "size_bytes": 141
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_030/tokenizer.json",
+      "remote_path": "pi_030/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_030/tokenizer_config.json",
+      "remote_path": "pi_030/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_035/chat_template.jinja",
+      "remote_path": "pi_035/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_035/config.json",
+      "remote_path": "pi_035/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_035/generation_config.json",
+      "remote_path": "pi_035/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_035/model.safetensors",
+      "remote_path": "pi_035/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "63ea6628f7c72f92df0ecd4e71ed181831cf46ff1686c5195ffc353767e08535",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_035/policy_metadata.json",
+      "remote_path": "pi_035/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f38a7d4c17db24721c9e23d8de64133bf4a8f66cbb8b3cab75f4f136e3eb429",
+      "size_bytes": 141
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_035/tokenizer.json",
+      "remote_path": "pi_035/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_035/tokenizer_config.json",
+      "remote_path": "pi_035/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_040/chat_template.jinja",
+      "remote_path": "pi_040/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_040/config.json",
+      "remote_path": "pi_040/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_040/generation_config.json",
+      "remote_path": "pi_040/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_040/model.safetensors",
+      "remote_path": "pi_040/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "8e07463166727ff639e06f780690b44a60bcc325c766bb3f4f9b076533779307",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_040/policy_metadata.json",
+      "remote_path": "pi_040/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "4e6df0e4c259e0e54af982088f375fb696d4acec9825dc498e2d7ba4f5e6f5b2",
+      "size_bytes": 141
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_040/tokenizer.json",
+      "remote_path": "pi_040/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_040/tokenizer_config.json",
+      "remote_path": "pi_040/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_045/chat_template.jinja",
+      "remote_path": "pi_045/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_045/config.json",
+      "remote_path": "pi_045/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_045/generation_config.json",
+      "remote_path": "pi_045/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_045/model.safetensors",
+      "remote_path": "pi_045/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "2a8cf21a83a79050d88cca56a87892beb08aabd0383fddcff0facc4ba5261fc2",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_045/policy_metadata.json",
+      "remote_path": "pi_045/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "00ce8da084454fbf38acee082fc7b4f2a0e9febbd44b2c46b7a918525ffa7d07",
+      "size_bytes": 141
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_045/tokenizer.json",
+      "remote_path": "pi_045/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_045/tokenizer_config.json",
+      "remote_path": "pi_045/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_050/chat_template.jinja",
+      "remote_path": "pi_050/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_050/config.json",
+      "remote_path": "pi_050/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_050/generation_config.json",
+      "remote_path": "pi_050/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_050/model.safetensors",
+      "remote_path": "pi_050/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "f3fd1ffe6de24517a48745e9089a4807f0e8ea9fc2c24d5d261ed2bf06aa204c",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_050/policy_metadata.json",
+      "remote_path": "pi_050/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9b09dfd796374977290f6e654294a18ff72b3c35e66a38e33a8d9c90ff27a8bc",
+      "size_bytes": 141
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_050/tokenizer.json",
+      "remote_path": "pi_050/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_050/tokenizer_config.json",
+      "remote_path": "pi_050/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_055/chat_template.jinja",
+      "remote_path": "pi_055/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_055/config.json",
+      "remote_path": "pi_055/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_055/generation_config.json",
+      "remote_path": "pi_055/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_055/model.safetensors",
+      "remote_path": "pi_055/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "3ed39dc041a56fa19740510ac41beaa45767fbfd34f2ec9c96db087653020fa6",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_055/policy_metadata.json",
+      "remote_path": "pi_055/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "2f2a3b531890bf9d2a40d5f8a58d28e704ba9eb4555fdf815c7198e2849ad59f",
+      "size_bytes": 141
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_055/tokenizer.json",
+      "remote_path": "pi_055/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_055/tokenizer_config.json",
+      "remote_path": "pi_055/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_060/chat_template.jinja",
+      "remote_path": "pi_060/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_060/config.json",
+      "remote_path": "pi_060/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_060/generation_config.json",
+      "remote_path": "pi_060/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_060/model.safetensors",
+      "remote_path": "pi_060/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "d423469e75efeb62645af96d73566c79e0f060bd81e76556df6b9c48d9b0a426",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_060/policy_metadata.json",
+      "remote_path": "pi_060/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "8a150891f48a7ae68d12e889543a31da2cf472eee9aea1f85880d22a60fa6910",
+      "size_bytes": 141
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_060/tokenizer.json",
+      "remote_path": "pi_060/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_060/tokenizer_config.json",
+      "remote_path": "pi_060/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_065/chat_template.jinja",
+      "remote_path": "pi_065/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_065/config.json",
+      "remote_path": "pi_065/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_065/generation_config.json",
+      "remote_path": "pi_065/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_065/model.safetensors",
+      "remote_path": "pi_065/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "2bf49cf219ff6e98a53c9260f464f238488b7b50a98bf38510a148d58e8d9876",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_065/policy_metadata.json",
+      "remote_path": "pi_065/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "ca02f58bb86410b42d160894056e84b0d1dfa63bff26377ff7a3dd66a951b889",
+      "size_bytes": 141
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_065/tokenizer.json",
+      "remote_path": "pi_065/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_065/tokenizer_config.json",
+      "remote_path": "pi_065/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_070/chat_template.jinja",
+      "remote_path": "pi_070/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_070/config.json",
+      "remote_path": "pi_070/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_070/generation_config.json",
+      "remote_path": "pi_070/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_070/model.safetensors",
+      "remote_path": "pi_070/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "6219c4fa85235a0dbd23092f5f52f29f652cf720596d0311c6527b7247c9a765",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_070/policy_metadata.json",
+      "remote_path": "pi_070/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "d90b1b921911b1dd92ce9e1ea083b87ada00ab25fcc48a491e24a010308a14d9",
+      "size_bytes": 141
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_070/tokenizer.json",
+      "remote_path": "pi_070/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_070/tokenizer_config.json",
+      "remote_path": "pi_070/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_075/chat_template.jinja",
+      "remote_path": "pi_075/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_075/config.json",
+      "remote_path": "pi_075/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_075/generation_config.json",
+      "remote_path": "pi_075/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_075/model.safetensors",
+      "remote_path": "pi_075/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "e736ac0d7fa835271e8001302f7ffaa93e05358a0de1f9781fcdd5d30b14671b",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_075/policy_metadata.json",
+      "remote_path": "pi_075/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "17af97e6e39b7b7b97abd4c31689fed3362e1ea57870e66984c626b97b76517b",
+      "size_bytes": 141
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_075/tokenizer.json",
+      "remote_path": "pi_075/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_075/tokenizer_config.json",
+      "remote_path": "pi_075/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_080/chat_template.jinja",
+      "remote_path": "pi_080/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_080/config.json",
+      "remote_path": "pi_080/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_080/generation_config.json",
+      "remote_path": "pi_080/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_080/model.safetensors",
+      "remote_path": "pi_080/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "f1835f18e9742ec7731ef1455e172225a6b18237b7408c5e48ec86ecc6105da6",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_080/policy_metadata.json",
+      "remote_path": "pi_080/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "875b30bdd162c76f9df39508985ca4b76f7c3841e1897aaab0a999d77b5f55b8",
+      "size_bytes": 141
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_080/tokenizer.json",
+      "remote_path": "pi_080/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_080/tokenizer_config.json",
+      "remote_path": "pi_080/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_085/chat_template.jinja",
+      "remote_path": "pi_085/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_085/config.json",
+      "remote_path": "pi_085/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_085/generation_config.json",
+      "remote_path": "pi_085/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_085/model.safetensors",
+      "remote_path": "pi_085/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "741d21c396318f4a95f2a8830776a7e2b4e444d2c0e0bc1a16497c33bd789fa5",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_085/policy_metadata.json",
+      "remote_path": "pi_085/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "290b4295452ecd2e591a55e9d24bf976ecad95bd9270eb1f2ba4a598ca8d4f32",
+      "size_bytes": 141
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_085/tokenizer.json",
+      "remote_path": "pi_085/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_085/tokenizer_config.json",
+      "remote_path": "pi_085/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_090/chat_template.jinja",
+      "remote_path": "pi_090/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_090/config.json",
+      "remote_path": "pi_090/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_090/generation_config.json",
+      "remote_path": "pi_090/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_090/model.safetensors",
+      "remote_path": "pi_090/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "0e900c23036a552e812683d05899797d52d43077ad4f72f286c1aa5dfda02b93",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_090/policy_metadata.json",
+      "remote_path": "pi_090/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "6d22e5cfdb4fa3bae1c060c0cfd5a7f468e058d70eb54c4aafcf52dccbf8adaf",
+      "size_bytes": 141
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_090/tokenizer.json",
+      "remote_path": "pi_090/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_090/tokenizer_config.json",
+      "remote_path": "pi_090/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_095/chat_template.jinja",
+      "remote_path": "pi_095/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_095/config.json",
+      "remote_path": "pi_095/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_095/generation_config.json",
+      "remote_path": "pi_095/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_095/model.safetensors",
+      "remote_path": "pi_095/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "ec43a4f062b1fa371ec0cb70617cb144332e89dd2438bbbc0659e8cb019dda4d",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_095/policy_metadata.json",
+      "remote_path": "pi_095/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "6776d98861e5cf8a1b30f561afcfdfa2cf56ddf6e8530691210e732a5397544d",
+      "size_bytes": 141
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_095/tokenizer.json",
+      "remote_path": "pi_095/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_095/tokenizer_config.json",
+      "remote_path": "pi_095/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_100/chat_template.jinja",
+      "remote_path": "pi_100/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_100/config.json",
+      "remote_path": "pi_100/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_100/generation_config.json",
+      "remote_path": "pi_100/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_100/model.safetensors",
+      "remote_path": "pi_100/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "e698be968acf9496f03c2b1614b6e2fac13f221069c5bddd23fc9ed2ac934ea0",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_100/policy_metadata.json",
+      "remote_path": "pi_100/policy_metadata.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "d38121d39e0be9f29f527aaa9ca751083c4544a19105ea29ef3149b8561a0944",
+      "size_bytes": 142
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_100/tokenizer.json",
+      "remote_path": "pi_100/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/pi_100/tokenizer_config.json",
+      "remote_path": "pi_100/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/policy_snapshot_schedule.json",
+      "remote_path": "policy_snapshot_schedule.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "575c609ee9dcf493876aa3c2675dc911e8607a89390c1a4b9e8bc2dcc7c366ed",
+      "size_bytes": 457
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/prompt_length_audit.json",
+      "remote_path": "prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "d02cc44dce6bc6abc68dcfc8ca71ee00ac8eba0fab67cd9ce7fca59b559ae42f",
+      "size_bytes": 80
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/signal_ledger/signal_ledger_20260904T015650Z_rank0.jsonl",
+      "remote_path": "signal_ledger/signal_ledger_20260904T015650Z_rank0.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "a1419f8074eb61f5ab9ee6869ee533a640c808c858355751bc3ac036b9a6baed",
+      "size_bytes": 74690581
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/signal_ledger/signal_ledger_20260904T015651Z_rank1.jsonl",
+      "remote_path": "signal_ledger/signal_ledger_20260904T015651Z_rank1.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b41afab19d84f9424054bdfefeab2ea03654768c4b0fc467e3443ca7c47a766d",
+      "size_bytes": 74668995
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/README.md",
+      "remote_path": "trainer/README.md",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "48e0a8900469e2bacb5ae46141cebe992d442296a6c78a17248f597bb765fbc6",
+      "size_bytes": 1849
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-1868/chat_template.jinja",
+      "remote_path": "trainer/checkpoint-1868/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-1868/config.json",
+      "remote_path": "trainer/checkpoint-1868/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-1868/generation_config.json",
+      "remote_path": "trainer/checkpoint-1868/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-1868/model.safetensors",
+      "remote_path": "trainer/checkpoint-1868/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "f3fd1ffe6de24517a48745e9089a4807f0e8ea9fc2c24d5d261ed2bf06aa204c",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-1868/optimizer.pt",
+      "remote_path": "trainer/checkpoint-1868/optimizer.pt",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9432843d990b183efcf0dfc183010ac8e8628b528e3231b95cc3c25660da91b3",
+      "size_bytes": 2384464715
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-1868/rng_state_0.pth",
+      "remote_path": "trainer/checkpoint-1868/rng_state_0.pth",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "907408a9275bd734e525bd54a44e59338eea51ded637afb862b03be98a38ad50",
+      "size_bytes": 14917
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-1868/rng_state_1.pth",
+      "remote_path": "trainer/checkpoint-1868/rng_state_1.pth",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "33a29b8974eeac94c568752d9ee6435f690382dda4cb06688e9debf99f9ce960",
+      "size_bytes": 14917
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-1868/scheduler.pt",
+      "remote_path": "trainer/checkpoint-1868/scheduler.pt",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "71423ca30ee883cc70c96adf5b0ef11a53fe05f3c71d82d201a1a8be1b00e61a",
+      "size_bytes": 1465
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-1868/tokenizer.json",
+      "remote_path": "trainer/checkpoint-1868/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-1868/tokenizer_config.json",
+      "remote_path": "trainer/checkpoint-1868/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-1868/trainer_state.json",
+      "remote_path": "trainer/checkpoint-1868/trainer_state.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "d4d98a5796524ca419b8078db854f515d54be9c8c932d34fce44dcb5431ad7c1",
+      "size_bytes": 259276
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-1868/training_args.bin",
+      "remote_path": "trainer/checkpoint-1868/training_args.bin",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "73d5e2aac173ddcce4b03a3e2bf2a0f4d7bdff59317265436f90f5008dcb93a1",
+      "size_bytes": 7633
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-2802/chat_template.jinja",
+      "remote_path": "trainer/checkpoint-2802/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-2802/config.json",
+      "remote_path": "trainer/checkpoint-2802/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-2802/generation_config.json",
+      "remote_path": "trainer/checkpoint-2802/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-2802/model.safetensors",
+      "remote_path": "trainer/checkpoint-2802/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "e736ac0d7fa835271e8001302f7ffaa93e05358a0de1f9781fcdd5d30b14671b",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-2802/optimizer.pt",
+      "remote_path": "trainer/checkpoint-2802/optimizer.pt",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "c1a3d3e014f97c3e882dfe46cd49d50a881d9455aa87dddb651ef8a94c8430e2",
+      "size_bytes": 2384464715
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-2802/rng_state_0.pth",
+      "remote_path": "trainer/checkpoint-2802/rng_state_0.pth",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "3dc290e61a5be51e72cb0f9c04e89f3a195cbedcf1f036533f4b2ff938dbb2ab",
+      "size_bytes": 14917
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-2802/rng_state_1.pth",
+      "remote_path": "trainer/checkpoint-2802/rng_state_1.pth",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "bebd9c43f6185f3607f5b1b69b22c1c425b5987ab2524ee23463ca3c0c0dbbf2",
+      "size_bytes": 14981
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-2802/scheduler.pt",
+      "remote_path": "trainer/checkpoint-2802/scheduler.pt",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "75d87580af7251c2c7f7ea22da3c79132ed9e053aab9b79c5b511f9da761ed75",
+      "size_bytes": 1465
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-2802/tokenizer.json",
+      "remote_path": "trainer/checkpoint-2802/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-2802/tokenizer_config.json",
+      "remote_path": "trainer/checkpoint-2802/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-2802/trainer_state.json",
+      "remote_path": "trainer/checkpoint-2802/trainer_state.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "d2f2af3652f1499121ea03855f7ed70f5f6e6a9838d18013b30f610605ada4d3",
+      "size_bytes": 389991
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-2802/training_args.bin",
+      "remote_path": "trainer/checkpoint-2802/training_args.bin",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "73d5e2aac173ddcce4b03a3e2bf2a0f4d7bdff59317265436f90f5008dcb93a1",
+      "size_bytes": 7633
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-3736/chat_template.jinja",
+      "remote_path": "trainer/checkpoint-3736/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-3736/config.json",
+      "remote_path": "trainer/checkpoint-3736/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-3736/generation_config.json",
+      "remote_path": "trainer/checkpoint-3736/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-3736/model.safetensors",
+      "remote_path": "trainer/checkpoint-3736/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "e698be968acf9496f03c2b1614b6e2fac13f221069c5bddd23fc9ed2ac934ea0",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-3736/optimizer.pt",
+      "remote_path": "trainer/checkpoint-3736/optimizer.pt",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "aa278bc9e3cb4b680c9a2322c75161844f06f2ff641c18ad625ea936d963c55c",
+      "size_bytes": 2384464715
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-3736/rng_state_0.pth",
+      "remote_path": "trainer/checkpoint-3736/rng_state_0.pth",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "516d015abe696cfbb8797724a6168ba6f4e3cfe9bd1f3b6566c5d80d9b05127e",
+      "size_bytes": 14853
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-3736/rng_state_1.pth",
+      "remote_path": "trainer/checkpoint-3736/rng_state_1.pth",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "70a7a2481c13cda87361769422ce3caf09ea13c985368cf7224858e237050df2",
+      "size_bytes": 14853
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-3736/scheduler.pt",
+      "remote_path": "trainer/checkpoint-3736/scheduler.pt",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "d241677203b6b9a2d61f35e0ff8127e116164840ce1078c127220684501736a5",
+      "size_bytes": 1465
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-3736/tokenizer.json",
+      "remote_path": "trainer/checkpoint-3736/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-3736/tokenizer_config.json",
+      "remote_path": "trainer/checkpoint-3736/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-3736/trainer_state.json",
+      "remote_path": "trainer/checkpoint-3736/trainer_state.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "31ccbf34c749b480434f0a56135999822aacc3f0a21ddffa943a33ffb5b41190",
+      "size_bytes": 519300
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-3736/training_args.bin",
+      "remote_path": "trainer/checkpoint-3736/training_args.bin",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "73d5e2aac173ddcce4b03a3e2bf2a0f4d7bdff59317265436f90f5008dcb93a1",
+      "size_bytes": 7633
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-934/chat_template.jinja",
+      "remote_path": "trainer/checkpoint-934/chat_template.jinja",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9594193190aac9d2b76dc3115e409a7d040c9270af12fd3d6d512b35a6aea4b4",
+      "size_bytes": 4244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-934/config.json",
+      "remote_path": "trainer/checkpoint-934/config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "30c698bf372b809371d097f4843164a28509a3d14778fdfd0e454c086730fcea",
+      "size_bytes": 1418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-934/generation_config.json",
+      "remote_path": "trainer/checkpoint-934/generation_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "b8d21830599cc48feaab07392f97d6a7cbb5a7cc905e44ede64b99b164416293",
+      "size_bytes": 149
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-934/model.safetensors",
+      "remote_path": "trainer/checkpoint-934/model.safetensors",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "9053f5dc1f6857990b1f8d11f973b240a1ad72fe01de72d1eb9a81b0d412a65d",
+      "size_bytes": 1192135096
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-934/optimizer.pt",
+      "remote_path": "trainer/checkpoint-934/optimizer.pt",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "7201b230dbe5a1a55d79bda5457725c68be04dec1a31459e2b1abe215b7f7da9",
+      "size_bytes": 2384464715
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-934/rng_state_0.pth",
+      "remote_path": "trainer/checkpoint-934/rng_state_0.pth",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "98cfc6b71bfba1d507f8931032e4f17ff9bd79615c4a3896a1828dfd39d5a5a5",
+      "size_bytes": 14853
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-934/rng_state_1.pth",
+      "remote_path": "trainer/checkpoint-934/rng_state_1.pth",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "7bcede3fe6752db072cd696d0ec16463b04ca9f38946e67f28af830e35066fa5",
+      "size_bytes": 14917
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-934/scheduler.pt",
+      "remote_path": "trainer/checkpoint-934/scheduler.pt",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "193a06bccf6a97df8a24b9ca43073b389af689e3cfaa0659c15a45084427d8af",
+      "size_bytes": 1465
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-934/tokenizer.json",
+      "remote_path": "trainer/checkpoint-934/tokenizer.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "be75606093db2094d7cd20f3c2f385c212750648bd6ea4fb2bf507a6a4c55506",
+      "size_bytes": 11422650
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-934/tokenizer_config.json",
+      "remote_path": "trainer/checkpoint-934/tokenizer_config.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "5f007d04324afa93876e2a484190e868136c69dfe0e1a29a1063eae583df9d32",
+      "size_bytes": 696
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-934/trainer_state.json",
+      "remote_path": "trainer/checkpoint-934/trainer_state.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "79788871f23b3ccce3e3ce5f9beb1db2b815b38b36926bf3cde16161c5a285a4",
+      "size_bytes": 130066
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42/trainer/checkpoint-934/training_args.bin",
+      "remote_path": "trainer/checkpoint-934/training_args.bin",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+      "repo_type": "model",
+      "sha256": "73d5e2aac173ddcce4b03a3e2bf2a0f4d7bdff59317265436f90f5008dcb93a1",
+      "size_bytes": 7633
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_005.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_005.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "15eefc0ee7aa0e7aab6ca1023d6b5fca92da700358576572845e9af5800bc8bb",
+      "size_bytes": 35121
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_010.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_010.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "d5cdf0d591eb8e3b10036df1b04486a60bc95b5aabc924e64e851ad1aa7a7ffe",
+      "size_bytes": 35151
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_015.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_015.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "9fba6d4657026a89a4ca349e0ca7b3bab4234894d74dada54d5dda4c7b802006",
+      "size_bytes": 35833
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_020.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_020.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "db2bff5270dbe5979ce6bf759a3e286a5330111ec7e4157b11c8506a9adcb942",
+      "size_bytes": 35315
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_025.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_025.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "0c9495747e6016d27fb840921ae82c16853eca590afc62a86ddb1a57e912a393",
+      "size_bytes": 35784
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_030.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_030.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "6ed173c1ff3bb3fadf4861bf4cee94852745e471eb450eb7393c3014d6464fcd",
+      "size_bytes": 35352
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_035.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_035.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "ad9045b3bf63bc7e49a77b89b635c6661e50abc3b344e6f865a247e4dcae2a7e",
+      "size_bytes": 35357
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_040.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_040.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "048d4a2db40c86b1d0c60fc9b34e85059741191064c943371e7e8d0a02823120",
+      "size_bytes": 35628
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_045.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_045.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "ff61077785b15a0375ae0f7ee819d844d793c95bc6df05292ab8ca7b98bdce59",
+      "size_bytes": 35300
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_050.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_050.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "b5734ca9462f35e7edc83171560921b089f1f861265f5a5b4603a49b56bc07d4",
+      "size_bytes": 35485
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_055.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_055.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "b00e0363ea10bfe5055083de5b3896e4aaa4f125d67a5775240c6e4a88f8e662",
+      "size_bytes": 35305
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_060.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_060.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "cefc7f3290a341701b00bd26549de14247f8d4f5abde930a1446418f470ebeb5",
+      "size_bytes": 35399
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_065.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_065.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "2b516b9ff99ecf7dad6758888af78bb877f3b60dc12d992a5101f1ea363e349b",
+      "size_bytes": 35499
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_070.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_070.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "3a41db85b8c4aaf11f78231757c3f47df31e1514050ac34547d3a08d551ed62e",
+      "size_bytes": 35462
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_075.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_075.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "0e9b97d5e7725749115b4aa709b2917afbb32a8e5f1f01366dec3db6e3b3f49d",
+      "size_bytes": 35196
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_080.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_080.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "74341fb3d94323a03eeb0866405fcb3fb24f7db2071c4c5fbf769b6099684203",
+      "size_bytes": 35495
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_085.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_085.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "bacd7ba139fd01a41a16a8a943e4fad8bad2f65aacbf5409625944662fdbef28",
+      "size_bytes": 35310
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_090.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_090.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "4e061c64e8ec6201141c567d99e2c2b9d53782684a76ca91cfeb4b3b183f1379",
+      "size_bytes": 35402
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_095.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_095.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "11e5813f951fad4ffbb987e67ac2d5ea767c0699a71983eb4ec787d9c05e5634",
+      "size_bytes": 35392
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_100.log",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/logs/pi_100.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "6623e0cfb3044c686807a40c9f7c4d53e57ce3d66c0826a5297183affaee5a4c",
+      "size_bytes": 35314
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_005/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_005/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_005/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_005/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "2b55a079497dd0b1d5487dcd1593e1ae4ac03c3c2f064aaaf76af6d48ca3b1bc",
+      "size_bytes": 4337
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_005/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_005/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "d577624e4fb368818052333a52447380d3afbba11982364957273e976c1ce671",
+      "size_bytes": 55449059
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_010/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_010/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_010/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_010/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "cf827aabd921075c422be4f0afaed95eafa6b833b54bacad303ce7b7a6466c13",
+      "size_bytes": 4338
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_010/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_010/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "647ff2bc473017b0b51631b5fe220d1b85ebd87863df6a71bbe31df569913b59",
+      "size_bytes": 53279514
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_015/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_015/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_015/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_015/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "417de4cfffba54e8da4804a4b508df6861338abb9c7e59a9170b254f49b92641",
+      "size_bytes": 4338
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_015/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_015/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "051bb14f609acd72106159b35e6243f85b22f88cc243ead16d7e9c6c4be2c4a2",
+      "size_bytes": 50420804
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_020/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_020/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_020/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_020/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "d081559081c9215d56410e969d697b01e43e11f5dbe46ceb3b132021464139cd",
+      "size_bytes": 4338
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_020/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_020/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "5726abd938e25a6a904fb0e6ec3c2c27675506ba8f1be88cbace0e495544cbcf",
+      "size_bytes": 48392939
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_025/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_025/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_025/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_025/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "e0955365d82f310637ab8c15ce4473192e6c20b813dc8420f0398a8a8aded44f",
+      "size_bytes": 4338
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_025/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_025/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "40f2f5702c41d70ec6c847a4ae92b7860f43c9e9537c9f779c46efabeb721448",
+      "size_bytes": 46683835
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_030/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_030/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_030/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_030/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "d1080e70f49ea8e230178cea05c56bfda00b965411da38eea230fe4de03c3c6d",
+      "size_bytes": 4339
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_030/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_030/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "cc39c5fe3d110f99a61b153be3d7bc38ad5cf8f622e48c2f88984df3550369a6",
+      "size_bytes": 44969763
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_035/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_035/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_035/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_035/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "9557ba6d79f16815b1e2eadb9b8fbf595a97de0562f5b7759b9b893d31519879",
+      "size_bytes": 4339
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_035/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_035/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "e783ceb5bdaa13b145e6d73dda56186b04c2a995cb3beb9153761746d025ecb6",
+      "size_bytes": 44552663
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_040/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_040/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_040/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_040/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "906601ce554e2f0206615b5326c7ce158d21c58e6ca38509f4c98f83ba76c3e8",
+      "size_bytes": 4339
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_040/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_040/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "fa2ae140b49b21bb01f08ac68c482459b078c5ec29cbe5c4f4d5c20fe438affe",
+      "size_bytes": 43293680
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_045/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_045/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_045/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_045/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "67246790448a215366c6be134841f728e48614bd1a2b858cca48942a2177a652",
+      "size_bytes": 4339
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_045/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_045/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "3ab78019647fd8252baa99088e8547d45ac1fae89a785d87ec0576ae2de7a125",
+      "size_bytes": 42915244
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_050/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_050/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_050/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_050/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "3743168e961a0d2858aeeb09c2c301fa4061f74096957ff6c055f3276abfda85",
+      "size_bytes": 4339
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_050/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_050/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "6deb776df833bceb7f88b0ee0cb187813ada72457b0a4549039127c64c12ee1a",
+      "size_bytes": 42455049
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_055/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_055/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_055/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_055/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "9ce4a9dc9c7a7c706ac242997fbe51b2af95980e6acac759bc9fcc0d919d788d",
+      "size_bytes": 4339
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_055/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_055/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "d21c4ccb89b235aad5d7deb668a339b4d678d27e551f7062f85fa99ee433dd7f",
+      "size_bytes": 42352629
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_060/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_060/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_060/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_060/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "542c97238f4633b30926abaeddd5e79998f498ed268387b06731839aa9ebea70",
+      "size_bytes": 4339
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_060/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_060/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "3ea9f99de91173e8f9569af08ed5a6bdaf46a263c661d218fbff85546c1060ca",
+      "size_bytes": 42127952
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_065/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_065/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_065/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_065/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "9dd27e1512718d748b3b38dd2c5d5edea4ca9d5d5358ebb8208c358721ec3428",
+      "size_bytes": 4339
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_065/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_065/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "5bd9d3bab16b6b906f3582ccdfd47983730413a5272a8b211682364d83d5fea3",
+      "size_bytes": 41853717
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_070/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_070/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_070/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_070/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "b4b7b1bb82bab90bdfc02e6b601077edc5e355167dafc85336f1911a48849345",
+      "size_bytes": 4339
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_070/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_070/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "ee57d3e6bed4d2625e4d9f52c6addf104ef4053afad32e5fe14355ad85f0caad",
+      "size_bytes": 41781714
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_075/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_075/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_075/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_075/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "d28e951ab1e98f27694511a7020ba378dffb0d6d5a412f37ab6d826b74643c6c",
+      "size_bytes": 4339
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_075/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_075/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "2841345de6d0d532e5fcea0ec0718edf1486d34873967b34744e27a2f432f8d5",
+      "size_bytes": 41856956
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_080/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_080/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_080/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_080/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "25489afda812aeeeaa245a7c8608ef5b8813c13f45a68a1d09bcc839ed8b09cb",
+      "size_bytes": 4339
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_080/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_080/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "5ade86f059f897c956120168dd1440997d7c683e8d4ddb181b908ccdb74e2c8b",
+      "size_bytes": 41478363
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_085/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_085/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_085/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_085/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "aa722124fed10ecd6e4fb0556f011914a49689669c4fc654656d8e87d5b9451a",
+      "size_bytes": 4339
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_085/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_085/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "41ba3bdf7bc93965f857be368069883dceafebe0679864cab2a7304731832124",
+      "size_bytes": 42024189
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_090/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_090/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_090/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_090/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "476a823ee33c4b2c114a7e9854ce65f6dd09f7f7774196eb61cb3e441e03505f",
+      "size_bytes": 4339
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_090/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_090/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "bc228e99a443aea9fb911002f5ddd657811853140dee0f544b6a2efa6746d709",
+      "size_bytes": 41988294
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_095/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_095/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_095/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_095/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "0c24baccb7f0ac6612d0236a8f5e50264238b1f594d3a52614c7eeb9317ae2c5",
+      "size_bytes": 4339
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_095/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_095/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "06606214f17b3c24bc5f60d8813070d1f88d50e942287fdb7872e6a05fccb07d",
+      "size_bytes": 41850118
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_100/prompt_length_audit.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_100/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_100/snapshot_eval_manifest.json",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_100/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "0b707e204661bfb9ba1dfb545937226e1fe0e4cb46f99e8118afdd9021a95378",
+      "size_bytes": 4340
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_eval_train256_k16_cbank/pi_100/snapshot_raw.jsonl",
+      "remote_path": "fixed_panel/maxrl_snapshot_eval_train256_k16_cbank/pi_100/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "93985ebd987fa2c2cf35e9c5bdeb3428ed2abdbda358baaa012223b443adf92e",
+      "size_bytes": 41574921
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_crossfit/aggregate_sanity.csv",
+      "remote_path": "derived/maxrl_snapshot_crossfit/aggregate_sanity.csv",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "f3ce3e21610054fb9993aa4e87f9f11b71e48a2a7c31da0d9acdae1d42c26b86",
+      "size_bytes": 1318
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_crossfit/crossfit_trajectory.csv",
+      "remote_path": "derived/maxrl_snapshot_crossfit/crossfit_trajectory.csv",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "92a1ecfb20d000dd2f173d8736ca3d25d59850aeef0c6b98c89eb4aca1e86ea4",
+      "size_bytes": 27028
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_crossfit/delta_C_by_p0_bin.png",
+      "remote_path": "derived/maxrl_snapshot_crossfit/delta_C_by_p0_bin.png",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "3920a095b2d9e41f735a45932cbb9dfc6bef2148acd102c9bcb41bbf41f9038f",
+      "size_bytes": 201738
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_crossfit/delta_R_by_p0_bin.png",
+      "remote_path": "derived/maxrl_snapshot_crossfit/delta_R_by_p0_bin.png",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "3ac56fcf8af20313c631125686624c9f3ed394a892f874832e052c1d14fcb354",
+      "size_bytes": 171506
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_crossfit/delta_T_by_p0_bin.png",
+      "remote_path": "derived/maxrl_snapshot_crossfit/delta_T_by_p0_bin.png",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "f4b92b74f884cd50ae13a1210c26fbc98c7a0ae62edf50b2ed208972d50af346",
+      "size_bytes": 158119
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_snapshot_crossfit/per_question_crossfit.csv",
+      "remote_path": "derived/maxrl_snapshot_crossfit/per_question_crossfit.csv",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1c4b8bff221bd3f404080f50d8ce8bc25fa3ac646769ae20b3cc7f25bdd25adb",
+      "size_bytes": 929702
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_ledger_crossfit_signal/active_group_fraction.png",
+      "remote_path": "derived/maxrl_ledger_crossfit_signal/active_group_fraction.png",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1e3a7deb32739a461be2b2fe5795f875fd52c991789a4cce5cab63337d23942c",
+      "size_bytes": 119559
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_ledger_crossfit_signal/cumulative_abs_advantage_per_panel_question.png",
+      "remote_path": "derived/maxrl_ledger_crossfit_signal/cumulative_abs_advantage_per_panel_question.png",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "f4dc415c0accd2acf96c9828fd9b7c42da692683bdfef8a438e9150bb49fc1f7",
+      "size_bytes": 141993
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_ledger_crossfit_signal/exploratory_dapo_is_abs_mass_per_panel_question.png",
+      "remote_path": "derived/maxrl_ledger_crossfit_signal/exploratory_dapo_is_abs_mass_per_panel_question.png",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "e07bb565d61fac38f918dcc27ce035fc99523dcd3c199d620fa3a92838a8f60a",
+      "size_bytes": 147966
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_ledger_crossfit_signal/ledger_integrity.json",
+      "remote_path": "derived/maxrl_ledger_crossfit_signal/ledger_integrity.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "24f027dc5d811ff8844971ac653867adf40a4867c477f8800585fed0f23a0d64",
+      "size_bytes": 202
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_ledger_crossfit_signal/signal_movement_join.csv",
+      "remote_path": "derived/maxrl_ledger_crossfit_signal/signal_movement_join.csv",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "16a77200ed4e98b02b2ece6f3da1abfb4321804f5c13f918db20dd635f991a37",
+      "size_bytes": 26961
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_ledger_crossfit_signal/signal_trajectory_directional.csv",
+      "remote_path": "derived/maxrl_ledger_crossfit_signal/signal_trajectory_directional.csv",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "ca66d2443f7507da4b8cc0819601462b093f143e8fdba0aa4006bfd1edd8a1b2",
+      "size_bytes": 39719
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_ledger_crossfit_signal/signal_trajectory_symmetric.csv",
+      "remote_path": "derived/maxrl_ledger_crossfit_signal/signal_trajectory_symmetric.csv",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "8855029c290a62f2b9aa5acf6e869d9294689135db8c513a943616a86d02f880",
+      "size_bytes": 20978
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_grpo_objective_comparison/objective_comparison.csv",
+      "remote_path": "derived/maxrl_grpo_objective_comparison/objective_comparison.csv",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "f09ec04bdc0c1d08cbe40b5baac4d398fbfc03004a09daf87ce159e57748b202",
+      "size_bytes": 36816
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_grpo_objective_comparison/summary.json",
+      "remote_path": "derived/maxrl_grpo_objective_comparison/summary.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "a803d20b862eb0aa3a7d5e5e71e1e2b7d3e05e1f9f9f69853df95ae9c92baebe",
+      "size_bytes": 561
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/_slow_evaluator_partial_for_parity_check/logs/pi_005.log",
+      "remote_path": "diagnostics/_slow_evaluator_partial_for_parity_check/logs/pi_005.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "015bf6f76eec93d2a2ebaff1d135a30a1661421d77b8698939816cab4aab5fb7",
+      "size_bytes": 17356
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/_slow_evaluator_partial_for_parity_check/logs/pi_055.log",
+      "remote_path": "diagnostics/_slow_evaluator_partial_for_parity_check/logs/pi_055.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "a6da14065218a45c131b438587c26726a056dfaff11651bc26de091c10bfbbb2",
+      "size_bytes": 18303
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/_slow_evaluator_partial_for_parity_check/pi_005/prompt_length_audit.json",
+      "remote_path": "diagnostics/_slow_evaluator_partial_for_parity_check/pi_005/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/_slow_evaluator_partial_for_parity_check/pi_005/snapshot_eval_manifest.json",
+      "remote_path": "diagnostics/_slow_evaluator_partial_for_parity_check/pi_005/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "ec77e6df5c2f7a7bd31c041f1983196a2af6b9876a4082d1e0cf9e050405aaf2",
+      "size_bytes": 4261
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/_slow_evaluator_partial_for_parity_check/pi_005/snapshot_raw.jsonl",
+      "remote_path": "diagnostics/_slow_evaluator_partial_for_parity_check/pi_005/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "bc0228c6fd87c9ebf28a5fa64e4ce6a8ac70f76146b76e0c5bb8935c74b884cc",
+      "size_bytes": 15349788
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/_slow_evaluator_partial_for_parity_check/pi_055/prompt_length_audit.json",
+      "remote_path": "diagnostics/_slow_evaluator_partial_for_parity_check/pi_055/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/_slow_evaluator_partial_for_parity_check/pi_055/snapshot_eval_manifest.json",
+      "remote_path": "diagnostics/_slow_evaluator_partial_for_parity_check/pi_055/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "50a7398f1b543173041f5bc200131fda209a221a3b001a03f073d69fe331080f",
+      "size_bytes": 4263
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/_slow_evaluator_partial_for_parity_check/pi_055/snapshot_raw.jsonl",
+      "remote_path": "diagnostics/_slow_evaluator_partial_for_parity_check/pi_055/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "c004affd780f8033c6a8a5bf8a3de1449ba349e661af1b2c322bd76f1fe4826c",
+      "size_bytes": 14107248
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/_batched_parity_pi005/prompt_length_audit.json",
+      "remote_path": "diagnostics/_batched_parity_pi005/prompt_length_audit.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "1bced32e96f59ef1de0918cf3eb7a640c7be3c23ae00a11056c8a2d3f623cd2a",
+      "size_bytes": 79
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/_batched_parity_pi005/snapshot_eval_manifest.json",
+      "remote_path": "diagnostics/_batched_parity_pi005/snapshot_eval_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "39b4073c1673e8ac7767202012f9f9830780476cf84150dbd3c74f46976fac5d",
+      "size_bytes": 4289
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/_batched_parity_pi005/snapshot_raw.jsonl",
+      "remote_path": "diagnostics/_batched_parity_pi005/snapshot_raw.jsonl",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "5f49812d01f336dc397882b44fa4f9068aab925408003df62fe495e23ae7a9e8",
+      "size_bytes": 27767970
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/docs/superpowers/specs/2026-09-03-maxrl-objective-intervention-amendment.md",
+      "remote_path": "provenance/2026-09-03-maxrl-objective-intervention-amendment.md",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "d2d58b5fb96daa85b05b71363c5bebe050d7fefb75e01e1c0cba7d310a542f92",
+      "size_bytes": 8270
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/docs/superpowers/specs/2026-09-03-maxrl-finite-g-signal-shape-pre-h1-outcome-addendum.md",
+      "remote_path": "provenance/2026-09-03-maxrl-finite-g-signal-shape-pre-h1-outcome-addendum.md",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "f5f8ec3ed07f142b03589006a943a7cde39a2c7c9c91c9f4021d8828882488cc",
+      "size_bytes": 5390
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/docs/superpowers/checkpoints/2026-09-03-maxrl-h1-shakedown-postoutcome-gate.md",
+      "remote_path": "provenance/2026-09-03-maxrl-h1-shakedown-postoutcome-gate.md",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "338f14b91dd0feb7f63518169441029e78e08eef37e1496c974f415487428d37",
+      "size_bytes": 6182
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/docs/superpowers/checkpoints/2026-09-04-maxrl-canonical-structural-pass.md",
+      "remote_path": "provenance/2026-09-04-maxrl-canonical-structural-pass.md",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "c6b2f5adcbd38911192413da226df76e8e17fd6ebf63d5e1ff0978e4852d4a17",
+      "size_bytes": 2549
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/docs/superpowers/specs/2026-09-04-maxrl-canonical-fixed-panel-preoutcome-addendum.md",
+      "remote_path": "provenance/2026-09-04-maxrl-canonical-fixed-panel-preoutcome-addendum.md",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "3904e88f14de1c7a800ad7164f25e4c34f697578963437e295259b1d5d26dbbd",
+      "size_bytes": 4876
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/docs/superpowers/checkpoints/2026-09-04-maxrl-cbank-batching-parity-fail.md",
+      "remote_path": "provenance/2026-09-04-maxrl-cbank-batching-parity-fail.md",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "eb21722212c54d97fe486205bedb7f0187ab58587a0aefe14856a1f00a4cd8d0",
+      "size_bytes": 2252
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/docs/superpowers/checkpoints/2026-09-05-maxrl-h2-h3-postoutcome-gate.md",
+      "remote_path": "provenance/2026-09-05-maxrl-h2-h3-postoutcome-gate.md",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "ae516cc2cd8ee15892846fa97e288eda0932b94e860228cc866c14d7c115d191",
+      "size_bytes": 7157
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/reference_inputs/canonical_grpo_seed42_h1_reference/provision_manifest.json",
+      "remote_path": "provenance/canonical_grpo_seed42_reference_provision_manifest.json",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "fbeb983d4971b86e539f7c3ee276238178e34fecf18e77d21b59832a046fa951",
+      "size_bytes": 2470
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_canonical_seed42.log",
+      "remote_path": "logs/maxrl_canonical_seed42.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "e20ae81fde61ff9a2b169d86188b88317622a1cb56d80c814da1e03575209f6c",
+      "size_bytes": 702418
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_pilot_20.log",
+      "remote_path": "logs/maxrl_pilot_20.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "666ac3c142f4b1423afe4a4a30691235b76055f805ecdd5a86be75ec6ba4779a",
+      "size_bytes": 8897
+    },
+    {
+      "local_path": "/workspace/rlvr_behavior_probe_runpod/controlled_run_outputs/maxrl_shakedown_150.log",
+      "remote_path": "logs/maxrl_shakedown_150.log",
+      "remote_repo": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05",
+      "repo_type": "dataset",
+      "sha256": "0a0e26e1ba8a9b60eaf2881bc1c00e65645df2c64771799375898b8f7015a3c4",
+      "size_bytes": 31840
+    }
+  ],
+  "git_status_short": "?? analyses/canonical_maxrl_grpo_objective_comparison/\n?? analyses/canonical_maxrl_ledger_crossfit_signal/\n?? analyses/canonical_maxrl_snapshot_crossfit/\n?? hf_bundles/2026-09-05-canonical-maxrl-seed42/backup_manifest.json",
+  "model_repo": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+  "packaging_git_head": "c61e5ddd6c323457639ecd850ae7fba02561669a",
+  "pi0_lineage_id": "f89fc90226a67a6a3c7374f9c13abadfcecda88f397ab812fa4130f1f425605b",
+  "repository": "UnitedSnakes/rlvr_behavior_probe_runpod",
+  "sequential_evaluator_implementation_commit": "1c26b1f0f3c5f6ea1187fd00318587388a891272",
+  "status": "local_hash_manifest_complete_remote_upload_not_yet_verified",
+  "total_bytes": 39526402644,
+  "training_execution_commit": "981475795538eee391c7e86aa022ee609b539770"
+}

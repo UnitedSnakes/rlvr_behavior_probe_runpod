@@ -69,8 +69,14 @@ def verify_pi0_for_grpo(pi0_dir: Path) -> dict:
     }
 
 
-def build_grpo_arguments(config: dict, output_dir: Path, *, max_steps: int | None = None):
-    validate_grpo_config(config)
+def build_grpo_arguments(
+    config: dict,
+    output_dir: Path,
+    *,
+    max_steps: int | None = None,
+    config_validator=validate_grpo_config,
+):
+    config_validator(config)
     GRPOConfig, _, _ = _load_grpo_classes()
     kwargs = {
         "output_dir": str(Path(output_dir)),
@@ -171,11 +177,11 @@ class PolicySnapshotCallback(TrainerCallback):
 
 
 def validate_pilot_steps(mode: str, pilot_steps: int | None) -> int | None:
-    if mode not in {"pilot", "canonical"}:
-        raise ValueError("mode must be 'pilot' or 'canonical'")
-    if mode == "canonical":
+    if mode not in {"pilot", "canonical", "replication"}:
+        raise ValueError("mode must be 'pilot', 'canonical', or 'replication'")
+    if mode in {"canonical", "replication"}:
         if pilot_steps is not None:
-            raise ValueError("canonical mode does not allow a max-step override")
+            raise ValueError(f"{mode} mode does not allow a max-step override")
         return None
     if pilot_steps is None or not 20 <= int(pilot_steps) <= 500:
         raise ValueError("pilot mode requires --pilot-steps between 20 and 500")
@@ -197,7 +203,7 @@ def _write_grpo_manifest(
 ) -> None:
     payload = {
         "mode": mode,
-        "scientific_use": mode == "canonical",
+        "scientific_use": mode in {"canonical", "replication"},
         "pilot_steps": pilot_steps,
         "config": config,
         "runtime_batch": runtime_batch,
@@ -241,13 +247,18 @@ def _run_controlled_grpo(
     manifest_filename: str = "grpo_run_manifest.json",
     manifest_extra: dict | None = None,
     result_extra: dict | None = None,
+    config_transform=None,
+    config_validator=validate_grpo_config,
+    runtime_batch_validator=validate_grpo_runtime_batch,
 ) -> dict:
     pilot_steps = validate_pilot_steps(mode, pilot_steps)
     pi0_verification = verify_pi0_for_grpo(pi0_dir)
 
     config = load_config(Path(config_path))
-    validate_grpo_config(config)
-    runtime_batch = validate_grpo_runtime_batch(
+    if config_transform is not None:
+        config = config_transform(config)
+    config_validator(config)
+    runtime_batch = runtime_batch_validator(
         config,
         world_size=resolve_runtime_world_size(),
     )
@@ -289,7 +300,12 @@ def _run_controlled_grpo(
     )
     train_dataset = Dataset.from_list(rows)
     trainer_output = destination / "trainer"
-    args = build_grpo_arguments(config, trainer_output, max_steps=pilot_steps)
+    args = build_grpo_arguments(
+        config,
+        trainer_output,
+        max_steps=pilot_steps,
+        config_validator=config_validator,
+    )
     _, GRPOTrainer, _ = _load_grpo_classes()
 
     recorder = recorder_factory()
@@ -306,7 +322,7 @@ def _run_controlled_grpo(
     )
 
     callbacks = []
-    if mode == "canonical":
+    if mode in {"canonical", "replication"}:
         callbacks.append(
             PolicySnapshotCallback(
                 output_dir=destination,
@@ -329,7 +345,7 @@ def _run_controlled_grpo(
 
     result = {
         "mode": mode,
-        "scientific_use": mode == "canonical",
+        "scientific_use": mode in {"canonical", "replication"},
         "pilot_steps": pilot_steps,
         "pi0_lineage_id": pi0_verification["lineage_id"],
         "gsm8k_dataset_sha": gsm8k_sha,

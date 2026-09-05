@@ -20,10 +20,12 @@ The active pre-outcome replication plan is:
 
 - `docs/superpowers/specs/2026-09-05-a100-six-run-deadline-replication-preoutcome-amendment.md`
 - `docs/superpowers/specs/2026-09-05-a100-disable-gradient-checkpointing-preoutcome-amendment.md`
+- `docs/superpowers/specs/2026-09-05-a100-vllm-utilization-020-preoutcome-amendment.md`
 
-The latest amendment disables gradient checkpointing for all six single-A100
-replication runs, conditional on fresh 20-step GRPO and MaxRL engineering
-pilots passing memory and structural gates. The same-day A40 seed43/44 plan was
+The latest amendments disable gradient checkpointing for all six single-A100
+replication runs and reduce colocated vLLM memory utilization to 0.20 after the
+0.30 no-checkpointing pilot OOMed before step 1. Fresh 20-step GRPO and MaxRL
+engineering pilots must pass memory and structural gates before full runs. The same-day A40 seed43/44 plan was
 superseded before any replication outcome after the available 8xA40 host
 failed the default NCCL gate. Earlier same-day A100/A40 plans are retained as
 provenance only.

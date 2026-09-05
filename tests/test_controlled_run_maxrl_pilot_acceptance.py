@@ -151,6 +151,118 @@ def _write_valid_pilot(output_dir: Path, *, steps: int = 20) -> None:
             handle.close()
 
 
+
+def _write_valid_a100_replication_pilot(output_dir: Path, *, steps: int = 20) -> None:
+    config = _load_config()
+    config["canonical_world_size"] = 1
+    config["per_device_train_batch_size"] = 8
+    manifest = {
+        "mode": "pilot",
+        "scientific_use": False,
+        "pilot_steps": steps,
+        "config": config,
+        "runtime_batch": {
+            "world_size": 1,
+            "per_device_train_batch_size": 8,
+            "gradient_accumulation_steps": 4,
+            "global_optimizer_batch_size": 32,
+            "generation_batch_size": 32,
+            "steps_per_generation": 4,
+            "num_generations": 16,
+            "unique_prompts_per_generation_batch": 2,
+        },
+        "pi0_manifest": {"kind": "pi0"},
+        "pi0_lineage_id": CANONICAL_PI0_LINEAGE_ID,
+        "gsm8k_dataset_sha": "gsm8k-sha",
+        "prompt_length_audit": {"max_prompt_tokens": 12},
+        "signal_ledger": {
+            "enabled": True,
+            "directory": "signal_ledger",
+            "step_semantics": "generation_global_step",
+            "raw_log_rho_semantics": "counterfactual_sequence_sum_of_token_logprob_differences",
+            "actual_is_semantics": "token_truncate",
+        },
+        "core_diagnostics": [],
+        "objective": {
+            "objective_family": "MaxRL",
+            "objective_intervention": "replace_group_advantages_only",
+            "advantage_estimator": "practical_maxrl",
+            "rollouts_per_prompt": 16,
+            "effective_maxrl_order": 15,
+            "all_failure_behavior": "zero_group_gradient",
+            "maxrl_denominator_epsilon": 0.0,
+            "trainer_composition": [
+                "trl.GRPOTrainer",
+                "PracticalMaxRLTrainer",
+                "SignalLedgerGRPOTrainer",
+            ],
+            "grouping_semantics": "trl_global_reward_order_grouped_by_num_generations",
+        },
+        "replication": {
+            "hardware_contract": "1x NVIDIA A100 80GB; exactly one visible CUDA device",
+        },
+    }
+    output_dir.mkdir(parents=True, exist_ok=True)
+    (output_dir / "maxrl_run_manifest.json").write_text(
+        json.dumps(manifest), encoding="utf-8"
+    )
+
+    ledger_dir = output_dir / "signal_ledger"
+    ledger_dir.mkdir()
+    path = ledger_dir / "signal_ledger_test_rank0.jsonl"
+    with path.open("w", encoding="utf-8") as handle:
+        for step in range(steps):
+            groups = [
+                (1000 + 2 * step, 1),
+                (1001 + 2 * step, 0 if step % 2 == 0 else 16),
+            ]
+            for dataset_index, k in groups:
+                rewards = [1.0] * k + [0.0] * (16 - k)
+                for reward in rewards:
+                    handle.write(
+                        json.dumps(
+                            _ledger_row(
+                                step=step,
+                                rank=0,
+                                dataset_index=dataset_index,
+                                reward=reward,
+                                k=k,
+                            )
+                        )
+                        + "\n"
+                    )
+
+
+def test_validate_maxrl_pilot_accepts_single_a100_replication_structure(tmp_path):
+    output_dir = tmp_path / "a100-pilot"
+    _write_valid_a100_replication_pilot(output_dir)
+
+    report = validate_maxrl_pilot(output_dir, profile="a100-replication")
+
+    assert report["status"] == "PASS"
+    assert report["steps"] == 20
+    assert report["rows"] == 640
+    assert report["groups"] == 40
+    assert report["rank_files"] == 1
+    assert report["group_size"] == 16
+    assert report["max_advantage_error"] == pytest.approx(0.0)
+    assert report["aggregate_token_is_ess_fraction"] == pytest.approx(1.0)
+
+
+def test_maxrl_pilot_acceptance_cli_supports_a100_replication_profile(
+    tmp_path, capsys
+):
+    output_dir = tmp_path / "a100-pilot"
+    _write_valid_a100_replication_pilot(output_dir)
+
+    acceptance.main(
+        [str(output_dir), "--profile", "a100-replication"]
+    )
+
+    report = json.loads(capsys.readouterr().out)
+    assert report["status"] == "PASS"
+    assert report["rank_files"] == 1
+
 def _rewrite_first_row(output_dir: Path, mutate) -> None:
     path = sorted((output_dir / "signal_ledger").glob("*.jsonl"))[0]
     lines = path.read_text(encoding="utf-8").splitlines()

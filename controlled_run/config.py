@@ -81,6 +81,9 @@ GRPO_1XA100_REPLICATION_OVERRIDES = {
 }
 
 
+GRPO_A40_REPLICATION_ALLOWED_SEEDS = (43, 44)
+
+
 def load_config(path: Path) -> dict:
     path = Path(path)
     payload = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -166,6 +169,54 @@ def _validate_grpo_structure(config: dict, *, label: str) -> None:
 def validate_grpo_config(config: dict) -> None:
     _validate_exact(config, GRPO_INVARIANTS, "GRPO")
     _validate_grpo_structure(config, label="GRPO")
+
+
+def build_grpo_a40_replication_config(
+    canonical_config: dict,
+    *,
+    seed: int,
+) -> dict:
+    """Derive a matched A40 replication config; only seed may differ."""
+    validate_grpo_config(canonical_config)
+    seed = int(seed)
+    if seed not in GRPO_A40_REPLICATION_ALLOWED_SEEDS:
+        raise ValueError(
+            "A40 replication seed must be one of "
+            f"{GRPO_A40_REPLICATION_ALLOWED_SEEDS}; got {seed}"
+        )
+    config = dict(canonical_config)
+    config["seed"] = seed
+    validate_grpo_a40_replication_config(config)
+    return config
+
+
+def validate_grpo_a40_replication_config(config: dict) -> None:
+    seed = config.get("seed")
+    if not isinstance(seed, int) or isinstance(seed, bool):
+        raise ValueError("A40 replication seed must be an integer")
+    if seed not in GRPO_A40_REPLICATION_ALLOWED_SEEDS:
+        raise ValueError(
+            "A40 replication seed must be one of "
+            f"{GRPO_A40_REPLICATION_ALLOWED_SEEDS}; got {seed}"
+        )
+    expected = dict(GRPO_INVARIANTS)
+    expected["seed"] = seed
+    _validate_exact(config, expected, "A40 GRPO replication")
+    _validate_grpo_structure(config, label="A40 GRPO replication")
+
+
+def validate_grpo_a40_replication_runtime_batch(
+    config: dict,
+    *,
+    world_size: int,
+) -> dict:
+    validate_grpo_a40_replication_config(config)
+    return _validate_grpo_runtime_geometry(
+        config,
+        world_size=world_size,
+        expected_world_size=2,
+        label="A40 GRPO replication",
+    )
 
 
 def build_grpo_1xa100_replication_config(

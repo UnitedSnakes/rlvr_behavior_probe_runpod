@@ -299,10 +299,12 @@ artifacts.
 Prefer raw computational outputs under `controlled_run_outputs/`, which is
 Git-ignored. Do not use `git add .` as an experiment-backup strategy.
 
-For the 2026-09-03 analysis packaging map, read:
+For the analysis packaging maps, read:
 
 - `hf_bundles/2026-09-03-canonical-grpo-seed42/README.md`
 - `hf_bundles/2026-09-03-canonical-grpo-seed42/manifest.json`
+- `hf_bundles/2026-09-05-canonical-maxrl-seed42/README.md`
+- `hf_bundles/2026-09-05-canonical-maxrl-seed42/manifest.json`
 
 ## RunPod execution contract
 

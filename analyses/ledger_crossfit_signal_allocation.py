@@ -668,6 +668,7 @@ def run_analysis(
     expected_indices: Iterable[int] = DEFAULT_EXPECTED_INDICES,
     verify_known_integrity: bool = True,
     allow_rank_local_launch_ids: bool = False,
+    objective_label: str = "GRPO",
 ) -> dict:
     schedule = {int(pct): int(step) for pct, step in snapshot_schedule.items()}
     indices = [int(index) for index in expected_indices]
@@ -712,21 +713,21 @@ def run_analysis(
         field="cumulative_abs_advantage_per_panel_question",
         out_path=destination / "cumulative_abs_advantage_per_panel_question.png",
         ylabel="Cumulative Σ|advantage| per panel question",
-        title="Canonical realized GRPO advantage exposure by frozen p0 bin",
+        title=f"Canonical realized {objective_label} advantage exposure by frozen p0 bin",
     )
     make_signal_plot(
         symmetric,
         field="active_group_fraction",
         out_path=destination / "active_group_fraction.png",
         ylabel="Active-group fraction among exposed groups",
-        title="Canonical finite-G active-group rate by frozen p0 bin",
+        title=f"Canonical {objective_label} finite-G active-group rate by frozen p0 bin",
     )
     make_signal_plot(
         symmetric,
         field="exploratory_dapo_is_abs_mass_per_panel_question",
         out_path=destination / "exploratory_dapo_is_abs_mass_per_panel_question.png",
         ylabel="Exploratory |A| × token-IS mass per panel question",
-        title="Exploratory pre-PPO DAPO numerator-mass proxy by frozen p0 bin",
+        title=f"Exploratory {objective_label} pre-PPO DAPO numerator-mass proxy by frozen p0 bin",
     )
 
     panel_set = set(indices)
@@ -788,6 +789,12 @@ def main(argv: list[str] | None = None) -> None:
             "validated; rank/file and canonical geometry checks still apply."
         ),
     )
+    parser.add_argument(
+        "--objective-label",
+        choices=("GRPO", "MaxRL"),
+        default="GRPO",
+        help="Label used only in generated plot titles.",
+    )
     args = parser.parse_args(argv)
 
     result = run_analysis(
@@ -799,6 +806,7 @@ def main(argv: list[str] | None = None) -> None:
         expected_indices=DEFAULT_EXPECTED_INDICES,
         verify_known_integrity=not args.skip_known_integrity_check,
         allow_rank_local_launch_ids=args.allow_rank_local_launch_ids,
+        objective_label=args.objective_label,
     )
 
     integrity = result["integrity"]

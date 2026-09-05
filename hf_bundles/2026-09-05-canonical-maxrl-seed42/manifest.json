@@ -1,0 +1,38 @@
+{
+  "bundle_name": "canonical-maxrl-seed42-2026-09-05",
+  "bundle_date": "2026-09-05",
+  "status": "backup_code_prepared_remote_upload_not_yet_verified",
+  "repository": "UnitedSnakes/rlvr_behavior_probe_runpod",
+  "branch": "codex/signal-ledger",
+  "training_execution_commit": "981475795538eee391c7e86aa022ee609b539770",
+  "sequential_evaluator_implementation_commit": "1c26b1f0f3c5f6ea1187fd00318587388a891272",
+  "pi0_lineage_id": "f89fc90226a67a6a3c7374f9c13abadfcecda88f397ab812fa4130f1f425605b",
+  "canonical_training": {
+    "steps": 3736,
+    "rows": 119552,
+    "groups": 7472,
+    "group_size": 16,
+    "rank_files": 2,
+    "policy_snapshots": 20,
+    "aggregate_token_is_ess_fraction": 0.9980541312524671
+  },
+  "fixed_panel": {
+    "panel": "GSM8K train indices 0..255",
+    "snapshots": 20,
+    "rollouts_per_question": 16,
+    "questions_per_snapshot": 256,
+    "question_seed_start": 4275000,
+    "evaluator": "sequential"
+  },
+  "frozen_outcome": {
+    "H1": "SUPPORTED",
+    "H2": "SUPPORTED",
+    "H3_primary_explanation": "NOT_SUPPORTED",
+    "H4": "NOT_ACTIVE"
+  },
+  "private_hf_targets": {
+    "model": "HKReporter/rlvr-behavior-probe-maxrl-canonical-seed42-2026-09-05",
+    "dataset": "HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05"
+  },
+  "remote_upload_verified": false
+}

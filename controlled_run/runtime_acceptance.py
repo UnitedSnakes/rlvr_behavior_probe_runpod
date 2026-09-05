@@ -35,6 +35,13 @@ def collect_runtime_status() -> dict[str, Any]:
         "cuda_available": bool(torch.cuda.is_available()),
         "torch_cuda": torch.version.cuda,
         "gpu_name": torch.cuda.get_device_name(0) if torch.cuda.is_available() else "unavailable",
+        "visible_cuda_devices": int(torch.cuda.device_count()) if torch.cuda.is_available() else 0,
+        "gpu_total_memory_gib": (
+            float(torch.cuda.get_device_properties(0).total_memory) / (1024 ** 3)
+            if torch.cuda.is_available()
+            else 0.0
+        ),
+        "bf16_supported": bool(torch.cuda.is_bf16_supported()) if torch.cuda.is_available() else False,
         "flash_attention_2_available": bool(is_flash_attn_2_available()),
         "packages": {
             "torch": torch.__version__,
@@ -111,6 +118,41 @@ def validate_a40_runtime(
             f"{required_attention_backend!r}"
         )
 
+    return status
+
+
+def validate_a100_replication_runtime(
+    status: dict[str, Any],
+    *,
+    required_attention_backend: str,
+) -> dict[str, Any]:
+    # Reuse the exact package/CUDA/FA2 acceptance contract, then enforce
+    # the single 80GB-class A100 execution lane.
+    validate_a40_runtime(
+        {**status, "gpu_name": "NVIDIA A40"},
+        required_attention_backend=required_attention_backend,
+    )
+
+    gpu_name = str(status.get("gpu_name", ""))
+    if "A100" not in gpu_name:
+        raise RuntimeError(
+            "1xA100 replication runtime requires an NVIDIA A100; "
+            f"found {gpu_name!r}"
+        )
+    visible = int(status.get("visible_cuda_devices", 0))
+    if visible != 1:
+        raise RuntimeError(
+            "1xA100 replication runtime requires exactly one visible CUDA device; "
+            f"found {visible}. Set CUDA_VISIBLE_DEVICES to one GPU."
+        )
+    memory_gib = float(status.get("gpu_total_memory_gib", 0.0))
+    if memory_gib < 70.0:
+        raise RuntimeError(
+            "1xA100 replication runtime requires an 80GB-class A100; "
+            f"found {memory_gib:.2f} GiB"
+        )
+    if status.get("bf16_supported") is not True:
+        raise RuntimeError("1xA100 replication runtime requires BF16 support")
     return status
 
 
@@ -206,7 +248,13 @@ def validate_model_probe_result(result: dict[str, Any]) -> dict[str, Any]:
 
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(
-        description="Validate the CUDA/A40 runtime required by controlled training."
+        description="Validate the controlled CUDA runtime required by training."
+    )
+    parser.add_argument(
+        "--gpu-family",
+        choices=("a40", "a100"),
+        default="a40",
+        help="A100 selects the frozen single-GPU replication runtime.",
     )
     parser.add_argument(
         "--attention-backend",
@@ -225,14 +273,21 @@ def main(argv: list[str] | None = None) -> None:
 
     status = collect_runtime_status()
     print(json.dumps(status, indent=2, sort_keys=True))
-    validate_a40_runtime(status, required_attention_backend=args.attention_backend)
-    print("A40 runtime static acceptance: PASS")
+    if args.gpu_family == "a40":
+        validate_a40_runtime(status, required_attention_backend=args.attention_backend)
+        print("A40 runtime static acceptance: PASS")
+    else:
+        validate_a100_replication_runtime(
+            status,
+            required_attention_backend=args.attention_backend,
+        )
+        print("1xA100 replication runtime static acceptance: PASS")
 
     if args.probe_model:
         probe = run_model_probe(attention_backend=args.attention_backend)
         print(json.dumps({"model_probe": probe}, indent=2, sort_keys=True))
         validate_model_probe_result(probe)
-        print("A40 FlashAttention2 model probe: PASS")
+        print(f"{args.gpu_family.upper()} FlashAttention2 model probe: PASS")
 
 
 if __name__ == "__main__":

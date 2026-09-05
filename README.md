@@ -431,7 +431,10 @@ conversion or another checkpoint.
 **Metal results are for development, smoke tests, and small exploratory runs.
 CUDA vLLM remains the canonical measurement backend.**
 
-### Active controlled 2×A40 RunPod workflow
+### Controlled 2×A40 RunPod workflow
+
+This remains the preferred topology for any future matched seed43/44
+replication. No new GPU run is part of the current ATTRIB-writing handoff.
 
 The controlled CUDA lane uses the repository-owned image:
 

@@ -16,19 +16,17 @@ The current live MaxRL scientific handoff is:
 
 - `docs/superpowers/checkpoints/2026-09-05-maxrl-h2-h3-postoutcome-gate.md`
 
-The active pre-outcome replication plan is:
+The active replication status is:
 
-- `docs/superpowers/specs/2026-09-05-a100-six-run-deadline-replication-preoutcome-amendment.md`
+- `docs/superpowers/checkpoints/2026-09-05-a100-full-replication-aborted-before-scientific-use.md`
 
-The no-checkpointing / reduced-vLLM speed path was rejected after disposable
-engineering pilots OOMed; see
-`docs/superpowers/checkpoints/2026-09-05-a100-speed-experiment-rejected-revert-baseline.md`.
-The active single-A100 replication contract is back to
-`gradient_checkpointing=True` and `vllm_gpu_memory_utilization=0.30`.
-The same-day A40 seed43/44 plan was superseded before any replication outcome
-after the available 8xA40 host failed the default NCCL gate. Earlier same-day
-A100/A40 plans are retained as provenance only.
-
+The single-A100 path is engineering-qualified but no longer active for full
+scientific replication. Any partial A100 full-run artifacts are provenance only
+and must not enter scientific claims. For the imminent ATTRIB submission, the
+accepted scientific evidence remains the matched A40 seed42 GRPO/MaxRL result
+bundle. If multi-seed replication is resumed, prefer matched A40 seed43/44 runs
+under the original A40 execution contract unless a new pre-outcome topology
+migration decision explicitly establishes A100 as the new replication block.
 For pre-outcome provenance, also read:
 
 - `docs/superpowers/checkpoints/2026-09-04-maxrl-canonical-structural-pass.md`

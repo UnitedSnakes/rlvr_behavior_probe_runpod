@@ -18,7 +18,10 @@ The current live MaxRL scientific handoff is:
 
 The active pre-outcome replication plan is:
 
-- `docs/superpowers/specs/2026-09-05-single-a100-seed-replication-preoutcome-amendment.md`
+- `docs/superpowers/specs/2026-09-05-a40-seed43-44-replication-preoutcome-amendment.md`
+
+The same-day single-A100 plan was superseded before any A100 replication
+outcome and is retained only as provenance.
 
 For pre-outcome provenance, also read:
 

@@ -220,7 +220,6 @@ def test_build_snapshot_manifest_records_policy_panel_sampling_and_dataset_prove
         sampling_settings={"num_generations": 32, "temperature": 0.8},
         prompt_audit={"count": 256, "limit": 512},
         runtime={"gpu_name": "NVIDIA A40"},
-        request_batch_size=32,
     )
 
     assert manifest["mode"] == "canonical_snapshot_eval"
@@ -237,22 +236,15 @@ def test_build_snapshot_manifest_records_policy_panel_sampling_and_dataset_prove
         "sha": "gsm8k-sha",
     }
     assert manifest["sampling"]["num_generations"] == 32
-    assert manifest["request_batch_size"] == 32
     assert manifest["grpo_config_sha256"] == eval_snapshot.sha256_file(config_path)
 
 
-def test_snapshot_sampling_batches_requests_without_changing_per_question_seeds(
-    monkeypatch,
-    tmp_path,
-):
+def test_snapshot_sampling_inherits_frozen_config_and_records_token_semantics(monkeypatch, tmp_path):
     import controlled_run.eval_snapshot as eval_snapshot
 
     config = load_config(CONFIG_PATH)
-    settings = eval_snapshot.canonical_sampling_settings(
-        config,
-        num_generations_override=2,
-    )
-    captured = {"calls": []}
+    settings = eval_snapshot.canonical_sampling_settings(config, num_generations_override=2)
+    captured = {}
 
     class FakeTokenizer:
         eos_token_id = 151643
@@ -261,7 +253,7 @@ def test_snapshot_sampling_batches_requests_without_changing_per_question_seeds(
         def apply_chat_template(self, prompt, tokenize, add_generation_prompt):
             assert tokenize is True
             assert add_generation_prompt is True
-            return [101, int(prompt[-1]["content"])]
+            return [101, 202]
 
     class FakeTokensPrompt:
         def __init__(self, prompt_token_ids):
@@ -269,7 +261,7 @@ def test_snapshot_sampling_batches_requests_without_changing_per_question_seeds(
 
     class FakeSamplingParams:
         def __init__(self, **kwargs):
-            self.kwargs = kwargs
+            captured["params"] = kwargs
 
     class FakeOutput:
         def __init__(self, text, token_ids, finish_reason):
@@ -278,112 +270,48 @@ def test_snapshot_sampling_batches_requests_without_changing_per_question_seeds(
             self.finish_reason = finish_reason
 
     class FakeRequestOutput:
-        def __init__(self, marker):
-            self.outputs = [
-                FakeOutput(f"correct-{marker}-0", [1, 151643], "stop"),
-                FakeOutput(f"correct-{marker}-1", [2, 151643], "stop"),
-            ]
+        outputs = [
+            FakeOutput("correct", [1, 151643], "stop"),
+            FakeOutput("also correct but capped", [2, 3], "length"),
+        ]
 
     class FakeLLM:
         def generate(self, prompts, sampling_params, use_tqdm):
+            assert prompts[0].prompt_token_ids == [101, 202]
             assert use_tqdm is False
-            captured["calls"].append(
-                {
-                    "prompts": [item.prompt_token_ids for item in prompts],
-                    "params": [item.kwargs for item in sampling_params],
-                }
-            )
-            return [
-                FakeRequestOutput(prompt.prompt_token_ids[-1])
-                for prompt in prompts
-            ]
+            return [FakeRequestOutput()]
 
-    monkeypatch.setattr(
-        eval_snapshot,
-        "gsm8k_binary_reward",
-        lambda texts, answer: [1.0, 1.0],
-    )
+    monkeypatch.setattr(eval_snapshot, "gsm8k_binary_reward", lambda texts, answer: [1.0, 1.0])
 
     output_path = tmp_path / "snapshot_raw.jsonl"
     eval_snapshot.sample_snapshot_rows(
         llm=FakeLLM(),
         tokenizer=FakeTokenizer(),
         indexed_rows=[
-            (
-                17,
-                {
-                    "prompt": [{"role": "user", "content": "17"}],
-                    "answer": "7",
-                },
-            ),
-            (
-                18,
-                {
-                    "prompt": [{"role": "user", "content": "18"}],
-                    "answer": "8",
-                },
-            ),
-            (
-                19,
-                {
-                    "prompt": [{"role": "user", "content": "19"}],
-                    "answer": "9",
-                },
-            ),
+            (17, {"prompt": [{"role": "user", "content": "q"}], "answer": "7"})
         ],
         settings=settings,
         output_path=output_path,
         sampling_params_cls=FakeSamplingParams,
         tokens_prompt_cls=FakeTokensPrompt,
-        request_batch_size=2,
     )
 
-    assert len(captured["calls"]) == 2
-    assert captured["calls"][0]["prompts"] == [[101, 17], [101, 18]]
-    assert captured["calls"][1]["prompts"] == [[101, 19]]
+    assert captured["params"] == {
+        "n": 2,
+        "temperature": config["temperature"],
+        "top_p": config["top_p"],
+        "top_k": config["top_k"],
+        "repetition_penalty": config["repetition_penalty"],
+        "max_tokens": config["max_completion_length"],
+        "seed": 4_275_017,
+    }
 
-    params = [
-        item
-        for call in captured["calls"]
-        for item in call["params"]
-    ]
-    assert [item["seed"] for item in params] == [
-        4_275_017,
-        4_275_018,
-        4_275_019,
-    ]
-    for item in params:
-        assert item["n"] == 2
-        assert item["temperature"] == config["temperature"]
-        assert item["top_p"] == config["top_p"]
-        assert item["top_k"] == config["top_k"]
-        assert item["repetition_penalty"] == config["repetition_penalty"]
-        assert item["max_tokens"] == config["max_completion_length"]
-
-    records = [
-        json.loads(line)
-        for line in output_path.read_text(encoding="utf-8").splitlines()
-    ]
-    assert [row["dataset_index"] for row in records] == [17, 18, 19]
-    assert [row["question_seed"] for row in records] == [
-        4_275_017,
-        4_275_018,
-        4_275_019,
-    ]
-    assert all(row["n_rollouts"] == 2 for row in records)
-
-
-def test_snapshot_sampling_rejects_nonpositive_request_batch_size(tmp_path):
-    import controlled_run.eval_snapshot as eval_snapshot
-
-    with pytest.raises(ValueError, match="request_batch_size"):
-        eval_snapshot.sample_snapshot_rows(
-            llm=object(),
-            tokenizer=object(),
-            indexed_rows=[],
-            settings={},
-            output_path=tmp_path / "out.jsonl",
-            sampling_params_cls=object,
-            tokens_prompt_cls=object,
-            request_batch_size=0,
-        )
+    record = json.loads(output_path.read_text(encoding="utf-8"))
+    assert record["dataset_index"] == 17
+    assert record["question_seed"] == 4_275_017
+    assert record["n_correct"] == 2
+    assert record["n_terminated"] == 1
+    assert record["n_reward"] == 1
+    assert record["rollouts"][1]["correct"] is True
+    assert record["rollouts"][1]["terminated"] is False
+    assert record["rollouts"][1]["canonical_reward"] == 0

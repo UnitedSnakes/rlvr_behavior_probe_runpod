@@ -12,10 +12,15 @@ As of 2026-09-03 the current scientific post-outcome handoff is:
 
 - `docs/superpowers/checkpoints/2026-09-03-exposure-split-postoutcome-and-paper-claim-freeze.md`
 
-The current live MaxRL execution handoff is:
+The current live MaxRL scientific handoff is:
+
+- `docs/superpowers/checkpoints/2026-09-05-maxrl-h2-h3-postoutcome-gate.md`
+
+For pre-outcome provenance, also read:
 
 - `docs/superpowers/checkpoints/2026-09-04-maxrl-canonical-structural-pass.md`
 - `docs/superpowers/specs/2026-09-04-maxrl-canonical-fixed-panel-preoutcome-addendum.md`
+- `docs/superpowers/checkpoints/2026-09-04-maxrl-cbank-batching-parity-fail.md`
 
 For the MaxRL scientific hypothesis, also read:
 
@@ -160,16 +165,48 @@ nonfinite_numeric_fields = 0
 status = PASS
 ```
 
-The canonical MaxRL fixed-panel K=16 C-bank behavior has not yet been deblinded.
-Evaluate all 20 snapshots using the pre-outcome 2026-09-04 protocol before
-interpreting H2/H3.
+The canonical MaxRL fixed-panel K=16 C-bank behavior has now been fully
+deblinded under the same sequential evaluator structure as canonical GRPO.
 
-The pre-outcome hypothesis hierarchy remains:
+The frozen H2/H3 comparison supports H2:
 
-1. H1 mechanism gate: realized signal allocation should qualitatively shift toward lower `p0` relative to GRPO if MaxRL is implemented faithfully.
-2. H2 primary behavioral prediction: signal allocation may move materially while `DeltaC` allocation changes much less.
-3. H3 predeclared alternative: if signal and behavior both shift, objective allocation influences behavioral allocation.
-4. H4: if signal does not move as expected, stop interpretation and inspect estimator/implementation.
+```text
+H1 mechanism gate: SUPPORTED
+H2 primary behavioral prediction: SUPPORTED
+H3 alternative as the primary explanation: NOT SUPPORTED
+H4 diagnostic stop: NOT ACTIVE
+```
+
+At 100%, MaxRL/GRPO cumulative signal ratios across increasing frozen p0 bins
+are approximately:
+
+```text
+0          2.205x
+(0,.25]    1.720x
+(.25,.5]   0.988x
+(.5,.75]   0.592x
+(.75,1)    0.463x
+```
+
+while the corresponding MaxRL-minus-GRPO DeltaC contrasts are:
+
+```text
+0         -4.712 pp
+(0,.25]   -0.437 pp
+(.25,.5]  -1.908 pp
+(.5,.75]  -0.620 pp
+(.75,1)   -0.156 pp
+```
+
+The full 5%-through-100% trajectory shows the same qualitative separation:
+signal allocation is persistently left-shifted, whereas the DeltaC objective
+contrast fluctuates rather than moving persistently in the corresponding
+direction. This supports the predeclared H2 claim that local signal
+reallocation does not automatically localize behavioral improvement.
+
+The canonical MaxRL behavioral result must remain separated into DeltaC,
+DeltaT, and DeltaR. Do not reinterpret reward movement alone as correctness
+movement.
 
 ## Designs and amendments
 

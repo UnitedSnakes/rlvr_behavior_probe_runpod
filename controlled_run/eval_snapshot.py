@@ -224,96 +224,59 @@ def sample_snapshot_rows(
     output_path: Path,
     sampling_params_cls,
     tokens_prompt_cls,
-    request_batch_size: int = 32,
 ) -> None:
-    """Evaluate snapshot questions with per-request seeds and batched vLLM scheduling."""
-    batch_size = int(request_batch_size)
-    if batch_size <= 0:
-        raise ValueError("request_batch_size must be positive")
-
     terminal_token_ids = resolve_terminal_token_ids(tokenizer)
-    rows = list(indexed_rows)
-
-    for batch_start in range(0, len(rows), batch_size):
-        batch = rows[batch_start : batch_start + batch_size]
-        prompts = []
-        sampling_params = []
-        seeds: list[int] = []
-
-        for dataset_index, row in batch:
-            encoded_prompt = tokenizer.apply_chat_template(
-                row["prompt"],
-                tokenize=True,
-                add_generation_prompt=True,
-            )
-            prompts.append(
-                tokens_prompt_cls(
-                    prompt_token_ids=_prompt_token_ids(encoded_prompt)
-                )
-            )
-            seed = snapshot_question_seed(settings["seed"], dataset_index)
-            seeds.append(seed)
-            sampling_params.append(
-                sampling_params_cls(
-                    n=settings["num_generations"],
-                    temperature=settings["temperature"],
-                    top_p=settings["top_p"],
-                    top_k=settings["top_k"],
-                    repetition_penalty=settings["repetition_penalty"],
-                    max_tokens=settings["max_completion_length"],
-                    seed=seed,
-                )
-            )
-
+    for dataset_index, row in indexed_rows:
+        encoded_prompt = tokenizer.apply_chat_template(
+            row["prompt"],
+            tokenize=True,
+            add_generation_prompt=True,
+        )
+        prompt = tokens_prompt_cls(prompt_token_ids=_prompt_token_ids(encoded_prompt))
+        seed = snapshot_question_seed(settings["seed"], dataset_index)
+        sampling_params = sampling_params_cls(
+            n=settings["num_generations"],
+            temperature=settings["temperature"],
+            top_p=settings["top_p"],
+            top_k=settings["top_k"],
+            repetition_penalty=settings["repetition_penalty"],
+            max_tokens=settings["max_completion_length"],
+            seed=seed,
+        )
         request_outputs = llm.generate(
-            prompts,
+            [prompt],
             sampling_params=sampling_params,
             use_tqdm=False,
         )
-        if len(request_outputs) != len(batch):
+        if len(request_outputs) != 1:
+            raise RuntimeError(f"Expected one vLLM request output, got {len(request_outputs)}")
+        outputs = list(request_outputs[0].outputs)
+        if len(outputs) != settings["num_generations"]:
             raise RuntimeError(
-                f"Expected {len(batch)} vLLM request outputs, "
-                f"got {len(request_outputs)}"
+                f"Requested {settings['num_generations']} completions but received {len(outputs)}"
             )
 
-        for (dataset_index, row), seed, request_output in zip(
-            batch,
-            seeds,
-            request_outputs,
-            strict=True,
-        ):
-            outputs = list(request_output.outputs)
-            if len(outputs) != settings["num_generations"]:
-                raise RuntimeError(
-                    f"dataset_index={dataset_index}: requested "
-                    f"{settings['num_generations']} completions but received "
-                    f"{len(outputs)}"
-                )
-
-            scored = score_snapshot_completions(
-                texts=[output.text for output in outputs],
-                token_ids=[list(output.token_ids) for output in outputs],
-                finish_reasons=[
-                    getattr(output, "finish_reason", None)
-                    for output in outputs
-                ],
-                answer=row["answer"],
-                terminal_token_ids=terminal_token_ids,
-            )
-            record = {
-                "dataset_index": dataset_index,
-                "question_seed": seed,
-                "question": row["prompt"][-1]["content"],
-                "gold": row["answer"],
-                **scored,
-            }
-            _append_jsonl(output_path, record)
-            print(
-                f"[snapshot] dataset_index={dataset_index} "
-                f"reward={record['n_reward']}/{record['n_rollouts']} "
-                f"correct={record['n_correct']}/{record['n_rollouts']} "
-                f"terminated={record['n_terminated']}/{record['n_rollouts']}"
-            )
+        scored = score_snapshot_completions(
+            texts=[output.text for output in outputs],
+            token_ids=[list(output.token_ids) for output in outputs],
+            finish_reasons=[getattr(output, "finish_reason", None) for output in outputs],
+            answer=row["answer"],
+            terminal_token_ids=terminal_token_ids,
+        )
+        record = {
+            "dataset_index": dataset_index,
+            "question_seed": seed,
+            "question": row["prompt"][-1]["content"],
+            "gold": row["answer"],
+            **scored,
+        }
+        _append_jsonl(output_path, record)
+        print(
+            f"[snapshot] dataset_index={dataset_index} "
+            f"reward={record['n_reward']}/{record['n_rollouts']} "
+            f"correct={record['n_correct']}/{record['n_rollouts']} "
+            f"terminated={record['n_terminated']}/{record['n_rollouts']}"
+        )
 
 
 def build_snapshot_manifest(
@@ -327,7 +290,6 @@ def build_snapshot_manifest(
     sampling_settings: dict,
     prompt_audit: dict,
     runtime: dict,
-    request_batch_size: int,
 ) -> dict:
     snapshot_record = {
         "policy_dir": str(Path(snapshot["policy_dir"])),
@@ -356,7 +318,6 @@ def build_snapshot_manifest(
         },
         "grpo_config_sha256": sha256_file(Path(config_path)),
         "sampling": dict(sampling_settings),
-        "request_batch_size": int(request_batch_size),
         "prompt_length_audit": dict(prompt_audit),
         "runtime": dict(runtime),
         "termination_semantics": "completion token ids end in tokenizer eos/pad id",
@@ -374,7 +335,6 @@ def run_snapshot_eval(
     num_generations: int | None = None,
     config_path: Path = DEFAULT_CONFIG,
     gpu_memory_utilization: float = 0.50,
-    request_batch_size: int = 32,
 ) -> dict:
     snapshot = resolve_snapshot_policy(canonical_run_dir, snapshot_pct)
     panel = resolve_panel(panel_name, dataset_indices)
@@ -427,7 +387,6 @@ def run_snapshot_eval(
         sampling_settings=settings,
         prompt_audit=prompt_audit,
         runtime=collect_runtime_metadata(),
-        request_batch_size=request_batch_size,
     )
     write_json(destination / "prompt_length_audit.json", prompt_audit)
     write_json(destination / "snapshot_eval_manifest.json", manifest)
@@ -451,7 +410,6 @@ def run_snapshot_eval(
         output_path=raw_path,
         sampling_params_cls=SamplingParams,
         tokens_prompt_cls=TokensPrompt,
-        request_batch_size=request_batch_size,
     )
     return manifest
 
@@ -476,16 +434,6 @@ def main(argv: list[str] | None = None) -> None:
     )
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     parser.add_argument("--gpu-memory-utilization", type=float, default=0.50)
-    parser.add_argument(
-        "--request-batch-size",
-        type=int,
-        default=32,
-        help=(
-            "Number of independently seeded questions submitted to vLLM per "
-            "generate() call. This changes scheduling only, not per-question "
-            "sampling parameters."
-        ),
-    )
     args = parser.parse_args(argv)
 
     dataset_indices = None
@@ -503,7 +451,6 @@ def main(argv: list[str] | None = None) -> None:
         num_generations=args.num_generations,
         config_path=args.config,
         gpu_memory_utilization=args.gpu_memory_utilization,
-        request_batch_size=args.request_batch_size,
     )
     print(json.dumps(manifest, indent=2, sort_keys=True))
 

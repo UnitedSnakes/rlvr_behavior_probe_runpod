@@ -25,7 +25,6 @@ def replication_metadata(seed: int) -> dict:
             "per_device_train_batch_size",
             "gpu_sku",
             "distributed_topology",
-            "gradient_checkpointing",
         ],
         "preserved_batch_geometry": {
             "world_size": 1,
@@ -36,8 +35,6 @@ def replication_metadata(seed: int) -> dict:
             "steps_per_generation": 4,
             "num_generations": 16,
             "unique_prompts_per_generation_batch": 2,
-            "gradient_checkpointing": False,
-            "vllm_gpu_memory_utilization": 0.20,
         },
         "interpretation": (
             "Seeds 42-44 within this A100 suite share GPU SKU, single-GPU topology, "

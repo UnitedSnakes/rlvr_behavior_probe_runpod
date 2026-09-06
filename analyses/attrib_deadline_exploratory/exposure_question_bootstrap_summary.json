@@ -1,0 +1,84 @@
+{
+  "status": "post-outcome exploratory diagnostic",
+  "repetitions": 3000,
+  "random_seed": 20260906,
+  "question_count": 256,
+  "interval": "pointwise 2.5/97.5 percentile; no multiplicity correction",
+  "conditioning": "one observed training trajectory, frozen bin memberships, observed response banks",
+  "low_bin": [
+    {
+      "cutoff": 25,
+      "bin": "(0,.25]",
+      "valid_replicates": 3000,
+      "exposed_pp": 6.247825063590012,
+      "exposed_lower_pp": 0.5398067686851875,
+      "exposed_upper_pp": 12.21695728475511,
+      "unexposed_pp": 10.020125531803957,
+      "unexposed_lower_pp": 6.637288788116572,
+      "unexposed_upper_pp": 13.295814485433358,
+      "gap_U_minus_E_pp": 3.7723004682139445,
+      "gap_U_minus_E_lower_pp": -3.326232636373875,
+      "gap_U_minus_E_upper_pp": 10.602317694745103
+    },
+    {
+      "cutoff": 45,
+      "bin": "(0,.25]",
+      "valid_replicates": 3000,
+      "exposed_pp": 7.421343386811211,
+      "exposed_lower_pp": 3.3111060124981417,
+      "exposed_upper_pp": 11.65031648091049,
+      "unexposed_pp": 12.796967902460224,
+      "unexposed_lower_pp": 7.554562629083376,
+      "unexposed_upper_pp": 17.870526080303353,
+      "gap_U_minus_E_pp": 5.375624515649014,
+      "gap_U_minus_E_lower_pp": -1.4141432345621217,
+      "gap_U_minus_E_upper_pp": 11.845510616939592
+    },
+    {
+      "cutoff": 65,
+      "bin": "(0,.25]",
+      "valid_replicates": 3000,
+      "exposed_pp": 10.900175838219738,
+      "exposed_lower_pp": 7.865579413125739,
+      "exposed_upper_pp": 14.020358083741021,
+      "unexposed_pp": 12.803911527871259,
+      "unexposed_lower_pp": 7.677636615008536,
+      "unexposed_upper_pp": 18.125170744971552,
+      "gap_U_minus_E_pp": 1.9037356896515212,
+      "gap_U_minus_E_lower_pp": -4.262216320136957,
+      "gap_U_minus_E_upper_pp": 8.089265050639524
+    }
+  ],
+  "leave_one_out_low_bin": {
+    "25": {
+      "unexposed_min_max_pp": [
+        9.487593547736065,
+        10.438216567399069
+      ],
+      "gap_min_max_pp": [
+        2.4667484654100997,
+        5.403036279789091
+      ]
+    },
+    "45": {
+      "unexposed_min_max_pp": [
+        11.781811217103774,
+        13.68925976540547
+      ],
+      "gap_min_max_pp": [
+        4.28985034420276,
+        6.350842811480936
+      ]
+    },
+    "65": {
+      "unexposed_min_max_pp": [
+        11.478919579469071,
+        13.729443145636152
+      ],
+      "gap_min_max_pp": [
+        0.5844493054414179,
+        2.8366455276060227
+      ]
+    }
+  }
+}

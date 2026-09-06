@@ -9,7 +9,7 @@ def test_readme_documents_active_m5_and_2xa40_contract():
 
     required = [
         "M5 Pro development lane",
-        "Active controlled 2×A40 RunPod workflow",
+        "Controlled 2×A40 RunPod workflow",
         "RLVR_BRANCH=codex/signal-ledger",
         "RLVR_EXPECT_COMMIT",
         "RLVR_RUN_2XA40_PREFLIGHT=1",
@@ -27,7 +27,7 @@ def test_claude_documents_current_maxrl_and_execution_contract():
     claude = (REPO_ROOT / "CLAUDE.md").read_text(encoding="utf-8")
 
     required = [
-        "Practical MaxRL-15 is implemented",
+        "Practical MaxRL-15 is complete as a canonical matched seed42 objective",
         "2×A40 distributed NCCL preflight",
         "RLVR_EXPECT_COMMIT",
         "RLVR_RUN_2XA40_PREFLIGHT=1",

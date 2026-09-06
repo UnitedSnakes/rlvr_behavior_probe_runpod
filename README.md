@@ -11,7 +11,7 @@ For the canonical Qwen3-0.6B GRPO run, the answer is not stably yes.
 ## Current scientific result — 2026-09-05
 
 Canonical seed42 Qwen3-0.6B GRPO and practical MaxRL-15 now provide two
-independent pieces of evidence for the same paper-level conclusion:
+complementary diagnostics of the same paper-level question:
 
 > **Question-level behavioral improvement does not stably track local training
 > signal allocation.**
@@ -43,10 +43,10 @@ For low-`p0` questions `(0,.25]`, adjusted symmetric correctness movement was:
 Across all 15 adjusted symmetric cutoff x `p0`-bin cells:
 
 ```text
-transfer_compatible:      8
+transfer_compatible:      7
 unexposed_higher:         3
 mixed_or_uncertain:       2
-not_classifiable:         2
+not_classifiable:         3
 own_exposure_candidate:   0
 ```
 
@@ -100,16 +100,16 @@ The corresponding MaxRL-minus-GRPO `DeltaC` contrasts are:
 (.75,1)   -0.156 pp
 ```
 
-The full 5%-through-100% trajectory shows the same qualitative separation:
-realized signal allocation is persistently left-shifted under MaxRL, while the
-behavioral contrast fluctuates rather than showing a matching persistent
-reallocation.
+The full 5%-through-100% trajectory shows a persistent left shift in realized
+scalar advantage mass under MaxRL, while the same-bin absolute correctness
+contrast fluctuates rather than showing a matching persistent advantage.
 
-The paper-safe conclusion is:
+A post-outcome whole-panel-centered diagnostic further shows that evidence about
+**relative** behavioral reallocation is mixed. The paper-safe conclusion is:
 
-> Changing the objective materially reallocates realized training signal, but
-> question-level correctness improvement does not correspondingly and stably
-> reallocate.
+> Changing the objective materially reallocates realized scalar advantage mass,
+> but a persistent matching absolute correctness advantage is not observed in
+> the same bins; relative behavioral reallocation is less conclusive.
 
 This does not prove that shared representations are the unique cause or that
 objective allocation can never affect behavioral allocation.
@@ -117,8 +117,9 @@ objective allocation can never affect behavioral allocation.
 The current paper-facing result hierarchy is therefore:
 
 1. **main result:** no stable own-exposure advantage under canonical GRPO;
-2. **second independent evidence:** MaxRL moves realized signal allocation
-   without a corresponding stable relocation of `DeltaC`;
+2. **complementary objective intervention:** MaxRL moves realized scalar
+   advantage mass without a persistent matching same-bin absolute `DeltaC`
+   advantage; relative behavioral reallocation is mixed;
 3. implementation/pipeline diagnostics are supporting instrumentation evidence,
    not the headline.
 
@@ -129,7 +130,11 @@ Single-seed limitation:
 > variability in either bin-level behavioral changes or objective-induced
 > signal reallocation.
 
-Authoritative writing handoff:
+Current paper-facing correction/sensitivity handoff:
+
+- `docs/superpowers/checkpoints/2026-09-06-attrib-deadline-postoutcome-sensitivity.md`
+
+Earlier writing handoff:
 
 - `docs/superpowers/checkpoints/2026-09-05-attrib-writing-handoff.md`
 
@@ -276,12 +281,13 @@ C = 0.563965
 
 DeltaR = +16.63 pp
 DeltaT = +29.11 pp
-DeltaC =  +5.95 pp
+DeltaC =  +5.94 pp
 ```
 
-Termination acquisition dominates aggregate reward movement under both
-objectives, while correctness improves more modestly. Keep `DeltaC`,
-`DeltaT`, and `DeltaR` separate.
+The largest aggregate marginal change under both objectives is termination,
+while correctness improves more modestly. These marginal changes are not an
+additive causal decomposition of reward. Keep `DeltaC`, `DeltaT`, and
+`DeltaR` separate.
 
 ## Realized signal allocation
 
@@ -575,8 +581,9 @@ current canonical science settings.
 
 ## Authoritative research records
 
-Start with the current writing handoff rather than reading the whole history:
+Start with the current correction/sensitivity handoff rather than reading the whole history:
 
+- `docs/superpowers/checkpoints/2026-09-06-attrib-deadline-postoutcome-sensitivity.md`
 - `docs/superpowers/checkpoints/2026-09-05-attrib-writing-handoff.md`
 
 Paper-facing post-outcome checkpoints:

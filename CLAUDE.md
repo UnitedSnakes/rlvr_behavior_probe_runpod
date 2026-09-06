@@ -13,7 +13,11 @@ two-part result clearly and conservatively, not to open a new experiment.
 ## Read first
 
 Start every session by reading the newest file in `docs/superpowers/checkpoints/`.
-The authoritative writing handoff is now:
+The authoritative deadline correction/sensitivity handoff is now:
+
+- `docs/superpowers/checkpoints/2026-09-06-attrib-deadline-postoutcome-sensitivity.md`
+
+The earlier writing handoff remains useful for full project context:
 
 - `docs/superpowers/checkpoints/2026-09-05-attrib-writing-handoff.md`
 
@@ -64,7 +68,7 @@ Primary conclusion:
 no stable own-exposure advantage
 ```
 
-Substantial correctness improvement occurs among questions not yet directly sampled for training. Across 15 adjusted symmetric cutoff x p0-bin cells there are 8 `transfer_compatible`, 3 `unexposed_higher`, 2 `mixed_or_uncertain`, 2 `not_classifiable`, and 0 `own_exposure_candidate` cells under the pre-frozen descriptive rule.
+Substantial correctness improvement occurs among questions not yet directly sampled for training. Across 15 adjusted symmetric cutoff x p0-bin cells there are 7 `transfer_compatible`, 3 `unexposed_higher`, 2 `mixed_or_uncertain`, 3 `not_classifiable`, and 0 `own_exposure_candidate` cells under the pre-frozen descriptive rule. The 7/3/2/3/0 count corrects an earlier documentation tally; use continuous estimates rather than label counts as inferential evidence.
 
 This is evidence against a **strong prompt-local account** in which directly sampled questions should systematically improve more. It is not a randomized causal estimate and does not prove that cross-question transfer is the unique or causally dominant channel.
 
@@ -159,22 +163,25 @@ The corresponding MaxRL-minus-GRPO DeltaC contrasts are:
 (.75,1)   -0.156 pp
 ```
 
-The full 5%-through-100% trajectory shows the same qualitative separation:
-signal allocation is persistently left-shifted, while
-`DeltaC_MaxRL - DeltaC_GRPO` fluctuates rather than moving persistently in the
-corresponding direction.
+The full 5%-through-100% trajectory shows a persistent left shift in realized
+scalar advantage mass under MaxRL, while the same-bin absolute
+`DeltaC_MaxRL - DeltaC_GRPO` contrast fluctuates rather than showing a
+persistent matching advantage.
+
+A post-outcome whole-panel-centered diagnostic shows that evidence about
+**relative** behavioral reallocation is mixed. Keep absolute and relative
+allocation claims separate.
 
 Paper-safe conclusion:
 
-> Changing the objective materially reallocates realized training signal, but
-> question-level correctness improvement does not correspondingly and stably
-> reallocate.
+> MaxRL persistently reallocates realized scalar advantage mass. A persistent
+> matching absolute correctness advantage is not observed in the same bins;
+> evidence about relative behavioral reallocation is more mixed.
 
 Do not claim that representations uniquely cause this effect, that transfer is
 the unique causal channel, or that objective allocation can never affect
-behavioral allocation. The supported interpretation is that shared-parameter
-transfer/interference substantially mediates the mapping from local signal to
-local behavioral change.
+behavioral allocation. Shared-parameter transfer/interference is a compatible
+explanation, not an identified mediator.
 
 Keep `DeltaC`, `DeltaT`, and `DeltaR` separate. Canonical MaxRL aggregate
 movement is approximately:
@@ -182,11 +189,12 @@ movement is approximately:
 ```text
 DeltaR = +16.63 pp
 DeltaT = +29.11 pp
-DeltaC =  +5.95 pp
+DeltaC =  +5.94 pp
 ```
 
 The original GRPO exposed-vs-unexposed finding remains the main paper result;
-MaxRL is the second independent intervention.
+MaxRL is a complementary objective intervention, not an independent
+replication.
 
 Canonical MaxRL large artifacts are backed up and remotely verified:
 

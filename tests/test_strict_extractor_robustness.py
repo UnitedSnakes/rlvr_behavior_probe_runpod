@@ -32,7 +32,7 @@ def test_strict_extractor_disables_generic_last_number_fallback():
     current = extract_numeric_answer(text)
     strict = extract_numeric_answer_strict(text)
 
-    assert current == (12.0, "12.", "last_number")
+    assert current == (12.0, "12", "last_number")
     assert strict == (None, None, "none")
 
 

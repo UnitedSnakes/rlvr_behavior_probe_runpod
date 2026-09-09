@@ -107,16 +107,24 @@ def _number_from_boxed_content(content: str):
     return _to_number(candidates[0])
 
 
-def extract_numeric_answer(text):
+def extract_numeric_answer_strict(text):
+    """Extract only explicit boxed/final-answer forms.
+
+    This robustness-check scorer isolates dependence on the canonical scorer's
+    generic last-number fallback. It intentionally reuses the canonical boxed
+    and final-phrase patterns and changes only one thing: if no explicit answer
+    form is found, it returns no prediction instead of treating the final
+    numeric token anywhere in the completion as the answer.
+    """
     # Prefer the final LaTeX boxed answer. Balanced-brace parsing is necessary
-    # for outputs such as \boxed{16 \text{ hours}}.
+    # for outputs such as \\boxed{16 \\text{ hours}}.
     boxed = list(_boxed_contents(text))
     for content in reversed(boxed):
         val = _number_from_boxed_content(content)
         if val is not None:
             return val, content, "boxed"
 
-    # Non-LaTeX fallback: "boxed: 42".
+    # Non-LaTeX explicit form: "boxed: 42".
     plain = PLAIN_BOXED_RE.findall(text)
     if plain:
         val = _to_number(plain[-1])
@@ -130,6 +138,14 @@ def extract_numeric_answer(text):
             if val is not None:
                 return val, matches[-1], "final_phrase"
 
+    return None, None, "none"
+
+
+def extract_numeric_answer(text):
+    explicit = extract_numeric_answer_strict(text)
+    if explicit[0] is not None:
+        return explicit
+
     matches = NUMBER_RE.findall(text)
     if matches:
         val = _to_number(matches[-1])
@@ -137,7 +153,6 @@ def extract_numeric_answer(text):
             return val, matches[-1], "last_number"
 
     return None, None, "none"
-
 
 def numeric_equal(pred, gold, atol=1e-6, rtol=1e-6):
     return (

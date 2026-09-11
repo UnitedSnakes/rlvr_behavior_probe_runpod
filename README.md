@@ -25,7 +25,7 @@ For problems with low but nonzero pre-RL success rate (`p0`), correctness is alr
 
 A September 6 question-level resampling check keeps the pre-exposure gain positive at all three checkpoints. The exposed-vs-unexposed difference itself crosses zero, so I do **not** claim that unseen problems improve more, or that direct exposure has no effect.
 
-The useful result is narrower: **a substantial fraction of the behavioral improvement is already present before a problem contributes any RL training group of its own.** There is no stable own-exposure advantage in these checkpoints.
+The useful result is narrower: **substantial behavioral improvement is already present before a problem contributes any RL training group of its own.** There is no stable own-exposure advantage in these checkpoints.
 
 ## 2. MaxRL moves the signal much more than it moves correctness
 
@@ -70,7 +70,7 @@ So that particular extraction artifact does not explain the pre-exposure improve
 
 ## The open question
 
-The experiments leave a gap between **where optimization pressure is applied** and **where behavior changes**. I do not yet know what mediates that gap.
+The experiments leave a gap between **where measured RL training signal is concentrated** and **where behavior changes**. I do not yet know what mediates that gap.
 
 Possible candidates include shared reasoning patterns, shared internal representations, interference between problems, stopping behavior, and answer-format changes. The next step is to ask whether we can predict which problems benefit from training signal generated elsewhere, and what distinguishes responses that improve from those that do not.
 

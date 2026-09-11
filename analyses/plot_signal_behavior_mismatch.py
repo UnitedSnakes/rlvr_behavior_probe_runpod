@@ -13,7 +13,7 @@ INPUT = (
     / "canonical_maxrl_grpo_objective_comparison"
     / "objective_comparison.csv"
 )
-OUTPUT = REPO_ROOT / "figures" / "signal_vs_behavior.png"
+OUTPUT = REPO_ROOT / "figures" / "signal_vs_behavior.svg"
 BINS = ["0", "(0,.25]", "(.25,.5]", "(.5,.75]", "(.75,1)"]
 
 
@@ -61,7 +61,7 @@ def main() -> None:
     axes[0].legend(title="pre-RL success p0", fontsize=8, title_fontsize=8)
     fig.tight_layout()
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    fig.savefig(OUTPUT, dpi=180, bbox_inches="tight")
+    fig.savefig(OUTPUT, bbox_inches="tight")
     plt.close(fig)
     print(OUTPUT)
 

@@ -11,6 +11,10 @@ I look at this in two ways on Qwen3-0.6B + GSM8K:
 
 Both diagnostics point to the same mismatch: **where the scalar RL signal is concentrated and where behavior improves are not tightly coupled at the problem level in these runs.**
 
+![Signal allocation versus behavioral change](figures/signal_vs_behavior.svg)
+
+*Same five frozen `p0` bins over all 20 checkpoints. Left: MaxRL/GRPO ratio of cumulative absolute advantage per panel question. Right: MaxRL−GRPO difference in correctness change. The signal reallocation is persistent; the behavioral difference is not.*
+
 ## 1. Own exposure does not mark where improvement begins
 
 I tracked a fixed panel of 256 GSM8K training problems through one epoch of GRPO. Each problem is used for training once, so I know exactly when it contributes its own training group.
@@ -23,7 +27,7 @@ For problems with low but nonzero pre-RL success rate (`p0`), correctness is alr
 | 45% | +7.42 pp | +12.80 pp |
 | 65% | +10.90 pp | +12.80 pp |
 
-A September 6 question-level resampling check keeps the pre-exposure gain positive at all three checkpoints. The exposed-vs-unexposed difference itself crosses zero, so I do **not** claim that unseen problems improve more, or that direct exposure has no effect.
+A post-outcome question-level resampling check keeps the pre-exposure gain positive at all three checkpoints. The exposed-vs-unexposed difference itself crosses zero, so I do **not** claim that unseen problems improve more, or that direct exposure has no effect.
 
 The useful result is narrower: **substantial behavioral improvement is already present before a problem contributes any RL training group of its own.** There is no stable own-exposure advantage in these checkpoints.
 
@@ -61,7 +65,7 @@ The narrower point is the one I care about: **a large change in where RLVR place
 
 One possible confound is answer extraction. The model changes how often and how cleanly it finishes answers during training, while the original GSM8K scorer can fall back to the last number in a response.
 
-On September 8 I rescored the frozen outputs with that fallback disabled. The main pattern remains:
+With the last-number fallback disabled, the main pattern remains on the frozen outputs:
 
 - whole-panel GRPO correctness change: **+7.29 pp → +8.20 pp** under the stricter scorer;
 - pre-exposure gains in the low-nonzero-`p0` bin: **+10.57, +13.53, +14.14 pp** at 25%, 45%, and 65%.
@@ -89,10 +93,12 @@ Main analysis code and outputs:
 - `analyses/exposure_split_adjusted.py`
 - `analyses/strict_extractor_robustness.py`
 - `analyses/maxrl_objective_comparison.py`
+- `analyses/plot_signal_behavior_mismatch.py`
 - `analyses/canonical_exposure_split_adjusted/`
 - `analyses/canonical_maxrl_grpo_objective_comparison/`
 - `analyses/strict_extractor_robustness/`
 
 The current GRPO/MaxRL comparison is one matched training seed, and exposure order is not randomized. I treat these as diagnostics of the signal-to-behavior relationship, not as a randomized causal estimate.
 
-For the full internal experiment history, implementation notes, and agent handoff material, see the `research-workbench` branch.
+---
+Shanglin Yang · MSML, Carnegie Mellon University · shangliy@andrew.cmu.edu

@@ -1,177 +1,104 @@
 # RLVR Behavioral Probe
 
-Controlled experiments on how reinforcement-learning post-training reallocates training signal and changes model behavior.
+This repo asks a fairly simple question: when RLVR makes a math model better, how local is that learning? Does a problem mainly improve after that same problem has been used for RL training, or can training on other problems make it better first?
 
-The project began with a simple question: if a behavior has pre-RL success probability `p0`, does RL mainly amplify already reachable successes or expand what the model can reach? The current controlled result makes the question more specific:
+The current controlled runs use Qwen3-0.6B on GSM8K. I use `p0` to mean how often the pre-RL model gets a problem right. The main comparison is between canonical GRPO and a matched MaxRL run that starts from the same pre-RL model.
 
-> **Does behavioral improvement occur on the same questions that directly generate the training signal?**
+## What the current runs say
 
-For the canonical Qwen3-0.6B GRPO run, the answer is not stably yes.
+### 1. Problems can improve before they are trained on directly
 
-## Current scientific result — 2026-09-08
+During GRPO, I tracked a fixed panel of 256 GSM8K training problems. At 25%, 45%, and 65% of training, each problem was split into two groups: problems the model had already trained on directly, and problems it had not reached yet.
 
-Canonical seed42 Qwen3-0.6B GRPO and practical MaxRL-15 now provide two
-complementary diagnostics of the same paper-level question:
+For problems with low but nonzero `p0`, the correctness change was:
 
-> **Question-level behavioral improvement does not stably track local training
-> signal allocation.**
-
-### 1. GRPO own-exposure analysis
-
-A fixed 256-question GSM8K-train panel was evaluated throughout canonical GRPO
-training. At frozen 25/45/65 cutoffs, each panel question was classified by
-whether its unique own training exposure had already occurred.
-
-The split definition, cutoffs, interpretation scale, measured-covariate balance
-audit, and covariate-adjusted estimator were fixed before reading the
-exposed-vs-unexposed outcomes.
-
-Primary result:
-
-```text
-no stable own-exposure advantage
-```
-
-For low-`p0` questions `(0,.25]`, adjusted symmetric correctness movement was:
-
-| training cutoff | already exposed | not yet exposed | unexposed - exposed |
-|---:|---:|---:|---:|
-| 25% | +6.25 pp | +10.02 pp | +3.77 pp |
-| 45% | +7.42 pp | +12.80 pp | +5.38 pp |
-| 65% | +10.90 pp | +12.80 pp | +1.90 pp |
-
-Across all 15 adjusted symmetric cutoff x `p0`-bin cells:
-
-```text
-transfer_compatible:      7
-unexposed_higher:         3
-mixed_or_uncertain:       2
-not_classifiable:         3
-own_exposure_candidate:   0
-```
-
-This is evidence against a **strong prompt-local account** in which questions
-should systematically improve more after they themselves generate direct
-training signal. It is not a randomized causal estimate. The safe
-interpretation is substantial behavioral change before own exposure and no
-stable own-exposure advantage, consistent with substantial cross-question
-transfer.
-
-### 2. MaxRL objective intervention
-
-The follow-up intervention asked a stronger question: if the objective
-materially changes **realized** signal allocation, does the allocation of
-correctness improvement move with it?
-
-Practical MaxRL-15 changes only the group advantage estimator while preserving
-the matched canonical GRPO outer stack.
-
-The canonical MaxRL seed42 run completed all 3736 optimizer steps, passed the
-frozen structural gate, and was evaluated with the same sequential train-256
-K=16 C-bank protocol as canonical GRPO.
-
-Frozen result:
-
-```text
-H1 mechanism gate: SUPPORTED
-H2 primary behavioral prediction: SUPPORTED
-H3 alternative as the primary explanation: NOT SUPPORTED
-H4 diagnostic stop: NOT ACTIVE
-```
-
-At 100%, MaxRL/GRPO cumulative `|A|` ratios across increasing frozen `p0`
-bins are:
-
-```text
-0          2.205x
-(0,.25]    1.720x
-(.25,.5]   0.988x
-(.5,.75]   0.592x
-(.75,1)    0.463x
-```
-
-The corresponding MaxRL-minus-GRPO `DeltaC` contrasts are:
-
-```text
-0         -4.712 pp
-(0,.25]   -0.437 pp
-(.25,.5]  -1.908 pp
-(.5,.75]  -0.620 pp
-(.75,1)   -0.156 pp
-```
-
-The full 5%-through-100% trajectory shows a persistent left shift in realized
-scalar advantage mass under MaxRL, while the same-bin absolute correctness
-contrast fluctuates rather than showing a matching persistent advantage.
-
-A post-outcome whole-panel-centered diagnostic further shows that evidence about
-**relative** behavioral reallocation is mixed. The paper-safe conclusion is:
-
-> Changing the objective materially reallocates realized scalar advantage mass,
-> but a persistent matching absolute correctness advantage is not observed in
-> the same bins; relative behavioral reallocation is less conclusive.
-
-This does not prove that shared representations are the unique cause or that
-objective allocation can never affect behavioral allocation.
-
-### 3. Strict-extractor robustness
-
-A post-submission measurement diagnostic tests a specific alternative
-explanation for the own-exposure result: because termination changes strongly
-during training, could the canonical scorer's generic last-number fallback
-artificially create the observed correctness gain?
-
-The frozen response banks were rescored with the same boxed/final-answer rules
-but with the generic last-number fallback disabled. No policy was retrained;
-frozen `p0` bins, exposure timing, cross-fit directions, covariates,
-termination labels, and training rewards were unchanged.
-
-Whole-panel correctness changes from `0.5045 -> 0.5774` under the canonical
-extractor and `0.4886 -> 0.5706` under the strict extractor, so the GRPO
-start-to-end correctness gain is `+7.29 pp` canonical versus `+8.20 pp` strict.
-The p0 correctness-label disagreement rate from disabling the fallback is
-`1.59%`.
-
-For the primary low-nonzero `p0` bin, the not-yet-exposed adjusted correctness
-gains remain substantial and are slightly larger under the strict extractor:
-
-| training cutoff | canonical | strict |
+| training point | already trained on | not yet trained on |
 |---:|---:|---:|
-| 25% | +10.02 pp | +10.57 pp |
-| 45% | +12.80 pp | +13.53 pp |
-| 65% | +12.80 pp | +14.14 pp |
+| 25% | +6.25 pp | +10.02 pp |
+| 45% | +7.42 pp | +12.80 pp |
+| 65% | +10.90 pp | +12.80 pp |
 
-Thus the generic last-number fallback does not explain the primary
-pre-own-exposure correctness result. This is a narrow measurement robustness
-check; it does not establish that extracted-answer correctness is a pure
-measure of reasoning ability or remove broader stopping/output-format caveats.
+So a problem does not need to have produced its own RL training signal before it can improve. There is no stable pattern where a problem suddenly improves more once the model trains on that exact problem.
 
-The current paper-facing result hierarchy is therefore:
+The September 6 sensitivity check makes the useful part of this result a bit clearer. I resampled the 256 problems 3,000 times. The improvement before direct exposure stayed positive at all three checkpoints:
 
-1. **main result:** no stable own-exposure advantage under canonical GRPO;
-2. **complementary objective intervention:** MaxRL moves realized scalar
-   advantage mass without a persistent matching same-bin absolute `DeltaC`
-   advantage; relative behavioral reallocation is mixed;
-3. **measurement robustness:** disabling the generic last-number fallback
-   leaves the primary pre-own-exposure correctness gain intact;
-4. implementation/pipeline diagnostics are supporting instrumentation evidence,
-   not the headline.
+| training point | pre-exposure gain | 95% resampling range |
+|---:|---:|---:|
+| 25% | +10.02 pp | [6.64, 13.30] |
+| 45% | +12.80 pp | [7.55, 17.87] |
+| 65% | +12.80 pp | [7.68, 18.13] |
 
-Single-seed limitation:
+However, the difference between the not-yet-seen and already-seen groups crosses zero in those resamples. So I do **not** claim that unseen problems improve more, or that seeing a problem directly has zero effect. The narrower result is that substantial improvement is already present before a problem's own RL exposure.
 
-> All behavioral and signal-allocation comparisons reported here are from a
-> single matched training seed. We therefore do not estimate between-seed
-> variability in either bin-level behavioral changes or objective-induced
-> signal reallocation.
+### 2. If we move the RL signal around, correctness does not follow it cleanly
 
-Current correction/sensitivity records:
+The MaxRL run was meant to push on the same question from another direction. Instead of waiting for naturally different training examples, it changes how sampled answer groups are weighted during RL while keeping the rest of the setup matched to GRPO.
 
-- `docs/superpowers/checkpoints/2026-09-08-strict-extractor-robustness.md`
+That intervention really does move the scalar RL signal. By the end of training, the amount of cumulative absolute advantage assigned by MaxRL relative to GRPO is:
+
+| pre-RL success `p0` | MaxRL / GRPO signal |
+|---:|---:|
+| 0 | 2.205x |
+| (0, .25] | 1.720x |
+| (.25, .5] | 0.988x |
+| (.5, .75] | 0.592x |
+| (.75, 1) | 0.463x |
+
+In other words, MaxRL shifts much more of the training signal toward problems the starting model rarely or never solves.
+
+But the correctness gains do not shift in the same clean way. At the endpoint, MaxRL minus GRPO correctness change in those same bins is:
+
+| `p0` bin | MaxRL - GRPO correctness change |
+|---:|---:|
+| 0 | -4.71 pp |
+| (0, .25] | -0.44 pp |
+| (.25, .5] | -1.91 pp |
+| (.5, .75] | -0.62 pp |
+| (.75, 1) | -0.16 pp |
+
+Across the full trajectory, the signal shift toward low-`p0` problems is persistent, while the correctness differences move around and do not show a matching persistent low-`p0` advantage.
+
+The September 6 follow-up also checked a relative version of this comparison after subtracting the whole-model GRPO-vs-MaxRL difference. That picture is more mixed. So the safe conclusion is not "behavior does not move at all." It is that **where the scalar RL signal is concentrated and where correctness improves are not tightly coupled at the problem level in these runs.**
+
+### 3. The September 8 scorer check does not explain the result away
+
+One concern was that the model changes how often and how cleanly it finishes its answers during training. The original GSM8K scorer had a fallback that could use the last number in a response, so maybe some of the measured correctness gain was just an extraction artifact.
+
+I rescored the frozen outputs with that fallback disabled. No model was retrained.
+
+Whole-panel GRPO correctness change was:
+
+- original scorer: **+7.29 pp**
+- stricter scorer: **+8.20 pp**
+
+For the low-nonzero-`p0` problems that had not yet been trained on directly, the stricter scorer gives gains of **+10.57, +13.53, and +14.14 pp** at the 25%, 45%, and 65% checkpoints.
+
+So the last-number fallback is not what creates the pre-exposure improvement. This only rules out that particular scoring artifact; it does not prove that answer extraction is a pure measure of reasoning ability.
+
+## What is still unresolved
+
+These results make a purely problem-local story hard to maintain: RL signal generated on one set of problems can coincide with improvement on problems that have not produced their own signal yet, and deliberately moving the signal across difficulty bins does not make correctness move in lockstep.
+
+What I do not yet know is **what the unit of transfer actually is**. It could be shared reasoning patterns, shared internal representations, changes in stopping or answer formatting, or some mixture of these. A natural next step is to ask whether we can predict which problems benefit from training signal generated elsewhere, and what internal features distinguish the responses that improve from the ones that do not.
+
+The biggest limitation is that the current GRPO/MaxRL comparison is one matched training seed. Exposure order is also not randomized. These are strong diagnostics of the simple local-learning story, but they are not a randomized causal estimate of the effect of training on a particular problem.
+
+## Setup in one minute
+
+- model: Qwen3-0.6B
+- shared pre-RL model: SFT on 10k OpenR1-Math examples, then used as the common `pi0`
+- main training panel: GSM8K train `[:256]`
+- pre-RL success estimate: K=32 samples per problem, split in half for cross-fitting
+- snapshot evaluation: separate K=16 samples per problem
+- GRPO and MaxRL: matched outer training setup, seed 42, 3736 optimizer steps
+- canonical GPU setup: 2 x A40
+
+Useful records:
+
 - `docs/superpowers/checkpoints/2026-09-06-attrib-deadline-postoutcome-sensitivity.md`
-
-Earlier writing handoff:
-
-- `docs/superpowers/checkpoints/2026-09-05-attrib-writing-handoff.md`
+- `docs/superpowers/checkpoints/2026-09-08-strict-extractor-robustness.md`
+- `analyses/canonical_exposure_split_adjusted/adjusted_symmetric.csv`
+- `analyses/canonical_maxrl_grpo_objective_comparison/objective_comparison.csv`
 
 ## Canonical lineage
 
@@ -505,7 +432,7 @@ HF_TOKEN={{ RUNPOD_SECRET_huggingface_token }}
 GITHUB_DEPLOY_KEY_B64={{ RUNPOD_SECRET_github_rlvr_deploy_key_b64 }}
 
 RLVR_REPO=git@github.com:UnitedSnakes/rlvr_behavior_probe_runpod.git
-RLVR_BRANCH=codex/signal-ledger
+RLVR_BRANCH=main
 RLVR_REPO_DIR=/workspace/rlvr_behavior_probe_runpod
 
 RLVR_EXPECT_COMMIT=<approved exact execution commit SHA>

@@ -8,7 +8,7 @@ The project began with a simple question: if a behavior has pre-RL success proba
 
 For the canonical Qwen3-0.6B GRPO run, the answer is not stably yes.
 
-## Current scientific result — 2026-09-05
+## Current scientific result — 2026-09-08
 
 Canonical seed42 Qwen3-0.6B GRPO and practical MaxRL-15 now provide two
 complementary diagnostics of the same paper-level question:
@@ -114,13 +114,47 @@ A post-outcome whole-panel-centered diagnostic further shows that evidence about
 This does not prove that shared representations are the unique cause or that
 objective allocation can never affect behavioral allocation.
 
+### 3. Strict-extractor robustness
+
+A post-submission measurement diagnostic tests a specific alternative
+explanation for the own-exposure result: because termination changes strongly
+during training, could the canonical scorer's generic last-number fallback
+artificially create the observed correctness gain?
+
+The frozen response banks were rescored with the same boxed/final-answer rules
+but with the generic last-number fallback disabled. No policy was retrained;
+frozen `p0` bins, exposure timing, cross-fit directions, covariates,
+termination labels, and training rewards were unchanged.
+
+Whole-panel correctness changes from `0.5045 -> 0.5774` under the canonical
+extractor and `0.4886 -> 0.5706` under the strict extractor, so the GRPO
+start-to-end correctness gain is `+7.29 pp` canonical versus `+8.20 pp` strict.
+The p0 correctness-label disagreement rate from disabling the fallback is
+`1.59%`.
+
+For the primary low-nonzero `p0` bin, the not-yet-exposed adjusted correctness
+gains remain substantial and are slightly larger under the strict extractor:
+
+| training cutoff | canonical | strict |
+|---:|---:|---:|
+| 25% | +10.02 pp | +10.57 pp |
+| 45% | +12.80 pp | +13.53 pp |
+| 65% | +12.80 pp | +14.14 pp |
+
+Thus the generic last-number fallback does not explain the primary
+pre-own-exposure correctness result. This is a narrow measurement robustness
+check; it does not establish that extracted-answer correctness is a pure
+measure of reasoning ability or remove broader stopping/output-format caveats.
+
 The current paper-facing result hierarchy is therefore:
 
 1. **main result:** no stable own-exposure advantage under canonical GRPO;
 2. **complementary objective intervention:** MaxRL moves realized scalar
    advantage mass without a persistent matching same-bin absolute `DeltaC`
    advantage; relative behavioral reallocation is mixed;
-3. implementation/pipeline diagnostics are supporting instrumentation evidence,
+3. **measurement robustness:** disabling the generic last-number fallback
+   leaves the primary pre-own-exposure correctness gain intact;
+4. implementation/pipeline diagnostics are supporting instrumentation evidence,
    not the headline.
 
 Single-seed limitation:
@@ -130,8 +164,9 @@ Single-seed limitation:
 > variability in either bin-level behavioral changes or objective-induced
 > signal reallocation.
 
-Current paper-facing correction/sensitivity handoff:
+Current correction/sensitivity records:
 
+- `docs/superpowers/checkpoints/2026-09-08-strict-extractor-robustness.md`
 - `docs/superpowers/checkpoints/2026-09-06-attrib-deadline-postoutcome-sensitivity.md`
 
 Earlier writing handoff:
@@ -313,6 +348,7 @@ Core GRPO analyses:
 ```bash
 python -m analyses.ledger_crossfit_signal_allocation
 python -m analyses.exposure_split_adjusted
+python -m analyses.strict_extractor_robustness
 ```
 
 Paper-facing tracked GRPO outputs:
@@ -340,6 +376,7 @@ analyses/canonical_maxrl_grpo_objective_comparison/objective_comparison.csv
 analyses/canonical_maxrl_grpo_objective_comparison/summary.json
 analyses/canonical_snapshot_crossfit/aggregate_sanity.csv
 analyses/canonical_maxrl_snapshot_crossfit/aggregate_sanity.csv
+analyses/strict_extractor_robustness/primary_low_bin_current_vs_strict.csv
 ```
 
 A successful analysis-script marker is a code/data-pipeline check, not a
@@ -357,7 +394,6 @@ source .venv/bin/activate
 python -m pip install -r controlled_run/requirements-dev.txt
 python -m pytest -q
 ```
-
 The M5 Pro lane is the default home for unit tests, deterministic data preparation,
 analysis, figures/tables, provenance verification, and synthetic MaxRL estimator
 tests. CUDA, NCCL, FlashAttention, and canonical TRL/vLLM training do not belong
@@ -583,6 +619,7 @@ current canonical science settings.
 
 Start with the current correction/sensitivity handoff rather than reading the whole history:
 
+- `docs/superpowers/checkpoints/2026-09-08-strict-extractor-robustness.md`
 - `docs/superpowers/checkpoints/2026-09-06-attrib-deadline-postoutcome-sensitivity.md`
 - `docs/superpowers/checkpoints/2026-09-05-attrib-writing-handoff.md`
 

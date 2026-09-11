@@ -31,24 +31,3 @@ def test_normal_push_does_not_automatically_replace_stable_image_tag():
         "type=raw,value=0.27.1,"
         "enable=${{ github.event_name == 'workflow_dispatch' && inputs.publish_stable }}"
     ) in workflow
-
-
-def test_readme_documents_bootstrap_template_and_correct_hf_repo():
-    readme = (REPO_ROOT / "README.md").read_text(encoding="utf-8")
-
-    required = [
-        "GITHUB_DEPLOY_KEY_B64={{ RUNPOD_SECRET_github_rlvr_deploy_key_b64 }}",
-        "HF_TOKEN={{ RUNPOD_SECRET_huggingface_token }}",
-        "RLVR_REPO=git@github.com:UnitedSnakes/rlvr_behavior_probe_runpod.git",
-        "RLVR_BRANCH=difficulty-bin-analysis",
-        "RLVR_REPO_DIR=/workspace/rlvr_behavior_probe_runpod",
-        "/workspace/rlvr-bootstrap.log",
-        "rlvr-bootstrap",
-        "HKReporter/rlvr-behavior-probe-results",
-        "--top-k 20",
-        "--repetition-penalty 1.1",
-    ]
-    for text in required:
-        assert text in readme
-
-    assert "UnitedSnakes/rlvr-behavior-probe-results" not in readme

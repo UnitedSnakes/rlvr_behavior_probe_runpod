@@ -1,65 +1,53 @@
 # RLVR Signal Allocation and Behavioral Change
 
-RLVR produces training signal on sampled responses, but behavioral improvement does not have to stay on the same problems that produced that signal. This project asks **how tightly problem-level RL signal predicts where correctness actually improves**.
+In RLVR, each training problem produces a group of sampled responses; their rewards determine the advantage weights used in policy updates. This project asks **how closely the timing and allocation of this problem-level training signal correspond to where correctness improves**.
 
-Cross-problem generalization itself is not surprising. The question here is more specific: if we track where the RL signal is generated — or deliberately move that signal around — does behavioral improvement move with it?
+The goal is to assess what these training records tell us about the beneficiaries of an update: does a problem's own participation, or greater weighting of problems like it, correspond to larger gains on those problems?
 
-I look at this in two ways on Qwen3-0.6B + GSM8K:
+I follow a fixed panel of 256 problems from the GSM8K training set through 20 checkpoints of a Qwen3-0.6B run. At each checkpoint, separate evaluation responses measure correctness and never enter training updates. Two diagnostics connect these measurements to the training records:
 
-1. **Exposure timing:** does a problem improve differently before vs. after it contributes its own RL training group?
-2. **Objective intervention:** if MaxRL strongly changes which problems receive advantage mass, do correctness gains shift in the same way?
+1. **Exposure timing:** at the same checkpoint, compare gains on problems already used for RL training with gains on those not yet used.
+2. **Objective intervention:** replace GRPO with practical MaxRL, then compare the change in accumulated advantage weights with correctness gains in the same groups of problems.
 
-Both diagnostics point to the same mismatch: **where the scalar RL signal is concentrated and where behavior improves are not tightly coupled at the problem level in these runs.**
-
-![Signal allocation versus behavioral change](figures/signal_vs_behavior.svg)
-
-*Same five frozen `p0` bins over all 20 checkpoints. Left: MaxRL/GRPO ratio of cumulative absolute advantage per panel question. Right: MaxRL−GRPO difference in correctness change. The signal reallocation is persistent; the behavioral difference is not.*
+The observations: **substantial correctness gains precede own exposure; persistently higher advantage mass does not accompany a persistent same-bin correctness advantage.**
 
 ## 1. Own exposure does not mark where improvement begins
 
-I tracked a fixed panel of 256 GSM8K training problems through one epoch of GRPO. Each problem is used for training once, so I know exactly when it contributes its own training group.
+During the GRPO epoch, each training problem contributes one group of 16 responses. Its contribution marks **own exposure**, whether or not any response earns reward. A not-yet-exposed problem can still be evaluated; it has simply not supplied responses for an RL update.
 
-For problems with low but nonzero pre-RL success rate (`p0`), correctness is already substantially higher before that happens:
+Problems are grouped by `p0`, their estimated pre-RL reward-success rate (a correct extracted answer **and** termination). Bin memberships stay fixed throughout training. Behavioral gains measure extracted-answer correctness separately, without requiring termination.
 
-| training point | already exposed | not yet exposed |
+For the low-nonzero bin, `0 < p0 <= .25`, the table shows adjusted correctness gains relative to the pre-RL baseline, in percentage points (pp). Exposure status is reassigned at each checkpoint:
+
+| epoch completed | already exposed | not yet exposed |
 |---:|---:|---:|
 | 25% | +6.25 pp | +10.02 pp |
 | 45% | +7.42 pp | +12.80 pp |
 | 65% | +10.90 pp | +12.80 pp |
 
-A post-outcome question-level resampling check keeps the pre-exposure gain positive at all three checkpoints. The exposed-vs-unexposed difference itself crosses zero, so I do **not** claim that unseen problems improve more, or that direct exposure has no effect.
+A post-outcome question-resampling check keeps the not-yet-exposed gains positive at all three checkpoints. Resampling ranges for the exposed-vs-unexposed contrast include zero. The supported observation is **improvement before own exposure**, not evidence that exposure has no effect or that not-yet-exposed problems improve more.
 
-The useful result is narrower: **substantial behavioral improvement is already present before a problem contributes any RL training group of its own.** There is no stable own-exposure advantage in these checkpoints.
+## 2. Persistent reweighting does not yield a persistent same-bin correctness advantage
 
-## 2. MaxRL moves the signal much more than it moves correctness
+The second diagnostic changes how groups are weighted. GRPO and practical MaxRL start from the same SFT model with matched outer training settings; each samples its own responses as its policy evolves.
 
-Exposure timing is observational, so I also changed the objective. GRPO and MaxRL start from the same SFT model and use the same outer training setup; MaxRL changes how sampled groups are weighted.
+**Advantage mass** sums the absolute response advantages accumulated through a checkpoint, divided by the number of panel problems in each bin. It measures scalar weighting, not gradient direction or parameter-update magnitude. The endpoint comparison places that mass beside correctness change:
 
-That intervention clearly changes where the realized signal goes. By the end of training, cumulative absolute advantage under MaxRL relative to GRPO is:
+| `p0` bin | advantage mass: MaxRL / GRPO | correctness gain: MaxRL − GRPO |
+|---:|---:|---:|
+| 0 | 2.205x | -4.71 pp |
+| (0, .25] | 1.720x | -0.44 pp |
+| (.25, .5] | 0.988x | -1.91 pp |
+| (.5, .75] | 0.592x | -0.62 pp |
+| (.75, 1) | 0.463x | -0.16 pp |
 
-| `p0` bin | MaxRL / GRPO advantage mass |
-|---:|---:|
-| 0 | 2.205x |
-| (0, .25] | 1.720x |
-| (.25, .5] | 0.988x |
-| (.5, .75] | 0.592x |
-| (.75, 1) | 0.463x |
+For example, the low-nonzero bin receives **1.720x** the mass under MaxRL, yet its correctness gain is **0.44 pp smaller**. The full trajectory shows why the conclusion is about persistence, not just the endpoint:
 
-So MaxRL puts much more realized advantage on problems the starting model rarely solves, and much less on easier problems.
+![Signal allocation versus behavioral change](figures/signal_vs_behavior.svg)
 
-But correctness does not show a matching persistent reallocation. At the endpoint, MaxRL minus GRPO correctness change in the same bins is:
+*Same five fixed `p0` bins at all 20 checkpoints. Left: cumulative advantage-mass ratio (above 1 means more under MaxRL). Right: difference in correctness gain (above 0 favors MaxRL). The two lowest bins have more mass under MaxRL throughout, but their correctness differences change sign.*
 
-| `p0` bin | difference in correctness change |
-|---:|---:|
-| 0 | -4.71 pp |
-| (0, .25] | -0.44 pp |
-| (.25, .5] | -1.91 pp |
-| (.5, .75] | -0.62 pp |
-| (.75, 1) | -0.16 pp |
-
-Across the full trajectory, the shift in advantage mass toward low-`p0` problems is persistent; the corresponding correctness differences are not. A centered follow-up analysis is more mixed, so I do **not** claim that the objective can never change the allocation of behavioral gains.
-
-The narrower point is the one I care about: **a large change in where RLVR places scalar training signal does not produce a comparably clean change in where correctness improves.**
+Subtracting the whole-panel correctness difference from each bin's contrast gives mixed evidence about relative allocation. The result concerns **persistent scalar reweighting without a persistent absolute correctness advantage in the same bins**; it does not establish that reweighting has no benefit.
 
 ## Scoring robustness
 
@@ -74,16 +62,16 @@ So that particular extraction artifact does not explain the pre-exposure improve
 
 ## The open question
 
-The experiments leave a gap between **where measured RL training signal is concentrated** and **where behavior changes**. I do not yet know what mediates that gap.
+Own exposure records participation; advantage mass records scalar weighting. Neither identifies which source problems caused a target problem to improve. **What additional information would make these records useful for predicting the beneficiaries of training?**
 
-Possible candidates include shared reasoning patterns, shared internal representations, interference between problems, stopping behavior, and answer-format changes. The next step is to ask whether we can predict which problems benefit from training signal generated elsewhere, and what distinguishes responses that improve from those that do not.
+Shared reasoning patterns, representations, and cross-problem interference are possible explanations, alongside stopping and answer-format changes. Distinguishing them requires predicting and testing the effects of training on particular source problems.
 
 ## Setup
 
 - Qwen3-0.6B
 - common SFT warm start on 10k OpenR1-Math examples
 - GSM8K train `[:256]` fixed panel
-- K=32 pre-RL bank for `p0`, split for cross-fitting
+- K=32 pre-RL bank, cross-fit so bin assignment and baseline correctness use independent halves
 - separate K=16 snapshot evaluation bank
 - matched GRPO / MaxRL, seed 42
 - one training epoch, 3736 optimizer steps
@@ -96,7 +84,7 @@ Main analysis code and outputs:
 - `analyses/plot_signal_behavior_mismatch.py`
 - `analyses/canonical_exposure_split_adjusted/`
 - `analyses/canonical_maxrl_grpo_objective_comparison/`
-- `analyses/strict_extractor_robustness/`
+- [Strict-scoring results](docs/superpowers/checkpoints/2026-09-08-strict-extractor-robustness.md)
 
 The current GRPO/MaxRL comparison is one matched training seed, and exposure order is not randomized. I treat these as diagnostics of the signal-to-behavior relationship, not as a randomized causal estimate.
 

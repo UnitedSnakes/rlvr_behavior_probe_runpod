@@ -169,3 +169,90 @@ def results_tables(A: dict) -> str:
         L.append(f"| {STEP_OF[pct]} | " + ", ".join(f"{v:+.2f}" for v in pe[pct]["U_minus_E"]) + f" | {st['mean']:+.2f} | {ci(st['ci95'])} |")
     L.append("")
     return "\n".join(L)
+
+
+def secondary_tables(A: dict) -> str:
+    acr = A["across"]
+    names = acr["pairs"]
+    L = ["### Secondary: d_b and q_b at all EVAL_STEPS (pp; across-pair mean and 95 % t-interval; no wording rule applies)\n"]
+    for m in ("C", "R", "T"):
+        L.append(f"**{m}**\n")
+        L.append("| Step | Stat | " + " | ".join(BINS) + " |")
+        L.append("|---|---|" + "---|" * len(BINS))
+        for pct in ("25", "45", "65", "100"):
+            for s_ in ("d", "q"):
+                cells = []
+                for b in BINS:
+                    st = acr["secondary"][f"{s_}_{m}_{b}_{pct}"]
+                    vals = ", ".join(f"{v:+.2f}" for v in st["values"])
+                    cells.append(f"{st['mean']:+.2f} {ci(st['ci95'])} ({vals})")
+                L.append(f"| {STEP_OF[pct]} | {s_} | " + " | ".join(cells) + " |")
+        L.append("")
+    return "\n".join(L)
+
+
+def panel_table(A: dict) -> str:
+    names = A["across"]["pairs"]
+    L = ["### Whole-panel rates (%), per pair and arm (K = 16 protocol evaluation)\n",
+         "| Pair | Arm | Step | R | T | C |", "|---|---|---|---:|---:|---:|"]
+    for n in names + ["discovery"]:
+        res = A["pairs"][n] if n != "discovery" else A["discovery"]
+        for arm in ("grpo", "maxrl"):
+            for pct in ("25", "45", "65", "100"):
+                p = res["panel"][arm][pct]
+                L.append(f"| {n if n != 'discovery' else 'seed 42 (A40)'} | {'GRPO' if arm == 'grpo' else 'MaxRL'} | {STEP_OF[pct]} | "
+                         f"{PP*p['R']:.2f} | {PP*p['T']:.2f} | {PP*p['C']:.2f} |")
+    L.append("")
+    return "\n".join(L)
+
+
+def clipping_table(A: dict) -> str:
+    names = A["across"]["pairs"]
+    L = ["### Clipping diagnostics (log proxy; clipping rescales the whole batch gradient, relative weights within a batch are untouched)\n",
+         "| Pair | Arm | Steps logged | Share clipped | Mean coef. | Median | 5th pct |", "|---|---|---:|---:|---:|---:|---:|"]
+    for n in names:
+        for arm, c in A["pairs"][n].get("clipping", {}).items():
+            if c.get("n_steps_logged"):
+                L.append(f"| {n} | {arm} | {c['n_steps_logged']} | {PP*c['share_clipped']:.1f} % | {c['mean']:.3f} | "
+                         f"{c['quantiles']['50']:.3f} | {c['quantiles']['5']:.3f} |")
+    L.append("")
+    cw = [n for n in names if "clip_weighted_mass" in A["pairs"][n] and "error" not in A["pairs"][n]["clip_weighted_mass"]]
+    if cw:
+        L.append("Clip-weighted |A| mass ratio MaxRL/GRPO (each group's |A| × the clip coefficient of the step that consumed it; "
+                 "log proxy, not a measure of parameter contribution):\n")
+        L.append("| Pair | Step | " + " | ".join(BINS) + " |")
+        L.append("|---|---|" + "---:|" * len(BINS))
+        for n in cw:
+            for step, blk in A["pairs"][n]["clip_weighted_mass"].items():
+                L.append(f"| {n} | {step} | " + " | ".join(f"{blk[b]['ratio']:.2f}" for b in BINS) + " |")
+        L.append("")
+    return "\n".join(L)
+
+
+def discovery_sensitivity(A: dict) -> str:
+    s_ = A.get("discovery_box_reevaluated") or {}
+    if not s_:
+        return "Discovery-pair checkpoints re-evaluated on the box: not available.\n"
+    L = ["### Discovery pair: A40 evaluation vs its checkpoints re-evaluated on the box (sensitivity row), C, pp\n",
+         "| Step | Stat | Source | " + " | ".join(BINS) + " |", "|---|---|---|" + "---:|" * len(BINS)]
+    for pct, blk in s_.items():
+        for st in ("d", "q"):
+            a40 = A["discovery"]["dq_k16"][pct]["C"][st]
+            L.append(f"| {STEP_OF[pct]} | {st} | A40 | " + " | ".join(f"{PP*a40[b]:+.2f}" for b in BINS) + " |")
+            L.append(f"| {STEP_OF[pct]} | {st} | box | " + " | ".join(f"{PP*blk['C'][st][b]:+.2f}" for b in BINS) + " |")
+    L.append("")
+    return "\n".join(L)
+
+
+def wording_sentences(A: dict) -> str:
+    acr = A["across"]
+    L = ["### Pre-registered sentences for the primary cells\n"]
+    for key, st in acr["primary"].items():
+        if st["ci95"] is None:
+            L.append(f"- {CELL_LABEL[key]}: values {', '.join(f'{v:+.2f}' for v in st['values'])} pp across "
+                     f"{st['n']} pair(s); no interval with fewer than three pairs — **{st['wording']}**.")
+        else:
+            L.append(f"- {CELL_LABEL[key]}: mean {st['mean']:+.2f} pp, 95 % CI {ci(st['ci95'])}, one-sided 95 % upper bound "
+                     f"{st['upper95_one_sided']:+.2f} pp (n = {st['n']}) — **{st['wording']}**.")
+    L.append("\nThe eight intervals carry no multiplicity adjustment.\n")
+    return "\n".join(L)

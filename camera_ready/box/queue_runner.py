@@ -79,6 +79,14 @@ def save_state(state: dict) -> None:
         os.replace(tmp, STATE)
     if time.time() - _last_smi[0] > 1800:
         _last_smi[0] = time.time()
+        try:
+            _smi_snapshot()
+        except Exception as exc:  # diagnostics must never stop the queue
+            log(f"nvidia-smi snapshot failed: {exc}")
+
+
+def _smi_snapshot() -> None:
+    if True:
         smi = subprocess.run(
             ["nvidia-smi", "--query-compute-apps=pid,gpu_uuid,used_memory", "--format=csv,noheader"],
             capture_output=True, text=True,
@@ -310,7 +318,7 @@ def ledger_steps(run: Path) -> int:
 def projected_train_hours(state: dict) -> float:
     m = state["measured"]
     if m.get("train_hours_completed"):
-        return max(m["train_hours_completed"])
+        return m["train_hours_completed"][-1]  # most recent completed pair (PREREG_RUNS §5)
     return float(m["train_hours_projected_from_smoke"])
 
 

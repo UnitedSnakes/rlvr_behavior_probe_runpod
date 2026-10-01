@@ -100,6 +100,16 @@ def patch_logging(output_dir: Path, smoke_stop_step: int | None) -> None:
     log_path = Path(output_dir) / "camera_ready_step_log.jsonl"
 
     class LoggingPolicySnapshotCallback(base_callback):
+        def on_train_begin(self, args, state, control, **kwargs):
+            control = super().on_train_begin(args, state, control, **kwargs)
+            if getattr(state, "is_world_process_zero", False):
+                resolved = {f.name: getattr(args, f.name) for f in dataclasses.fields(args)}
+                resolved["_world_size"] = args.world_size
+                (Path(output_dir) / "camera_ready_trainer_args.json").write_text(
+                    json.dumps(resolved, indent=1, sort_keys=True, default=str)
+                )
+            return control
+
         def on_log(self, args, state, control, logs=None, **kwargs):
             if getattr(state, "is_world_process_zero", False) and logs is not None:
                 record = {"step": int(state.global_step)}
@@ -148,7 +158,7 @@ def write_provenance(output_dir: Path, args, config_path: Path, tree: Path) -> N
         "runtime_patches": [
             "controlled_run.config.GRPO_INVARIANTS['seed'] = seed (only the seed equality check is relaxed)",
             "train_grpo.build_grpo_arguments(...).logging_steps = 1 (logging only)",
-            "train_grpo.PolicySnapshotCallback += on_log JSONL writer (logging only)",
+            "train_grpo.PolicySnapshotCallback += on_log JSONL writer and on_train_begin dump of the resolved Trainer args (logging only)",
         ]
         + (["smoke: save at stop step and stop training (scratch only)"] if args.smoke_stop_step else []),
         "env": {k: os.environ.get(k) for k in ("CUDA_VISIBLE_DEVICES", "WORLD_SIZE", "HF_HUB_OFFLINE", "WANDB_MODE")},

@@ -1,0 +1,6 @@
+# Large pulled artifacts (ledgers, raw evaluation banks) stay out of git; checksums are recorded in PROGRESS.md.
+data/
+__pycache__/
+*.pyc
+# Rows derived from the private project_2145 checkpoints (C1 fallback only) must never be committed.
+private_fallback/

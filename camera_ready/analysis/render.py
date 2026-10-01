@@ -88,3 +88,84 @@ if __name__ == "__main__":
     F = json.loads(Path(sys.argv[1]).read_text())
     Path(sys.argv[2]).write_text(seed42_F_md(F))
     print("written", sys.argv[2])
+
+
+# ----------------------------------------------------------------------------- RESULTS tables
+
+CELL_LABEL = {
+    "d_C_0": "d, C, bin 0", "q_C_0": "q, C, bin 0", "d_C_(0,.25]": "d, C, bin (0,.25]", "q_C_(0,.25]": "q, C, bin (0,.25]",
+    "d_R_0": "d, R, bin 0", "q_R_0": "q, R, bin 0", "d_R_(0,.25]": "d, R, bin (0,.25]", "q_R_(0,.25]": "q, R, bin (0,.25]",
+}
+
+
+def results_tables(A: dict) -> str:
+    acr = A["across"]
+    names = acr["pairs"]
+    K = A["endpoint_k_primary"]
+    L = []
+    L.append(f"Main sample: {len(names)} box-trained pair(s) ({', '.join(names) or 'none'}). Endpoint K for the primary "
+             f"cells: {K} responses per question (rule: 64 only if every pair has all 64). Bridge verdict: "
+             f"{A['bridge_verdict']}; baselines from the {'A40' if A['baseline_bank'] == 'a40' else 'regenerated box'} π0 banks; "
+             "bins: the paper's frozen A40 cross-fit bins.\n")
+    L.append("### Primary cells (step 3736; MaxRL − GRPO, pp)\n")
+    L.append("Two-sided 95 % t-intervals across pairs (df = n − 1; none for n < 3); no multiplicity adjustment across "
+             "the eight cells. In brackets after each pair's value: its within-pair conditional sampling interval "
+             "(responses resampled within question), which is not seed uncertainty.\n")
+    head = "| Cell | " + " | ".join(names) + " | Mean | 95 % CI | One-sided 95 % upper | Wording (δ = 3 pp) | Discovery (A40 seed 42, K=16) |"
+    L.append(head)
+    L.append("|---|" + "---|" * len(names) + "---:|---|---:|---|---|")
+    for key, st in acr["primary"].items():
+        per = []
+        for n, v in zip(names, st["values"]):
+            w = st["per_pair_within_interval_pp"][n]
+            per.append(f"{v:+.2f} [{w[0]:+.2f}, {w[1]:+.2f}]")
+        up = "—" if st["upper95_one_sided"] is None else f"{st['upper95_one_sided']:+.2f}"
+        L.append(f"| {CELL_LABEL[key]} | " + " | ".join(per) + f" | {st['mean']:+.2f} | {ci(st['ci95'])} | {up} | "
+                 f"{st['wording']} | {st['discovery_value_k16']:+.2f} ({st['discovery_vs_new_range']} the new pairs' range) |")
+    L.append("")
+    if K == 64:
+        L.append("K = 16 version of the primary cells (protocol evaluation, for continuity with the paper):\n")
+        L.append("| Cell | " + " | ".join(names) + " | Mean | 95 % CI |")
+        L.append("|---|" + "---:|" * len(names) + "---:|---|")
+        for key, st in acr["primary"].items():
+            k16 = st["k16_across"]
+            L.append(f"| {CELL_LABEL[key]} | " + " | ".join(f"{v:+.2f}" for v in st["k16_values"]) + f" | {k16['mean']:+.2f} | {ci(k16['ci95'])} |")
+        L.append("")
+    # mass
+    L.append("### Advantage mass (MaxRL/GRPO), per pair\n")
+    L.append("| Pair | Step | " + " | ".join(f"{b} ratio; share ratio" for b in BINS) + " |")
+    L.append("|---|---|" + "---|" * len(BINS))
+    for n in names + ["discovery"]:
+        res = A["pairs"][n] if n != "discovery" else A["discovery"]
+        for step in ("934", "1681", "2428", "3736"):
+            blk = res["mass"][step]
+            L.append(f"| {n if n != 'discovery' else 'seed 42 (A40)'} | {step} | " + " | ".join(
+                f"{blk[b]['mass_ratio']:.2f}; {blk[b]['share_ratio']:.2f}" for b in BINS) + " |")
+    L.append(f"\nReweighting realized (ratio > 1 in bins 0 and (0,.25] at step 3736 in every new pair): "
+             f"**{acr['reweighting_realized_at_3736']}**; also at all four EVAL_STEPS: {acr['reweighting_above1_all_eval_steps']}.\n")
+    # pre-exposure
+    L.append("### Pre-exposure gain, GRPO arm, bin (0,.25] (frozen adjustment model), pp\n")
+    L.append("| Pair | Cutoff | ΔC exposed | ΔC not yet exposed | U − E | n exposed / not yet (A; B) |")
+    L.append("|---|---|---:|---:|---:|---|")
+    for n in names + ["discovery"]:
+        res = A["pairs"][n] if n != "discovery" else A["discovery"]
+        bank = A["baseline_bank"] if n != "discovery" else "a40"
+        for pct in ("25", "45", "65"):
+            c = res["pre_exposure"][bank][pct]["(0,.25]"] if pct in res["pre_exposure"][bank] else res["pre_exposure"][bank][int(pct)]["(0,.25]"]
+            if c.get("status") != "ok":
+                L.append(f"| {n} | {STEP_OF[pct]} | — | — | — | not estimable |")
+                continue
+            L.append(f"| {n if n != 'discovery' else 'seed 42 (A40)'} | {STEP_OF[pct]} | {PP*c['exposed']:+.2f} | {PP*c['unexposed']:+.2f} | "
+                     f"{PP*c['gap_u_minus_e']:+.2f} | {c['A']['n_exposed']}/{c['A']['n_unexposed']}; {c['B']['n_exposed']}/{c['B']['n_unexposed']} |")
+    pe = acr["pre_exposure_(0,.25]"]
+    L.append(f"\nPre-exposure gain replicated (ΔC_U > 0 at all three cutoffs in every new seed): **{acr['pre_exposure_replicated']}**.\n")
+    L.append("Random-schedule exposure contrast (supplementary; adjusted U − E in (0,.25]; across-seed mean and 95 % t-interval; "
+             "estimand: the average effect, under random scheduling, of a question having entered training by the cutoff "
+             "instead of a random other question taking its place — not pure self-influence, not a share of the total gain):\n")
+    L.append("| Cutoff | Per seed | Mean | 95 % CI |")
+    L.append("|---|---|---:|---|")
+    for pct in ("25", "45", "65"):
+        st = pe[pct]["U_minus_E_across"]
+        L.append(f"| {STEP_OF[pct]} | " + ", ".join(f"{v:+.2f}" for v in pe[pct]["U_minus_E"]) + f" | {st['mean']:+.2f} | {ci(st['ci95'])} |")
+    L.append("")
+    return "\n".join(L)

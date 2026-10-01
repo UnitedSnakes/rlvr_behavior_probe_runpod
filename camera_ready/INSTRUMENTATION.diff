@@ -1,0 +1,31 @@
+# Logging-only instrumentation (D1), equivalent unified diff against controlled_run/train_grpo.py @ 981475795538eee391c7e86aa022ee609b539770.
+# Not applied to the training checkout (which stays clean at 9814757); camera_ready/launch_train.py applies the same two changes at runtime:
+#   1. GRPOConfig.logging_steps = 1 (Transformers default 10 was used for seed 42): Trainer logs grad_norm (pre-clip total norm returned by
+#      accelerator.clip_grad_norm_), learning_rate and TRL metrics every optimizer step. Extra work per step: one scalar loss gather and metric averaging.
+#   2. PolicySnapshotCallback.on_log appends each log record to <run>/camera_ready_step_log.jsonl on rank 0.
+# Neither touches the model, loss, sampling, batching, RNG consumption or the optimizer. Clip coefficient is derived post hoc as min(1, 1.0/(grad_norm+1e-6)).
+--- a/controlled_run/train_grpo.py	2026-10-01 01:25:52
++++ b/controlled_run/train_grpo.py	2026-10-01 01:25:52
+@@ -108,6 +108,7 @@
+         "save_strategy": "steps",
+         "save_steps": 0.25,
+         "report_to": "none",
++        "logging_steps": 1,
+         "seed": config["seed"],
+         "data_seed": config["seed"],
+     }
+@@ -143,6 +144,15 @@
+     def on_train_begin(self, args, state, control, **kwargs):
+         if getattr(state, "is_world_process_zero", False):
+             self._ensure_schedule(state)
++        return control
++
++    def on_log(self, args, state, control, logs=None, **kwargs):
++        if getattr(state, "is_world_process_zero", False) and logs is not None:
++            record = {"step": int(state.global_step)}
++            record.update({k: v for k, v in logs.items() if isinstance(v, (int, float, str))})
++            with (self.output_dir / "camera_ready_step_log.jsonl").open("a", encoding="utf-8") as handle:
++                handle.write(json.dumps(record) + "\n")
+         return control
+ 
+     def on_step_end(self, args, state, control, model=None, **kwargs):

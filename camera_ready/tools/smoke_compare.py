@@ -83,7 +83,7 @@ def main(argv=None) -> int:
     res["alerts_gt_3se"] = alerts
 
     if args.box_step_log and args.box_step_log.is_file():
-        recs = {json.loads(l)["step"]: json.loads(l) for l in open(args.box_step_log)}
+        recs = {r["step"]: r for r in map(json.loads, open(args.box_step_log)) if "learning_rate" in r}
         res["box_lr"] = {s: recs[s].get("learning_rate") for s in sorted(recs) if s % 10 == 0}
         res["box_peak_mem_gib"] = max((r.get("cr_max_memory_allocated_gib") or 0) for r in recs.values())
         res["box_peak_reserved_gib"] = max((r.get("cr_max_memory_reserved_gib") or 0) for r in recs.values())

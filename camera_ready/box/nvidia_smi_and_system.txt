@@ -1,0 +1,46 @@
+Thu Oct  1 14:07:11 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.95.05              Driver Version: 580.95.05      CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 4080 ...    On  |   00000000:49:00.0 Off |                  N/A |
+| 30%   54C    P2            213W /  320W |   30633MiB /  32760MiB |    100%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+|   1  NVIDIA GeForce RTX 4080 ...    On  |   00000000:5B:00.0 Off |                  N/A |
+| 39%   57C    P2            218W /  320W |   30693MiB /  32760MiB |    100%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+|   2  NVIDIA GeForce RTX 4080 ...    On  |   00000000:B8:00.0 Off |                  N/A |
+| 30%   54C    P2            245W /  320W |   31873MiB /  32760MiB |     88%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+|   3  NVIDIA GeForce RTX 4080 ...    On  |   00000000:C8:00.0 Off |                  N/A |
+| 30%   55C    P2            173W /  320W |   29533MiB /  32760MiB |     99%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A           15130      C   ...todl-tmp/envs/rlvr/bin/python      30624MiB |
+|    1   N/A  N/A           15131      C   ...todl-tmp/envs/rlvr/bin/python      30684MiB |
+|    2   N/A  N/A           15132      C   ...todl-tmp/envs/rlvr/bin/python      31864MiB |
+|    3   N/A  N/A           15133      C   ...todl-tmp/envs/rlvr/bin/python      29524MiB |
++-----------------------------------------------------------------------------------------+
+
+index, name, uuid, pci.bus_id, compute_cap, memory.total [MiB], driver_version
+0, NVIDIA GeForce RTX 4080 SUPER, GPU-f57d90cf-6c64-36f2-9a22-d92ec495a409, 00000000:49:00.0, 8.9, 32760 MiB, 580.95.05
+1, NVIDIA GeForce RTX 4080 SUPER, GPU-d4982976-05a0-0fb6-f0c4-d517ba8bce2f, 00000000:5B:00.0, 8.9, 32760 MiB, 580.95.05
+2, NVIDIA GeForce RTX 4080 SUPER, GPU-99b0c8da-d03c-d3fe-5e25-f22ad7e71b64, 00000000:B8:00.0, 8.9, 32760 MiB, 580.95.05
+3, NVIDIA GeForce RTX 4080 SUPER, GPU-59ccfcbd-ca4a-7f23-d3fb-ed6b1319f3a4, 00000000:C8:00.0, 8.9, 32760 MiB, 580.95.05
+Cuda compilation tools, release 13.0, V13.0.48
+Build cuda_13.0.r13.0/compiler.36260728_0
+PRETTY_NAME="Ubuntu 22.04.5 LTS"
+NAME="Ubuntu"
+5.15.0-78-generic

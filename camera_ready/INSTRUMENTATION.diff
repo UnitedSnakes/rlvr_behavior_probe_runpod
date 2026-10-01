@@ -2,7 +2,8 @@
 # Not applied to the training checkout (which stays clean at 9814757); camera_ready/launch_train.py applies the same two changes at runtime:
 #   1. GRPOConfig.logging_steps = 1 (Transformers default 10 was used for seed 42): Trainer logs grad_norm (pre-clip total norm returned by
 #      accelerator.clip_grad_norm_), learning_rate and TRL metrics every optimizer step. Extra work per step: one scalar loss gather and metric averaging.
-#   2. PolicySnapshotCallback.on_log appends each log record to <run>/camera_ready_step_log.jsonl on rank 0.
+#   2. PolicySnapshotCallback.on_log appends each log record to <run>/camera_ready_step_log.jsonl on rank 0, plus the read-only
+#      counters torch.cuda.max_memory_allocated/reserved; on_train_begin writes the resolved Trainer args to camera_ready_trainer_args.json.
 # Neither touches the model, loss, sampling, batching, RNG consumption or the optimizer. Clip coefficient is derived post hoc as min(1, 1.0/(grad_norm+1e-6)).
 --- a/controlled_run/train_grpo.py	2026-10-01 01:25:52
 +++ b/controlled_run/train_grpo.py	2026-10-01 01:25:52

@@ -112,8 +112,13 @@ def patch_logging(output_dir: Path, smoke_stop_step: int | None) -> None:
 
         def on_log(self, args, state, control, logs=None, **kwargs):
             if getattr(state, "is_world_process_zero", False) and logs is not None:
+                import torch
+
                 record = {"step": int(state.global_step)}
                 record.update({k: v for k, v in logs.items() if isinstance(v, (int, float, str))})
+                if torch.cuda.is_available():  # read-only memory counters (rank 0)
+                    record["cr_max_memory_allocated_gib"] = torch.cuda.max_memory_allocated() / 2**30
+                    record["cr_max_memory_reserved_gib"] = torch.cuda.max_memory_reserved() / 2**30
                 with log_path.open("a", encoding="utf-8") as handle:
                     handle.write(json.dumps(record) + "\n")
             return control

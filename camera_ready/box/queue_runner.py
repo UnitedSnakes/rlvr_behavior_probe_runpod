@@ -119,7 +119,9 @@ def train_env(gpus: str) -> dict:
     env = base_env()
     # The unchanged trainer resolves the GSM8K `main` revision online at launch; the academic proxy
     # stays off, so the lookup goes to the HF mirror. The resolved SHA is verified after launch.
-    env.update({"CUDA_VISIBLE_DEVICES": gpus, "HF_ENDPOINT": "https://hf-mirror.com", "PYTHONPATH": str(TRAIN_TREE)})
+    env.update({"CUDA_VISIBLE_DEVICES": gpus, "HF_ENDPOINT": "https://hf-mirror.com", "PYTHONPATH": str(TRAIN_TREE),
+                # resource-only: avoids allocator fragmentation OOM on 32 GB cards (no numerical effect)
+                "PYTORCH_CUDA_ALLOC_CONF": "expandable_segments:True"})
     return env
 
 

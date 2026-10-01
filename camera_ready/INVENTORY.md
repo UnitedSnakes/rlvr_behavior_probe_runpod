@@ -97,7 +97,7 @@ FlashInfer) are pinned through torch 2.13.0+cu130 and vLLM 0.27.1.
 | Question order (RepeatSampler shuffle) | **yes**, `seed=self.args.seed`; same for both arms with the same seed | TRL v1.12.0 `trl/trainer/grpo_trainer.py:1277-1284`; `args.seed = config["seed"]` (`train_grpo.py:111` @9814757) |
 | `data_seed` | set to the same value | `train_grpo.py:112` @9814757 |
 | torch / trainer RNG | yes, `set_seed(args.seed, device_specific=True)` | TRL v1.12.0 `grpo_trainer.py:1083` |
-| Colocated vLLM rollout sampler | **no**: engine seed is `accelerator.process_index // tensor_parallel_size` (0 or 1), independent of the training seed; no per-request seed is passed | TRL v1.12.0 `trl/generation/vllm_generation.py:357`. Rollouts are therefore not seeded by the training seed and are not reproducible across hardware or batch composition |
+| Colocated vLLM rollout sampler | **not the training seed**: the engine gets a fixed rank seed `accelerator.process_index // tensor_parallel_size` (0 on rank 0, 1 on rank 1); no per-request seed is passed | TRL v1.12.0 `trl/generation/vllm_generation.py:357`. Every run, whatever its training seed, starts its rollout sampler from the same rank seeds; the rollouts differ across training seeds because the prompts and the policy differ. Token-level reproduction across hardware is not guaranteed. The original implementation is kept unchanged |
 | Snapshot evaluation seed | `config["seed"]*100000 + dataset_index + 75000`; the "42" is the **training-config seed field**, not a constant | `eval_snapshot.py:29-35,236` and `sample_p0.py:45` @1c26b1f |
 | π0 bank seeds | A: `42*100000 + idx`; B: `42*100000 + idx + 50000`; engine `LLM(seed=42)` | `diagnose_p0_signal_budget.py:66-73,285` @5b10742; checkpoint `2026-09-02-k32-train-p0-rebaseline.md:30-34` |
 
@@ -149,3 +149,79 @@ stored in the seed-42 evaluation rows (to be recorded in `PROGRESS.md`).
 - Box: 4 × RTX 4080 SUPER 32 GB (compute capability 8.9, no ECC), driver
   580.95.05, system CUDA 12.9 only, no system Python on PATH; container limits
   64 CPUs and 320 GB RAM.
+
+## 8. Training-path differences between the two seed-42 runs (Sam item 5)
+
+Checked 2026-10-01 05:30 UTC. GRPO execution commit is not recorded anywhere
+(not in `grpo_run_manifest.json`, not in the GRPO HF repo, which holds no
+training log); the inference `c664e26` from §1.1 stands. MaxRL execution commit
+`9814757` is confirmed by `execution_git_commit.txt` in the MaxRL HF model repo.
+`c664e26` is an ancestor of `9814757`.
+
+### 8.1 Code (`git diff c664e26 9814757`, every file outside docs/tests/analyses)
+
+| File | Change | On the training path? |
+|---|---|---|
+| `controlled_run/train_grpo.py` | `run_grpo` body moved into `_run_controlled_grpo(recorder_factory=RewardBatchRecorder, trainer_transform=None, manifest_filename="grpo_run_manifest.json", manifest_extra=None, result_extra=None)`; `run_grpo` calls it with defaults | Yes, but behaviour-preserving for GRPO: with the defaults the trainer class, recorder, ledger wrapper, arguments and manifest are exactly those of `c664e26` |
+| `controlled_run/maxrl.py` (new) | `compute_practical_maxrl_advantages`; `MaxRLRewardBatchRecorder.peek`; `PracticalMaxRLTrainer._generate_and_score_completions` replaces `output["advantages"]` after TRL computed its GRPO advantages; one extra `accelerator.gather` of rewards; overwrites the latest batch in TRL's `_logs["advantages"]` diagnostic deque | MaxRL arm only. The replaced tensor is the **advantage estimator** (the intended intervention). The extra all-gather is a collective with no RNG use; the `_logs` overwrite is logging-only |
+| `controlled_run/train_maxrl.py` (new) | MaxRL entry: same config validation, calls `_run_controlled_grpo` with the MaxRL recorder/transform, writes `maxrl_run_manifest.json` with an extra `objective` block | MaxRL arm only; no other argument differs |
+| `controlled_run/eval_snapshot.py`, `prepare_analysis_inputs.py`, `maxrl_pilot_acceptance.py`, `artifact_registry.json` (new) | evaluation / analysis / acceptance | No |
+| `controlled_run/distributed_preflight.py` (new), `docker/rlvr-bootstrap.sh` | exact-commit gate and NCCL all-reduce preflight run by the pod bootstrap before training | No (pre-training gates; not imported by training) |
+| `.github/workflows/build-runpod-image.yml` | image builds now also triggered from `codex/signal-ledger` | Not code on the training path, but see 8.3 |
+
+Unchanged between the two commits: `signal_ledger.py`, `rewards.py`, `data.py`,
+`config.py`, `checkpointing.py`, `provenance.py`, `configs/grpo_qwen3_0_6b.yaml`,
+`docker/Dockerfile`, `docker/requirements-vllm.txt`, `controlled_run/requirements-a40.in`.
+
+### 8.2 Run manifests
+
+`grpo_run_manifest.json` (GRPO HF repo @`0ff3639`) and `maxrl_run_manifest.json`
+(MaxRL HF repo @`e67069c`) are identical in every shared field — `config`,
+`gsm8k_dataset_sha`, `runtime_batch`, `pi0_manifest`, `pi0_lineage_id`,
+`prompt_length_audit`, `signal_ledger`, `core_diagnostics`, `mode`,
+`scientific_use`, `pilot_steps`. The only extra field is MaxRL's `objective`
+block. `policy_snapshot_schedule.json` files are byte-identical.
+
+### 8.3 Environment (not fully identifiable)
+
+- Recorded for both arms (evaluation manifests and MaxRL trainer README):
+  Python 3.12.13, torch 2.13.0+cu130, transformers 5.15.0, datasets 5.0.1,
+  vLLM 0.27.1; MaxRL additionally TRL 1.12.0, tokenizers 0.22.2, NCCL 2.29.7,
+  driver 580.159.04 (`distributed_preflight.json`). No GRPO-side record of TRL,
+  NCCL, driver or GPU UUIDs exists.
+- The image workflow change (8.1) means the MaxRL pod may have used a later
+  build of the same Dockerfile than the GRPO pod. The Dockerfile pins the
+  packages above; transitive packages are pinned through torch/vLLM, but an
+  image digest for either run is not recorded, so identical images cannot be
+  confirmed. The two runs also ran on different days and, very likely,
+  different A40 pods.
+
+**Conclusion.** At code level the only training difference is the advantage
+estimator (plus logging and one extra collective). Image identity and pod
+hardware between the two seed-42 runs cannot be verified from the records. The
+new pairs remove this ambiguity by construction: both arms of each pair run
+from one checkout of `9814757`, in one environment, on the same box,
+concurrently. They can be described as an estimator-only comparison at the
+code level; the seed-42 pair can be described that way at the code level only,
+with the environment caveat above.
+
+## 9. Further facts found after the first push
+
+- Seed-42 trainer logging used the Transformers default `logging_steps = 10`:
+  the MaxRL log has 373 metric records over 3,736 steps, each with `grad_norm`
+  (pre-clip norm at that step), `learning_rate`, `step_time`
+  (`logs/maxrl_canonical_seed42.log` in HF dataset
+  `HKReporter/rlvr-behavior-probe-maxrl-analysis-seed42-2026-09-05`).
+  MaxRL `trainer_state.json` files are in the MaxRL model repo under
+  `trainer/checkpoint-{934,1868,2802,3736}/`. No GRPO training log or trainer
+  state was uploaded. So seed-42 clipping diagnostics can only be a
+  1-in-10-step sample for MaxRL and are unavailable for GRPO.
+- A40 MaxRL wall clock: launch 2026-09-04 01:56Z, exit 21:25Z → 19.5 h for
+  3,736 steps; ~21 s/step at the start, ~17–18 s/step late.
+- GSM8K train has 7,473 rows (`prompt_length_audit.count`), the schedule uses
+  7,472 groups, so one question per seed is never sampled. Under seed 42 every
+  panel question was sampled. Under a new seed a panel question can be the
+  unsampled one (probability 256/7,473); it is then "not yet exposed" at every
+  cutoff and has zero advantage mass.
+- `FLASH_ATTN_CUDA_ARCHS=80` (the A40 image setting) is kept on the sm_89
+  RTX 4080 SUPER; whether it runs correctly is decided by the smoke test.

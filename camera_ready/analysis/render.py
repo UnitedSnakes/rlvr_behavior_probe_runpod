@@ -76,7 +76,8 @@ def seed42_F_md(F: dict) -> str:
     if "clipping" in F:
         c = F["clipping"]["maxrl"]
         L.append(f"**Clipping (seed 42).** MaxRL, every 10th optimizer step only ({c['n_steps_logged']} logged steps): "
-                 f"share clipped (grad norm > 1) {PP*c['share_clipped']:.1f} %, mean clip coefficient {c['mean']:.3f}, "
+                 f"share clipped (clip coefficient c < 1, the pre-registered definition; it includes logged norms equal to one) "
+                 f"{PP*c['share_clipped']:.1f} %, mean clip coefficient {c['mean']:.3f}, "
                  f"median {c['quantiles']['50']:.3f}, 5th percentile {c['quantiles']['5']:.3f}. GRPO: "
                  f"{F['clipping']['grpo']['note']}.\n")
     return "\n".join(L)

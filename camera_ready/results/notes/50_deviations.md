@@ -22,9 +22,14 @@ Every item is logged with time and evidence in `PROGRESS.md`.
 12. The GRPO seed-42 execution commit is not recorded; inferred `c664e26`. Image and pod identity of the two seed-42 arms cannot be verified (`INVENTORY.md` §8).
 13. Seed-42 grad norms exist only for MaxRL at every 10th step; GRPO seed-42 training logs were not kept.
 
-12a. *Data movement (Sam, 10-03).* After seeds 43/44 were pulled in full, only small analysis outputs are pulled to the laptop (metered hotspot). The main analysis and the bridge statistics ran on the box with the committed code (commit `45d6130`); the discovery-pair results were computed on the laptop from the A40 data already there (`results/discovery_seed42.json`) and passed in. A box-side reproduction check (382 checks at the four EVAL_STEPS) gave the same numbers as the laptop.
-12b. *Endpoint K.* The primary cells use K = 16 for every pair: by the pre-registered all-or-nothing rule K = 64 requires all 64 endpoint responses in every pair, and the extra-batch rounds that could start before RESULTS_DUE − 6.5 h did not cover seed 45's third batch.
-12c. *Backups.* Private HF dataset and checkpoint repos (Sam-approved), uploaded from the box only; HF-side SHA-256 verification (`PROGRESS.md`).
+**Decided by Sam during the run (10-03)**
+
+14. *Data movement.* After seeds 43/44 were pulled in full, only small analysis outputs are pulled to the laptop (metered hotspot). The main analysis and the bridge statistics ran on the box with the committed code (commit `45d6130`); the discovery-pair results were computed on the laptop from the A40 data already there (`results/discovery_seed42.json`) and passed in. A box-side reproduction check (382 checks at the four EVAL_STEPS) gave the same numbers as the laptop.
+15. *Backups.* Private HF dataset and checkpoint repos (Sam-approved), uploaded from the box only; HF-side SHA-256 verification (`PROGRESS.md`). The account's private storage limit (100 GB) blocked the seed-45 intermediate checkpoints at 16:44 UTC; Sam upgraded the plan and the upload resumed at 16:50 UTC.
+
+**Outcome of the pre-registered extra-batch cut-off**
+
+16. *Endpoint K.* The primary cells use K = 16 for every pair. By the pre-registered all-or-nothing rule, K = 64 requires all 64 endpoint responses in every pair, and an extra-batch round starts only if it is projected to finish by RESULTS_DUE − 6.5 h (10-03 17:30 UTC). Final state: batches 1–3 for seeds 43 and 44 and batches 1–2 for seed 45 (all 16 jobs succeeded); at 17:18:35 UTC, when GPUs freed, the queue skipped seed 45's batch 3 (projected end ≈ 17:54 UTC). The main analysis had been run earlier, at 16:34 UTC, on the queue's projection: at that time all four GPUs were committed until ≈ 16:43 and then to seed 45's batches 1–2 until ≈ 17:19, so batch 3 could not start in time. The queue's skip at 17:18 confirms that projection; no result changes.
 
 **Operational issues (no effect on data)**
 

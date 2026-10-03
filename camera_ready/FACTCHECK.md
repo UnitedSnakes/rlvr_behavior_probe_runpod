@@ -225,3 +225,15 @@ Every primary-cell number, wording label, bridge statistic, gate and verdict, ma
 **Outside the scope of this check (PROGRESS.md, not RESULTS.md).** The 17:18 entry says the 16 extra jobs took "35.0–35.7 min each"; queue.log shows 34.3–35.7 min. The same entry has the same "≈ 17:54" projection.
 
 **Re-check verdict: FAIL.** One remaining discrepancy (R1: the projected end in §5 item 16 should be ≈ 17:57 UTC, not ≈ 17:54) has no effect on any decision or result. All five original findings are resolved, and every number, label, interval, gate and verdict in RESULTS.md and BRIDGE_REPORT.md matches the independent recomputation.
+
+## Final confirmation (2026-10-03, after commit 9fc7ec7)
+
+- **Scope of the change.** `git diff 5b08828 9fc7ec7 -- camera_ready/RESULTS.md` changes one sentence only: §5 item 16. The same sentence changed identically in `results/notes/50_deviations.md`. PROGRESS.md gains an appended 20:10 correction entry. BRIDGE_REPORT.md, `results/analysis.json`, `results/bridge.json` and `analysis/` are unchanged. The working tree is clean at `9fc7ec7`.
+- **Comparison re-run.** `recompute.py compare` on the final documents checks 2,157 items, of which 2,156 match. The single flagged item is the obsolete "as labelled (grad norm > 1)" assertion, which the Re-check above already found no longer applies. The label states c < 1, and that value matches (78.02 %).
+- **R1 resolved.** §5 item 16 now reads "the queue's projection, now + longest recorded evaluation of 38.3 min, gave an end of ≈ 17:57 UTC". This matches the code and the logs:
+  - `queue_runner.py` projects `now() + max(eval_wall_s)` against `latest_start` = RESULTS_DUE − 6.5 h = 17:30 UTC.
+  - `state.json` records the skip at 17:18:35.77 UTC, with a maximum of 2,300.56 s (38.3 min) over the 48 recorded walls.
+  - The projected end is therefore 17:56:56 UTC, about 17:57, which is past 17:30. The skip and K = 16 stand.
+- **Outside scope.** The PROGRESS.md 20:10 correction gives the right values (≈ 17:57; extra jobs 34.3–35.7 min).
+
+**Final verdict: PASS.** No mismatches and no wording issues remain in RESULTS.md or BRIDGE_REPORT.md.

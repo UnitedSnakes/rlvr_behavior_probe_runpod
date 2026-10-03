@@ -1,0 +1,1700 @@
+{
+ "files": 242,
+ "bad": 0,
+ "rows": [
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/SHA256SUMS",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4220
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/grpo_run_manifest.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 3597
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/policy_snapshot_schedule.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 457
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/prompt_length_audit.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 80
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/camera_ready_launch.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1199
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/camera_ready_config_seed43.yaml",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 945
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/camera_ready_integrity.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 408
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/camera_ready_step_log.jsonl",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4805685
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/step_log.jsonl",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4805685
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/grpo_train_attempt1.log",
+   "status": "OK",
+   "check": "sha256",
+   "size": 15342310
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/trainer_state_checkpoint-1868.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 2583469
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/trainer_state_checkpoint-2802.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 3875783
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/trainer_state_checkpoint-3736.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 5168306
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/trainer_state_checkpoint-934.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1291546
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/maxrl_run_manifest.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4117
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/policy_snapshot_schedule.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 457
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/prompt_length_audit.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 80
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/camera_ready_launch.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1204
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/camera_ready_config_seed43.yaml",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 945
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/camera_ready_integrity.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 410
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/camera_ready_step_log.jsonl",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4806710
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/step_log.jsonl",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4806710
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/maxrl_train_attempt1.log",
+   "status": "OK",
+   "check": "sha256",
+   "size": 15636636
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/trainer_state_checkpoint-1868.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 2583573
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/trainer_state_checkpoint-2802.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 3876700
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/trainer_state_checkpoint-3736.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 5169782
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/trainer_state_checkpoint-934.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1291709
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/eval/pi_100.log",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 30930
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/ledger/signal_ledger_20261001T062334Z_rank0.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 75077569
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/ledger/signal_ledger_20261001T062335Z_rank1.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 75083787
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/eval/pi_100/camera_ready_eval_provenance.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 615
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/eval/pi_100/prompt_length_audit.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 79
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/eval/pi_100/snapshot_eval_manifest.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4257
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/grpo/eval/pi_100/snapshot_raw.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 41064931
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/eval/pi_100.log",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 30923
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/ledger/signal_ledger_20261001T062329Z_rank1.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 74672189
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/ledger/signal_ledger_20261001T062333Z_rank0.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 74690867
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/eval/pi_100/camera_ready_eval_provenance.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 617
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/eval/pi_100/prompt_length_audit.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 79
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/eval/pi_100/snapshot_eval_manifest.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4261
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed43/maxrl/eval/pi_100/snapshot_raw.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 41726694
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/SHA256SUMS",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4220
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/grpo_run_manifest.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 3597
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/policy_snapshot_schedule.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 457
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/prompt_length_audit.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 80
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/camera_ready_launch.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1199
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/camera_ready_config_seed44.yaml",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 945
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/camera_ready_integrity.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 408
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/camera_ready_step_log.jsonl",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4804552
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/step_log.jsonl",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4804552
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/grpo_train_attempt1.log",
+   "status": "OK",
+   "check": "sha256",
+   "size": 14356155
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/trainer_state_checkpoint-1868.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 2583236
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/trainer_state_checkpoint-2802.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 3875770
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/trainer_state_checkpoint-3736.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 5168647
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/trainer_state_checkpoint-934.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1291491
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/maxrl_run_manifest.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4117
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/policy_snapshot_schedule.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 457
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/prompt_length_audit.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 80
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/camera_ready_launch.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1204
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/camera_ready_config_seed44.yaml",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 945
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/camera_ready_integrity.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 410
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/camera_ready_step_log.jsonl",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4804115
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/step_log.jsonl",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4804115
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/maxrl_train_attempt1.log",
+   "status": "OK",
+   "check": "sha256",
+   "size": 16023799
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/trainer_state_checkpoint-1868.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 2583044
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/trainer_state_checkpoint-2802.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 3875781
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/trainer_state_checkpoint-3736.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 5168738
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/trainer_state_checkpoint-934.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1291328
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/eval/pi_100.log",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 30926
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/ledger/signal_ledger_20261002T001231Z_rank0.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 75088627
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/ledger/signal_ledger_20261002T001207Z_rank1.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 75077233
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/eval/pi_100/camera_ready_eval_provenance.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 615
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/eval/pi_100/prompt_length_audit.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 79
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/eval/pi_100/snapshot_eval_manifest.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4257
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/grpo/eval/pi_100/snapshot_raw.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 41759802
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/eval/pi_100.log",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 31054
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/ledger/signal_ledger_20261002T001211Z_rank0.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 74679465
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/ledger/signal_ledger_20261002T001209Z_rank1.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 74695226
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/eval/pi_100/camera_ready_eval_provenance.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 617
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/eval/pi_100/prompt_length_audit.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 79
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/eval/pi_100/snapshot_eval_manifest.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4261
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed44/maxrl/eval/pi_100/snapshot_raw.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 41346230
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/pi0_bank/summary_shard0of2.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 3349
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/pi0_bank/rollouts_shard0of2.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 22141921
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/pi0_bank/summary_shard1of2.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 3296
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/pi0_bank/rollouts_shard1of2.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 23054344
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/grpo_seed42/pi_100.log",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 34922
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/grpo_seed42/pi_065.log",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 34928
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/maxrl_seed42/pi_100.log",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 34909
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/maxrl_seed42/pi_065.log",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 34845
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/grpo_seed42/pi_100/prompt_length_audit.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 79
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/grpo_seed42/pi_100/snapshot_eval_manifest.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4255
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/grpo_seed42/pi_100/snapshot_raw.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 39875386
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/grpo_seed42/pi_065/prompt_length_audit.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 79
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/grpo_seed42/pi_065/snapshot_eval_manifest.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4254
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/grpo_seed42/pi_065/snapshot_raw.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 40344597
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/maxrl_seed42/pi_100/prompt_length_audit.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 79
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/maxrl_seed42/pi_100/snapshot_eval_manifest.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4259
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/maxrl_seed42/pi_100/snapshot_raw.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 41583134
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/maxrl_seed42/pi_065/prompt_length_audit.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 79
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/maxrl_seed42/pi_065/snapshot_eval_manifest.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4258
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "bridge_box/maxrl_seed42/pi_065/snapshot_raw.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 41627278
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_100/config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1418
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_100/generation_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 149
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_100/model.safetensors",
+   "status": "OK",
+   "check": "sha256",
+   "size": 1192135096
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_100/chat_template.jinja",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4244
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_100/tokenizer_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 696
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_100/tokenizer.json",
+   "status": "OK",
+   "check": "sha256",
+   "size": 11422650
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_100/policy_metadata.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 142
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_100/config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1418
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_100/generation_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 149
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_100/model.safetensors",
+   "status": "OK",
+   "check": "sha256",
+   "size": 1192135096
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_100/chat_template.jinja",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4244
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_100/tokenizer_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 696
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_100/tokenizer.json",
+   "status": "OK",
+   "check": "sha256",
+   "size": 11422650
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_100/policy_metadata.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 142
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_100/config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1418
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_100/generation_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 149
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_100/model.safetensors",
+   "status": "OK",
+   "check": "sha256",
+   "size": 1192135096
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_100/chat_template.jinja",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4244
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_100/tokenizer_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 696
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_100/tokenizer.json",
+   "status": "OK",
+   "check": "sha256",
+   "size": 11422650
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_100/policy_metadata.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 142
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_100/config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1418
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_100/generation_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 149
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_100/model.safetensors",
+   "status": "OK",
+   "check": "sha256",
+   "size": 1192135096
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_100/chat_template.jinja",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4244
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_100/tokenizer_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 696
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_100/tokenizer.json",
+   "status": "OK",
+   "check": "sha256",
+   "size": 11422650
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_100/policy_metadata.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 142
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_065/config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1418
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_065/generation_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 149
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_065/model.safetensors",
+   "status": "OK",
+   "check": "sha256",
+   "size": 1192135096
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_065/chat_template.jinja",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4244
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_065/tokenizer_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 696
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_065/tokenizer.json",
+   "status": "OK",
+   "check": "sha256",
+   "size": 11422650
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_065/policy_metadata.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 141
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_065/config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1418
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_065/generation_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 149
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_065/model.safetensors",
+   "status": "OK",
+   "check": "sha256",
+   "size": 1192135096
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_065/chat_template.jinja",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4244
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_065/tokenizer_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 696
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_065/tokenizer.json",
+   "status": "OK",
+   "check": "sha256",
+   "size": 11422650
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_065/policy_metadata.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 141
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_065/config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1418
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_065/generation_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 149
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_065/model.safetensors",
+   "status": "OK",
+   "check": "sha256",
+   "size": 1192135096
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_065/chat_template.jinja",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4244
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_065/tokenizer_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 696
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_065/tokenizer.json",
+   "status": "OK",
+   "check": "sha256",
+   "size": 11422650
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_065/policy_metadata.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 141
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_065/config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1418
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_065/generation_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 149
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_065/model.safetensors",
+   "status": "OK",
+   "check": "sha256",
+   "size": 1192135096
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_065/chat_template.jinja",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4244
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_065/tokenizer_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 696
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_065/tokenizer.json",
+   "status": "OK",
+   "check": "sha256",
+   "size": 11422650
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_065/policy_metadata.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 141
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_045/config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1418
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_045/generation_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 149
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_045/model.safetensors",
+   "status": "OK",
+   "check": "sha256",
+   "size": 1192135096
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_045/chat_template.jinja",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4244
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_045/tokenizer_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 696
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_045/tokenizer.json",
+   "status": "OK",
+   "check": "sha256",
+   "size": 11422650
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_045/policy_metadata.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 141
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_045/config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1418
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_045/generation_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 149
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_045/model.safetensors",
+   "status": "OK",
+   "check": "sha256",
+   "size": 1192135096
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_045/chat_template.jinja",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4244
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_045/tokenizer_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 696
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_045/tokenizer.json",
+   "status": "OK",
+   "check": "sha256",
+   "size": 11422650
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_045/policy_metadata.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 141
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_045/config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1418
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_045/generation_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 149
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_045/model.safetensors",
+   "status": "OK",
+   "check": "sha256",
+   "size": 1192135096
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_045/chat_template.jinja",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4244
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_045/tokenizer_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 696
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_045/tokenizer.json",
+   "status": "OK",
+   "check": "sha256",
+   "size": 11422650
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_045/policy_metadata.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 141
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_045/config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1418
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_045/generation_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 149
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_045/model.safetensors",
+   "status": "OK",
+   "check": "sha256",
+   "size": 1192135096
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_045/chat_template.jinja",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4244
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_045/tokenizer_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 696
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_045/tokenizer.json",
+   "status": "OK",
+   "check": "sha256",
+   "size": 11422650
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_045/policy_metadata.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 141
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_025/config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1418
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_025/generation_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 149
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_025/model.safetensors",
+   "status": "OK",
+   "check": "sha256",
+   "size": 1192135096
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_025/chat_template.jinja",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4244
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_025/tokenizer_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 696
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_025/tokenizer.json",
+   "status": "OK",
+   "check": "sha256",
+   "size": 11422650
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/pi_025/policy_metadata.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 140
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_025/config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1418
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_025/generation_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 149
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_025/model.safetensors",
+   "status": "OK",
+   "check": "sha256",
+   "size": 1192135096
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_025/chat_template.jinja",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4244
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_025/tokenizer_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 696
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_025/tokenizer.json",
+   "status": "OK",
+   "check": "sha256",
+   "size": 11422650
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/pi_025/policy_metadata.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 140
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_025/config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1418
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_025/generation_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 149
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_025/model.safetensors",
+   "status": "OK",
+   "check": "sha256",
+   "size": 1192135096
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_025/chat_template.jinja",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4244
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_025/tokenizer_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 696
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_025/tokenizer.json",
+   "status": "OK",
+   "check": "sha256",
+   "size": 11422650
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/pi_025/policy_metadata.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 140
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_025/config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1418
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_025/generation_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 149
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_025/model.safetensors",
+   "status": "OK",
+   "check": "sha256",
+   "size": 1192135096
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_025/chat_template.jinja",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4244
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_025/tokenizer_config.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 696
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_025/tokenizer.json",
+   "status": "OK",
+   "check": "sha256",
+   "size": 11422650
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/pi_025/policy_metadata.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 140
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/grpo_run_manifest.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 3597
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/policy_snapshot_schedule.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 457
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/prompt_length_audit.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 80
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/camera_ready_launch.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1199
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/camera_ready_trainer_args.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 5627
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/camera_ready_integrity.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 408
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/grpo/camera_ready_config_seed43.yaml",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 945
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/maxrl_run_manifest.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4117
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/policy_snapshot_schedule.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 457
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/prompt_length_audit.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 80
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/camera_ready_launch.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1204
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/camera_ready_trainer_args.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 5628
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/camera_ready_integrity.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 410
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed43/maxrl/camera_ready_config_seed43.yaml",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 945
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/grpo_run_manifest.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 3597
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/policy_snapshot_schedule.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 457
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/prompt_length_audit.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 80
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/camera_ready_launch.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1199
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/camera_ready_trainer_args.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 5627
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/camera_ready_integrity.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 408
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/grpo/camera_ready_config_seed44.yaml",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 945
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/maxrl_run_manifest.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4117
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/policy_snapshot_schedule.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 457
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/prompt_length_audit.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 80
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/camera_ready_launch.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 1204
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/camera_ready_trainer_args.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 5628
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/camera_ready_integrity.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 410
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10-checkpoints",
+   "path": "seed44/maxrl/camera_ready_config_seed44.yaml",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 945
+  }
+ ]
+}

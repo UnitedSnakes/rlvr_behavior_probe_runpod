@@ -1,0 +1,132 @@
+[2026-10-01T06:23:13Z] queue runner start
+[2026-10-01T06:23:13Z] launch seed 43 grpo on GPUs 0,1 (attempt 1): /root/autodl-tmp/envs/rlvr/bin/torchrun --nproc_per_node=2 --master_port=29511 /root/autodl-tmp/repos/cr/camera_ready/launch_train.py --objective grpo --seed 43 --pi0-dir /root/autodl-tmp/a40/pi0/pi_0 --output-dir /root/autodl-tmp/runs/seed43/grpo
+[2026-10-01T06:23:13Z] launch seed 43 maxrl on GPUs 2,3 (attempt 1): /root/autodl-tmp/envs/rlvr/bin/torchrun --nproc_per_node=2 --master_port=29522 /root/autodl-tmp/repos/cr/camera_ready/launch_train.py --objective maxrl --seed 43 --pi0-dir /root/autodl-tmp/a40/pi0/pi_0 --output-dir /root/autodl-tmp/runs/seed43/maxrl
+[2026-10-01T23:28:03Z] seed 43 grpo training exited 0 after 17.08 h
+[2026-10-01T23:28:05Z] integrity seed 43 grpo: PASS [] ess=0.99808 alert=False grad_norm_steps=3736
+[2026-10-01T23:28:05Z] eval protocol {'seed': 43, 'arm': 'grpo', 'pct': 100} on GPU 0
+[2026-10-01T23:28:05Z] eval bridge {'arm': 'grpo', 'pct': 100} on GPU 1
+[2026-10-01T23:36:03Z] seed 43 maxrl training exited 0 after 17.21 h
+[2026-10-01T23:36:05Z] integrity seed 43 maxrl: PASS [] ess=0.99808 alert=False grad_norm_steps=3736
+[2026-10-01T23:36:05Z] eval protocol {'seed': 43, 'arm': 'maxrl', 'pct': 100} on GPU 2
+[2026-10-01T23:36:05Z] eval bridge {'arm': 'maxrl', 'pct': 100} on GPU 3
+[2026-10-02T00:02:25Z] eval done ok=True wall=34.3 min {'kind': 'bridge', 'arm': 'grpo', 'pct': 100}
+[2026-10-02T00:03:05Z] eval done ok=True wall=35.0 min {'kind': 'protocol', 'seed': 43, 'arm': 'grpo', 'pct': 100}
+[2026-10-02T00:11:25Z] eval done ok=True wall=35.3 min {'kind': 'protocol', 'seed': 43, 'arm': 'maxrl', 'pct': 100}
+[2026-10-02T00:11:45Z] eval done ok=True wall=35.7 min {'kind': 'bridge', 'arm': 'maxrl', 'pct': 100}
+[2026-10-02T00:11:47Z] staged seed 43 to /root/autodl-tmp/results_staging/seed43
+[2026-10-02T00:11:49Z] retention applied to seed 43 (kept pi_025/045/065/100 and trainer_state.json)
+[2026-10-02T00:11:49Z] time rule k=2: T_train=17.21h E_eval=0.59h train_end=2026-10-02T17:24Z (cutoff 10-03T16:00Z) finish=2026-10-03T02:17Z (due 10-04T00:00Z) -> True
+[2026-10-02T00:11:49Z] launch seed 44 grpo on GPUs 2,3 (attempt 1): /root/autodl-tmp/envs/rlvr/bin/torchrun --nproc_per_node=2 --master_port=29522 /root/autodl-tmp/repos/cr/camera_ready/launch_train.py --objective grpo --seed 44 --pi0-dir /root/autodl-tmp/a40/pi0/pi_0 --output-dir /root/autodl-tmp/runs/seed44/grpo
+[2026-10-02T00:11:49Z] launch seed 44 maxrl on GPUs 0,1 (attempt 1): /root/autodl-tmp/envs/rlvr/bin/torchrun --nproc_per_node=2 --master_port=29511 /root/autodl-tmp/repos/cr/camera_ready/launch_train.py --objective maxrl --seed 44 --pi0-dir /root/autodl-tmp/a40/pi0/pi_0 --output-dir /root/autodl-tmp/runs/seed44/maxrl
+[2026-10-02T17:17:38Z] seed 44 grpo training exited 0 after 17.10 h
+[2026-10-02T17:17:41Z] integrity seed 44 grpo: PASS [] ess=0.99807 alert=False grad_norm_steps=3736
+[2026-10-02T17:17:41Z] eval protocol {'seed': 44, 'arm': 'grpo', 'pct': 100} on GPU 2
+[2026-10-02T17:17:41Z] eval bridge {'arm': 'grpo', 'pct': 65} on GPU 3
+[2026-10-02T17:26:39Z] seed 44 maxrl training exited 0 after 17.25 h
+[2026-10-02T17:26:41Z] integrity seed 44 maxrl: PASS [] ess=0.99808 alert=False grad_norm_steps=3736
+[2026-10-02T17:26:41Z] eval protocol {'seed': 44, 'arm': 'maxrl', 'pct': 100} on GPU 0
+[2026-10-02T17:26:41Z] eval bridge {'arm': 'maxrl', 'pct': 65} on GPU 1
+[2026-10-02T17:52:41Z] eval done ok=True wall=35.0 min {'kind': 'bridge', 'arm': 'grpo', 'pct': 65}
+[2026-10-02T17:53:41Z] eval done ok=True wall=36.0 min {'kind': 'protocol', 'seed': 44, 'arm': 'grpo', 'pct': 100}
+[2026-10-02T18:02:21Z] eval done ok=True wall=35.7 min {'kind': 'protocol', 'seed': 44, 'arm': 'maxrl', 'pct': 100}
+[2026-10-02T18:02:21Z] eval done ok=True wall=35.7 min {'kind': 'bridge', 'arm': 'maxrl', 'pct': 65}
+[2026-10-02T18:02:23Z] staged seed 44 to /root/autodl-tmp/results_staging/seed44
+[2026-10-02T18:02:27Z] retention applied to seed 44 (kept pi_025/045/065/100 and trainer_state.json)
+[2026-10-02T18:02:27Z] time rule k=3: T_train=17.25h E_eval=0.60h train_end=2026-10-03T11:17Z (cutoff 10-03T16:00Z) finish=2026-10-03T21:23Z (due 10-04T00:00Z) -> True
+[2026-10-02T18:02:27Z] launch seed 45 grpo on GPUs 0,1 (attempt 1): /root/autodl-tmp/envs/rlvr/bin/torchrun --nproc_per_node=2 --master_port=29511 /root/autodl-tmp/repos/cr/camera_ready/launch_train.py --objective grpo --seed 45 --pi0-dir /root/autodl-tmp/a40/pi0/pi_0 --output-dir /root/autodl-tmp/runs/seed45/grpo
+[2026-10-02T18:02:27Z] launch seed 45 maxrl on GPUs 2,3 (attempt 1): /root/autodl-tmp/envs/rlvr/bin/torchrun --nproc_per_node=2 --master_port=29522 /root/autodl-tmp/repos/cr/camera_ready/launch_train.py --objective maxrl --seed 45 --pi0-dir /root/autodl-tmp/a40/pi0/pi_0 --output-dir /root/autodl-tmp/runs/seed45/maxrl
+[2026-10-03T11:09:15Z] seed 45 grpo training exited 0 after 17.11 h
+[2026-10-03T11:09:18Z] integrity seed 45 grpo: PASS [] ess=0.99809 alert=False grad_norm_steps=3736
+[2026-10-03T11:09:18Z] eval protocol {'seed': 45, 'arm': 'grpo', 'pct': 100} on GPU 0
+[2026-10-03T11:09:18Z] eval bridge {'arm': 'grpo', 'pct': 45} on GPU 1
+[2026-10-03T11:15:16Z] seed 45 maxrl training exited 0 after 17.21 h
+[2026-10-03T11:15:18Z] integrity seed 45 maxrl: PASS [] ess=0.99807 alert=False grad_norm_steps=3736
+[2026-10-03T11:15:18Z] eval protocol {'seed': 45, 'arm': 'maxrl', 'pct': 100} on GPU 2
+[2026-10-03T11:15:18Z] eval bridge {'arm': 'maxrl', 'pct': 45} on GPU 3
+[2026-10-03T11:44:18Z] eval done ok=True wall=35.0 min {'kind': 'protocol', 'seed': 45, 'arm': 'grpo', 'pct': 100}
+[2026-10-03T11:44:38Z] eval done ok=True wall=35.3 min {'kind': 'bridge', 'arm': 'grpo', 'pct': 45}
+[2026-10-03T11:50:38Z] eval done ok=True wall=35.3 min {'kind': 'protocol', 'seed': 45, 'arm': 'maxrl', 'pct': 100}
+[2026-10-03T11:51:38Z] eval done ok=True wall=36.3 min {'kind': 'bridge', 'arm': 'maxrl', 'pct': 45}
+[2026-10-03T11:51:40Z] staged seed 45 to /root/autodl-tmp/results_staging/seed45
+[2026-10-03T11:51:41Z] retention applied to seed 45 (kept pi_025/045/065/100 and trainer_state.json)
+[2026-10-03T11:51:41Z] training phase over; deferred evaluations
+[2026-10-03T11:51:41Z] eval protocol {'seed': 43, 'arm': 'grpo', 'pct': 25} on GPU 0
+[2026-10-03T11:51:41Z] eval protocol {'seed': 43, 'arm': 'maxrl', 'pct': 25} on GPU 1
+[2026-10-03T11:51:41Z] eval protocol {'seed': 43, 'arm': 'grpo', 'pct': 45} on GPU 2
+[2026-10-03T11:51:41Z] eval protocol {'seed': 43, 'arm': 'maxrl', 'pct': 45} on GPU 3
+[2026-10-03T12:27:21Z] eval done ok=True wall=35.7 min {'kind': 'protocol', 'seed': 43, 'arm': 'grpo', 'pct': 45}
+[2026-10-03T12:27:21Z] eval protocol {'seed': 43, 'arm': 'grpo', 'pct': 65} on GPU 2
+[2026-10-03T12:27:41Z] eval done ok=True wall=36.0 min {'kind': 'protocol', 'seed': 43, 'arm': 'maxrl', 'pct': 45}
+[2026-10-03T12:27:41Z] eval protocol {'seed': 43, 'arm': 'maxrl', 'pct': 65} on GPU 3
+[2026-10-03T12:29:01Z] eval done ok=True wall=37.3 min {'kind': 'protocol', 'seed': 43, 'arm': 'grpo', 'pct': 25}
+[2026-10-03T12:29:01Z] eval done ok=True wall=37.3 min {'kind': 'protocol', 'seed': 43, 'arm': 'maxrl', 'pct': 25}
+[2026-10-03T12:29:01Z] eval protocol {'seed': 44, 'arm': 'grpo', 'pct': 25} on GPU 0
+[2026-10-03T12:29:01Z] eval protocol {'seed': 44, 'arm': 'maxrl', 'pct': 25} on GPU 1
+[2026-10-03T13:02:21Z] eval done ok=True wall=35.0 min {'kind': 'protocol', 'seed': 43, 'arm': 'grpo', 'pct': 65}
+[2026-10-03T13:02:22Z] eval protocol {'seed': 44, 'arm': 'grpo', 'pct': 45} on GPU 2
+[2026-10-03T13:03:22Z] eval done ok=True wall=35.7 min {'kind': 'protocol', 'seed': 43, 'arm': 'maxrl', 'pct': 65}
+[2026-10-03T13:03:22Z] eval protocol {'seed': 44, 'arm': 'maxrl', 'pct': 45} on GPU 3
+[2026-10-03T13:06:42Z] eval done ok=True wall=37.7 min {'kind': 'protocol', 'seed': 44, 'arm': 'grpo', 'pct': 25}
+[2026-10-03T13:06:42Z] eval protocol {'seed': 44, 'arm': 'grpo', 'pct': 65} on GPU 0
+[2026-10-03T13:07:02Z] eval done ok=True wall=38.0 min {'kind': 'protocol', 'seed': 44, 'arm': 'maxrl', 'pct': 25}
+[2026-10-03T13:07:02Z] eval protocol {'seed': 44, 'arm': 'maxrl', 'pct': 65} on GPU 1
+[2026-10-03T13:38:42Z] eval done ok=True wall=36.3 min {'kind': 'protocol', 'seed': 44, 'arm': 'grpo', 'pct': 45}
+[2026-10-03T13:38:42Z] eval protocol {'seed': 45, 'arm': 'grpo', 'pct': 25} on GPU 2
+[2026-10-03T13:39:22Z] eval done ok=True wall=36.0 min {'kind': 'protocol', 'seed': 44, 'arm': 'maxrl', 'pct': 45}
+[2026-10-03T13:39:22Z] eval protocol {'seed': 45, 'arm': 'maxrl', 'pct': 25} on GPU 3
+[2026-10-03T13:41:42Z] eval done ok=True wall=35.0 min {'kind': 'protocol', 'seed': 44, 'arm': 'grpo', 'pct': 65}
+[2026-10-03T13:41:42Z] eval protocol {'seed': 45, 'arm': 'grpo', 'pct': 45} on GPU 0
+[2026-10-03T13:42:42Z] eval done ok=True wall=35.7 min {'kind': 'protocol', 'seed': 44, 'arm': 'maxrl', 'pct': 65}
+[2026-10-03T13:42:42Z] eval protocol {'seed': 45, 'arm': 'maxrl', 'pct': 45} on GPU 1
+[2026-10-03T14:16:02Z] eval done ok=True wall=37.3 min {'kind': 'protocol', 'seed': 45, 'arm': 'grpo', 'pct': 25}
+[2026-10-03T14:16:03Z] eval protocol {'seed': 45, 'arm': 'grpo', 'pct': 65} on GPU 2
+[2026-10-03T14:17:23Z] eval done ok=True wall=35.7 min {'kind': 'protocol', 'seed': 45, 'arm': 'grpo', 'pct': 45}
+[2026-10-03T14:17:23Z] eval protocol {'seed': 45, 'arm': 'maxrl', 'pct': 65} on GPU 0
+[2026-10-03T14:17:43Z] eval done ok=True wall=38.3 min {'kind': 'protocol', 'seed': 45, 'arm': 'maxrl', 'pct': 25}
+[2026-10-03T14:17:43Z] eval bridge {'arm': 'grpo', 'pct': 25} on GPU 3
+[2026-10-03T14:18:23Z] eval done ok=True wall=35.7 min {'kind': 'protocol', 'seed': 45, 'arm': 'maxrl', 'pct': 45}
+[2026-10-03T14:18:23Z] eval bridge {'arm': 'maxrl', 'pct': 25} on GPU 1
+[2026-10-03T14:51:03Z] eval done ok=True wall=35.0 min {'kind': 'protocol', 'seed': 45, 'arm': 'grpo', 'pct': 65}
+[2026-10-03T14:52:43Z] eval done ok=True wall=35.3 min {'kind': 'protocol', 'seed': 45, 'arm': 'maxrl', 'pct': 65}
+[2026-10-03T14:55:23Z] eval done ok=True wall=37.7 min {'kind': 'bridge', 'arm': 'grpo', 'pct': 25}
+[2026-10-03T14:56:23Z] eval done ok=True wall=38.0 min {'kind': 'bridge', 'arm': 'maxrl', 'pct': 25}
+[2026-10-03T14:56:27Z] staged seed 43 to /root/autodl-tmp/results_staging/seed43
+[2026-10-03T14:56:30Z] staged seed 44 to /root/autodl-tmp/results_staging/seed44
+[2026-10-03T14:56:33Z] staged seed 45 to /root/autodl-tmp/results_staging/seed45
+[2026-10-03T14:56:33Z] eval extra {'seed': 43, 'arm': 'grpo', 'pct': 100, 'batch': 1} on GPU 0
+[2026-10-03T14:56:33Z] eval extra {'seed': 43, 'arm': 'maxrl', 'pct': 100, 'batch': 1} on GPU 1
+[2026-10-03T14:56:33Z] eval extra {'seed': 43, 'arm': 'grpo', 'pct': 100, 'batch': 2} on GPU 2
+[2026-10-03T14:56:33Z] eval extra {'seed': 43, 'arm': 'maxrl', 'pct': 100, 'batch': 2} on GPU 3
+[2026-10-03T15:30:53Z] eval done ok=True wall=34.3 min {'kind': 'extra', 'seed': 43, 'arm': 'grpo', 'pct': 100, 'batch': 2}
+[2026-10-03T15:31:34Z] eval done ok=True wall=35.0 min {'kind': 'extra', 'seed': 43, 'arm': 'grpo', 'pct': 100, 'batch': 1}
+[2026-10-03T15:31:54Z] eval done ok=True wall=35.3 min {'kind': 'extra', 'seed': 43, 'arm': 'maxrl', 'pct': 100, 'batch': 1}
+[2026-10-03T15:31:54Z] eval done ok=True wall=35.3 min {'kind': 'extra', 'seed': 43, 'arm': 'maxrl', 'pct': 100, 'batch': 2}
+[2026-10-03T15:31:54Z] eval extra {'seed': 43, 'arm': 'grpo', 'pct': 100, 'batch': 3} on GPU 0
+[2026-10-03T15:31:54Z] eval extra {'seed': 43, 'arm': 'maxrl', 'pct': 100, 'batch': 3} on GPU 1
+[2026-10-03T15:31:54Z] eval extra {'seed': 44, 'arm': 'grpo', 'pct': 100, 'batch': 1} on GPU 2
+[2026-10-03T15:31:54Z] eval extra {'seed': 44, 'arm': 'maxrl', 'pct': 100, 'batch': 1} on GPU 3
+[2026-10-03T16:06:34Z] eval done ok=True wall=34.7 min {'kind': 'extra', 'seed': 43, 'arm': 'grpo', 'pct': 100, 'batch': 3}
+[2026-10-03T16:06:54Z] eval done ok=True wall=35.0 min {'kind': 'extra', 'seed': 44, 'arm': 'grpo', 'pct': 100, 'batch': 1}
+[2026-10-03T16:07:14Z] eval done ok=True wall=35.3 min {'kind': 'extra', 'seed': 43, 'arm': 'maxrl', 'pct': 100, 'batch': 3}
+[2026-10-03T16:07:34Z] eval done ok=True wall=35.7 min {'kind': 'extra', 'seed': 44, 'arm': 'maxrl', 'pct': 100, 'batch': 1}
+[2026-10-03T16:07:34Z] eval extra {'seed': 44, 'arm': 'grpo', 'pct': 100, 'batch': 2} on GPU 0
+[2026-10-03T16:07:34Z] eval extra {'seed': 44, 'arm': 'maxrl', 'pct': 100, 'batch': 2} on GPU 1
+[2026-10-03T16:07:34Z] eval extra {'seed': 44, 'arm': 'grpo', 'pct': 100, 'batch': 3} on GPU 2
+[2026-10-03T16:07:34Z] eval extra {'seed': 44, 'arm': 'maxrl', 'pct': 100, 'batch': 3} on GPU 3
+[2026-10-03T16:42:34Z] eval done ok=True wall=35.0 min {'kind': 'extra', 'seed': 44, 'arm': 'maxrl', 'pct': 100, 'batch': 3}
+[2026-10-03T16:42:55Z] eval done ok=True wall=35.3 min {'kind': 'extra', 'seed': 44, 'arm': 'maxrl', 'pct': 100, 'batch': 2}
+[2026-10-03T16:42:55Z] eval done ok=True wall=35.3 min {'kind': 'extra', 'seed': 44, 'arm': 'grpo', 'pct': 100, 'batch': 3}
+[2026-10-03T16:43:15Z] eval done ok=True wall=35.7 min {'kind': 'extra', 'seed': 44, 'arm': 'grpo', 'pct': 100, 'batch': 2}
+[2026-10-03T16:43:15Z] eval extra {'seed': 45, 'arm': 'grpo', 'pct': 100, 'batch': 1} on GPU 0
+[2026-10-03T16:43:15Z] eval extra {'seed': 45, 'arm': 'maxrl', 'pct': 100, 'batch': 1} on GPU 1
+[2026-10-03T16:43:15Z] eval extra {'seed': 45, 'arm': 'grpo', 'pct': 100, 'batch': 2} on GPU 2
+[2026-10-03T16:43:15Z] eval extra {'seed': 45, 'arm': 'maxrl', 'pct': 100, 'batch': 2} on GPU 3
+[2026-10-03T17:18:15Z] eval done ok=True wall=35.0 min {'kind': 'extra', 'seed': 45, 'arm': 'grpo', 'pct': 100, 'batch': 1}
+[2026-10-03T17:18:35Z] eval done ok=True wall=35.3 min {'kind': 'extra', 'seed': 45, 'arm': 'maxrl', 'pct': 100, 'batch': 1}
+[2026-10-03T17:18:35Z] eval done ok=True wall=35.3 min {'kind': 'extra', 'seed': 45, 'arm': 'grpo', 'pct': 100, 'batch': 2}
+[2026-10-03T17:18:35Z] eval done ok=True wall=35.3 min {'kind': 'extra', 'seed': 45, 'arm': 'maxrl', 'pct': 100, 'batch': 2}
+[2026-10-03T17:18:35Z] no time for 2 remaining extra batches; skipped
+[2026-10-03T17:18:40Z] staged seed 43 to /root/autodl-tmp/results_staging/seed43
+[2026-10-03T17:18:44Z] staged seed 44 to /root/autodl-tmp/results_staging/seed44
+[2026-10-03T17:18:48Z] staged seed 45 to /root/autodl-tmp/results_staging/seed45
+[2026-10-03T17:18:48Z] QUEUE FINISHED: GPUs idle

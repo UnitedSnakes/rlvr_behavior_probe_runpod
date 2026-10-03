@@ -213,8 +213,9 @@ def cond_boot(snapM, snapG, W, metrics, ndraw=3000, seed=20261002, chunk=250):
     done = 0
     while done < ndraw:
         nb = min(chunk, ndraw - done)
-        iM = rng.integers(0, 16, size=(nb, 256, 16))
-        iG = rng.integers(0, 16, size=(nb, 256, 16))
+        K = snapM['C'].shape[1]
+        iM = rng.integers(0, K, size=(nb, 256, K))
+        iG = rng.integers(0, K, size=(nb, 256, K))
         for X in metrics:
             rM = snapM[X][ii, iM].mean(axis=2)
             rG = snapG[X][ii, iG].mean(axis=2)
@@ -620,13 +621,132 @@ def run_laptop20(root20, bankdir, out_path):
     print('WROTE', out_path)
 
 
+
+# ----------------------------------------------------------------------------- k64 mode
+def load_batch(path, expected_seed):
+    """One 16-response endpoint batch with seed check; also returns token-id hashes per response."""
+    R = np.full((256, 16), np.nan); T = R.copy(); C = R.copy()
+    seeds = {}
+    hashes = [[None] * 16 for _ in range(256)]
+    with open(path) as fh:
+        for line in fh:
+            r = json.loads(line)
+            i = r['dataset_index']
+            assert 0 <= i < 256 and i not in seeds
+            seeds[i] = r['question_seed']
+            assert r['question_seed'] == expected_seed(i), (path, i, r['question_seed'])
+            ro = r['rollouts']
+            assert len(ro) == 16, (path, i, len(ro))
+            for j, x in enumerate(ro):
+                rr = float(x['canonical_reward']); tt = float(bool(x['terminated'])); cc = float(bool(x['correct']))
+                assert rr == tt * cc
+                R[i, j] = rr; T[i, j] = tt; C[i, j] = cc
+                hashes[i][j] = hash(tuple(x['token_ids']))
+    assert set(seeds) == set(range(256))
+    return {'R': R, 'T': T, 'C': C}, seeds, hashes
+
+
+def run_k64(root, out_path):
+    a40 = load_bank(os.path.join(root, 'banks/a40_original'))
+    binsd = bin_membership(a40)
+    W = bin_weights(binsd)
+    out = {'pairs': {}, 'checks': {}}
+    all_seeds = {}  # family -> set of seeds (panel)
+    snaps = {}
+    for pn, S in (('seed43', 43), ('seed44', 44), ('seed45', 45)):
+        for arm in ('grpo', 'maxrl'):
+            parts = []
+            hs = []
+            for b in (0, 1, 2, 3):
+                if b == 0:
+                    d = os.path.join(root, pn, arm, 'eval', 'pi_100')
+                    f = lambda i, S=S: S * 100000 + i + 75000
+                else:
+                    d = os.path.join(root, pn, arm, 'eval_extra', 'pi_100_b%d' % b)
+                    f = lambda i, S=S, b=b: S * 100000 + i + 75000 + b * 1000000
+                snap, seeds, h = load_batch(os.path.join(d, 'snapshot_raw.jsonl'), f)
+                all_seeds[(pn, arm, b)] = seeds
+                # provenance / manifest of the batch
+                pp_ = os.path.join(d, 'camera_ready_eval_provenance.json'); mp_ = os.path.join(d, 'snapshot_eval_manifest.json')
+                prov = json.load(open(pp_)) if os.path.exists(pp_) else {}
+                man = json.load(open(mp_)) if os.path.exists(mp_) else {}
+                out['checks'][f'{pn}_{arm}_b{b}'] = {
+                    'extra_batch': prov.get('extra_batch'), 'seed': prov.get('seed'), 'pct': prov.get('pct'),
+                    'eval_commit': (prov.get('evaluation_commit') or '')[:7],
+                    'snapshot': json.dumps(man.get('snapshot'))[:300]}
+                parts.append(snap); hs.append(h)
+            # duplicate checks between batches of the same arm
+            dup_sets = 0; dup_resp = 0
+            for i in range(256):
+                for x in range(4):
+                    for y in range(x + 1, 4):
+                        if sorted(hs[x][i]) == sorted(hs[y][i]):
+                            dup_sets += 1
+                        dup_resp += len(set(hs[x][i]) & set(hs[y][i]))
+            out['checks'][f'{pn}_{arm}_dups'] = {'identical_16_response_sets': dup_sets, 'shared_identical_responses': dup_resp}
+            snaps[(pn, arm)] = {X: np.concatenate([p_[X] for p_ in parts], axis=1) for X in METRICS}
+            snaps[(pn, arm, 16)] = parts[0]
+        P = {'dq64': {}, 'dq16': {}, 'panel64': {}}
+        for X in METRICS:
+            d, q = dq(snaps[(pn, 'maxrl')][X].mean(axis=1), snaps[(pn, 'grpo')][X].mean(axis=1), W)
+            P['dq64'][X] = {'d': d.tolist(), 'q': q.tolist()}
+            d, q = dq(snaps[(pn, 'maxrl', 16)][X].mean(axis=1), snaps[(pn, 'grpo', 16)][X].mean(axis=1), W)
+            P['dq16'][X] = {'d': d.tolist(), 'q': q.tolist()}
+        for arm in ('grpo', 'maxrl'):
+            P['panel64'][arm] = {X: 100 * snaps[(pn, arm)][X].mean() for X in METRICS}
+        P['cond_ci64'] = cond_boot(snaps[(pn, 'maxrl')], snaps[(pn, 'grpo')], W, METRICS)
+        out['pairs'][pn] = P
+        print('k64 done', pn, flush=True)
+    # seed families: protocol/extras of every pair, seed-42 snapshots, pi0 banks (arithmetic over the train split)
+    fam = {}
+    for (pn, arm, b), sd in all_seeds.items():
+        fam.setdefault((pn, b), set()).update(sd.values())
+    out['checks']['arm_seed_sets_equal'] = all(all_seeds[(pn, 'grpo', b)] == all_seeds[(pn, 'maxrl', b)] for pn in ('seed43', 'seed44', 'seed45') for b in range(4))
+    keys = list(fam)
+    coll = [(str(k1), str(k2), len(fam[k1] & fam[k2])) for x, k1 in enumerate(keys) for k2 in keys[x + 1:] if fam[k1] & fam[k2]]
+    other = {'pi0_A': {42 * 100000 + i for i in range(7473)}, 'pi0_B': {42 * 100000 + i + 50000 for i in range(7473)},
+             'seed42_snapshots': {42 * 100000 + i + 75000 for i in range(7473)}}
+    coll += [(str(k), o, len(fam[k] & v)) for k in keys for o, v in other.items() if fam[k] & v]
+    out['checks']['seed_collisions'] = coll
+    # discovery (K=16) for positions
+    G = load_snapshot(os.path.join(root, 'seed42_a40/grpo/eval/pi_100/snapshot_raw.jsonl'), seed=42)
+    M = load_snapshot(os.path.join(root, 'seed42_a40/maxrl/eval/pi_100/snapshot_raw.jsonl'), seed=42)
+    disc = {}
+    for X in METRICS:
+        d, q = dq(M[X].mean(axis=1), G[X].mean(axis=1), W)
+        disc[X] = {'d': d.tolist(), 'q': q.tolist()}
+    new = ['seed43', 'seed44', 'seed45']
+    prim = {}
+    maxdiff = (0, None)
+    for X in ('C', 'R'):
+        for b in (0, 1):
+            for s_ in ('d', 'q'):
+                vals = [out['pairs'][p]['dq64'][X][s_][b] for p in new]
+                st = tstats(vals); st['wording'] = wording(st)
+                st['discovery'] = disc[X][s_][b]
+                st['discovery_pos'] = 'inside' if min(vals) <= st['discovery'] <= max(vals) else ('below' if st['discovery'] < min(vals) else 'above')
+                v16 = [out['pairs'][p]['dq16'][X][s_][b] for p in new]
+                st['k16'] = tstats(v16); st['k16']['wording'] = wording(st['k16'])
+                for p, a_, c_ in zip(new, vals, v16):
+                    if abs(a_ - c_) > maxdiff[0]:
+                        maxdiff = (abs(a_ - c_), f'{s_}_{X}_{b} {p}: K16 {c_:.4f} -> K64 {a_:.4f}')
+                prim[f'{s_}_{X}_{b}'] = st
+    out['primary64'] = prim
+    out['max_k16_k64_diff'] = maxdiff
+    with open(out_path, 'w') as fh:
+        json.dump(out, fh, indent=1, default=str)
+    print('WROTE', out_path, flush=True)
+
+
 if __name__ == '__main__':
     mode = sys.argv[1]
     if mode == 'box':
         run_box(sys.argv[2], sys.argv[3], sys.argv[4])
     elif mode == 'laptop20':
         run_laptop20(sys.argv[2], sys.argv[3], sys.argv[4])
-    elif mode != 'compare':
+    elif mode == 'k64':
+        run_k64(sys.argv[2], sys.argv[3])
+    elif mode not in ('compare', 'compare64'):
         raise SystemExit('unknown mode')
 
 
@@ -981,3 +1101,64 @@ def run_compare(fc_box, fc20, results_md, bridge_md, out_json):
 
 if __name__ == '__main__' and sys.argv[1] == 'compare':
     run_compare(*sys.argv[2:7])
+
+
+def run_compare64(fc_k64, fc_box, results_md, out_json):
+    """K = 64 primary table, the K = 16 table printed under it, and the pre-registered sentences."""
+    o = json.load(open(fc_k64)); b16 = json.load(open(fc_box))
+    L = open(results_md).read().split('\n')
+    ck = Checker()
+    new = ['seed43', 'seed44', 'seed45']
+    binkey = {'0': 0, '(0,.25]': 1}
+    rows, end = table_after(L, '| Cell | seed43 | seed44 | seed45 | Mean | 95 % CI | One-sided')
+    for r in rows:
+        s, X, b = [x.strip() for x in r[0].split(', ', 2)]
+        b = binkey[b.replace('bin ', '')]
+        key = f'{s}_{X}_{b}'
+        pr = o['primary64'][key]
+        for j, p in enumerate(new):
+            n_ = nums(r[1 + j])
+            ck.num(f'K64 primary {key} {p} value', n_[0], o['pairs'][p]['dq64'][X][s][b])
+            ci = o['pairs'][p]['cond_ci64'][X][s][b]
+            ck.num(f'K64 primary {key} {p} within-pair lo', n_[1], ci[0], 'boot', tol=boot_tol(*ci))
+            ck.num(f'K64 primary {key} {p} within-pair hi', n_[2], ci[1], 'boot', tol=boot_tol(*ci))
+        ck.num(f'K64 primary {key} mean', nums(r[4])[0], pr['mean'])
+        c = nums(r[5]); ck.num(f'K64 primary {key} CI lo', c[0], pr['ci'][0]); ck.num(f'K64 primary {key} CI hi', c[1], pr['ci'][1])
+        ck.num(f'K64 primary {key} one-sided upper', nums(r[6])[0], pr['upper95'])
+        lab = r[7].replace('3 pp', 'δ pp')
+        ck.eq(f'K64 primary {key} wording', lab, pr['wording'])
+        ck.num(f'K64 primary {key} discovery value', nums(r[8])[0], pr['discovery'])
+        pos = 'inside' if 'inside' in r[8] else ('below' if 'below' in r[8] else 'above')
+        ck.eq(f'K64 primary {key} discovery position', pos, pr['discovery_pos'])
+    rows, _ = table_after(L, 'K = 16 version of the primary cells', end)
+    for r in rows:
+        s, X, b = [x.strip() for x in r[0].split(', ', 2)]
+        b = binkey[b.replace('bin ', '')]
+        key = f'{s}_{X}_{b}'
+        st = b16['primary'][key]
+        for j, p in enumerate(new):
+            ck.num(f'K16 table {key} {p} value (vs original box recompute)', nums(r[1 + j])[0], b16['pairs'][p]['dq']['3736'][X][s][b])
+            ck.num(f'K16 table {key} {p} value (vs k64-run K16)', nums(r[1 + j])[0], o['pairs'][p]['dq16'][X][s][b])
+        ck.num(f'K16 table {key} mean', nums(r[4])[0], st['mean'])
+        c = nums(r[5]); ck.num(f'K16 table {key} CI lo', c[0], st['ci'][0]); ck.num(f'K16 table {key} CI hi', c[1], st['ci'][1])
+    for x in L:
+        m = re.match(r'- ([dq]), ([CR]), bin (0|\(0,\.25\]): mean (\S+) pp, 95 % CI \[(\S+), (\S+)\], one-sided 95 % upper bound (\S+) pp \(n = (\d)\) — \*\*(.+)\*\*', x)
+        if m:
+            key = f'{m.group(1)}_{m.group(2)}_{binkey[m.group(3)]}'
+            pr = o['primary64'][key]
+            ck.num(f'K64 sentence {key} mean', nums(m.group(4))[0], pr['mean'])
+            ck.num(f'K64 sentence {key} CI lo', nums(m.group(5))[0], pr['ci'][0]); ck.num(f'K64 sentence {key} CI hi', nums(m.group(6))[0], pr['ci'][1])
+            ck.num(f'K64 sentence {key} upper', nums(m.group(7))[0], pr['upper95'])
+            ck.eq(f'K64 sentence {key} n', int(m.group(8)), pr['n'])
+            ck.eq(f'K64 sentence {key} wording', m.group(9).replace('3 pp', 'δ pp'), pr['wording'])
+    out = {'n_items': len(ck.items), 'n_match': sum(1 for x in ck.items if x[3] == 'MATCH'),
+           'mismatches': [x for x in ck.items if x[3] != 'MATCH'], 'items': ck.items}
+    with open(out_json, 'w') as fh:
+        json.dump(out, fh, indent=0, default=str)
+    print('items', out['n_items'], 'match', out['n_match'], 'non-match', len(out['mismatches']))
+    for x in out['mismatches']:
+        print('  ', x)
+
+
+if __name__ == '__main__' and sys.argv[1] == 'compare64':
+    run_compare64(*sys.argv[2:6])

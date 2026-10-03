@@ -237,3 +237,62 @@ Every primary-cell number, wording label, bridge statistic, gate and verdict, ma
 - **Outside scope.** The PROGRESS.md 20:10 correction gives the right values (≈ 17:57; extra jobs 34.3–35.7 min).
 
 **Final verdict: PASS.** No mismatches and no wording issues remain in RESULTS.md or BRIDGE_REPORT.md.
+
+## K = 64 primary cells (2026-10-03 ~21:15 UTC)
+
+**Scope.** This section checks RESULTS.md at `997fced` (`analysis.json` SHA-256 `15c73b82…ff97`; `bridge.json` and BRIDGE_REPORT.md unchanged). Earlier sections of this file are unchanged.
+
+**Method.**
+
+- **New `k64` mode.** I extended `factcheck/recompute.py` with a `k64` mode. Nothing from the pipeline is imported; the conditional bootstrap now draws indices over K responses, and its K = 16 behaviour is unchanged. It ran on the box under `nice -n 10` in `/root/autodl-tmp/factcheck/`. The output `factcheck/fc_k64.json` (25 KB) was pulled back. For each pair and arm it:
+  - loads the protocol `pi_100` batch and `eval_extra/pi_100_b{1,2,3}`;
+  - validates every batch;
+  - merges the four batches into 64 responses per question, in the order protocol, b1, b2, b3;
+  - recomputes d and q for C, R and T;
+  - reruns the F1 within-pair bootstrap (3,000 draws, `default_rng(20261002)`, 64 responses resampled within question per arm);
+  - computes the across-pair statistics and wording labels (δ = 3 pp);
+  - computes the K = 16 seed-42 discovery values and their positions.
+- **New `compare64` mode.** It parses the K = 64 table, the K = 16 table and the eight sentences.
+- **Queue log.** I read the box `queue.log` read-only (`grep`, lines 133–139).
+- **JSON diff.** I diffed the fact-checked `analysis.json` (`2f1fa340…`, from `405f431`) against the new one, leaf by leaf.
+
+**Results.**
+
+| Item | Result |
+|---|---|
+| **Extra batches.** All 18 extra batches plus the 6 protocol endpoints were checked. | **MATCH**. All 24 endpoint batches pass every check: |
+| — size, seeds and metadata | Each batch has 256/256 questions × 16 responses with R = T·C. The per-question seed is S·100000 + i + 75000 (protocol) or + b·1,000,000 (extra b). Provenance shows `extra_batch` = b, `pct` 100, evaluation commit `1c26b1f`; the snapshot has `actual_step` 3736. The seed sets are identical across the two arms of each pair. |
+| — independence of batches | There are no seed collisions among the 12 pair × batch families or with the π0 bank A/B and seed-42 snapshot families (checked over all 7,473 train indices). No two batches of the same arm share any identical response (token ids), and no batch duplicates another's 16-response set. |
+| — merging | K = 64 merges all four batches per question. |
+| **K = 64 primary table and the 8 pre-registered sentences** (compare64) | **248/248 MATCH**. This covers per-pair values, the 48 within-pair interval endpoints (max \|difference\| 0.005 pp, display rounding: my draw order again equals the pipeline's), mean, 95 % CI, one-sided upper bound, wording, and discovery value and position. |
+| — wording labels | Seven cells are "no additional gain larger than 3 pp detected": each CI contains 0 and lies inside (−3, +3). d, R, (0,.25] is "unresolved at this number of runs", with CI [−2.883, +3.150]. No CI lies entirely above or below 0. |
+| — discovery positions | 5 below (d C 0, q C 0, d C (0,.25], d R 0, q R 0), 2 inside (q C (0,.25], d R (0,.25]), 1 above (q R (0,.25]: 0.874 vs a maximum of 0.862). |
+| **K = 16 table printed under the K = 64 table** | **MATCH**: 8 cells × (3 values, mean, CI) equal my original K = 16 recomputation and the K = 16 values from the `k64` run. |
+| §0 Status | MATCH: the `2f1fa340…` file at `405f431` and the new SHA prefix `15c73b82…ff97`. "Identical apart from K-dependent fields" is confirmed (see the JSON-diff row). |
+| §0 primary-cell bullets | MATCH: 7 "no additional gain larger than 3 pp detected" and 1 unresolved (CI [−2.88, +3.15]); all 8 unresolved at K = 16; the maximum per-pair \|K64 − K16\| is 2.095 pp (d, C, (0,.25], seed 45: 3.426 → 1.331), i.e. "up to 2.10 pp". "Average of the protocol batch and three further batches" is correct, because each batch has 16 responses per question. |
+| Validity, extra-batch sentence | MATCH: batches 1–3 for all three seeds; 18 jobs, all ok; 34.3–35.7 min (queue.log: 16 jobs at 34.3–35.7, plus 35.0 and 35.3 for the two jobs after the cut-off). |
+| §5 item 16 | Unchanged except for the title and "(Superseded by item 17.)". |
+| §5 item 17, runner and timing | MATCH: queue.log shows the 20:06:43 start (projected end 20:45Z), done 20:41:43 and 20:42:03, ok, 35.0 / 35.3 min; re-staged 20:42:08; "REMAINING EXTRAS DONE". `run_remaining_extras.py` has `HARD_STOP` 2026-10-04 02:00 UTC = 22:00 EDT. |
+| §5 item 17, "327 differing values, all in K-dependent fields" | **MATCH under the pipeline's counting convention.** I find 305 changed leaf values plus 22 newly added fields (8 `k16_across`, 8 `k16_values`, 3 `dq_k64_endpoint`, 3 `panel_k64_endpoint`), which is 327. Counted leaf by leaf, the added fields are 213 values, giving 518. Nothing was removed. Every changed value lies under `across/primary/*`, `pairs/*/endpoint_within_pair_intervals` or `endpoint_k`. Mass, pre-exposure, clipping, panel, secondary, mixed and discovery fields are byte-identical. The K = 16 copies in the new file equal the fact-checked values. |
+| §5 item 17, recomputation with the same code at `45d6130` | Not re-run by me. My independent K = 64 values agree with it. |
+| §6 item 4 | MATCH: 7 + 1 labels; "below the range … in 5 of the 8" (5 below, 2 inside, 1 above); "−4.71 vs −0.91 to +0.12" (−0.908 to +0.120); K = 16 range "+0.48 to +2.00". The disclosure that K = 64 was completed after K = 16 was known is present. |
+| §6 items 5 and 8 | MATCH: all four q cells are "no additional gain larger than 3 pp detected" at K = 64; the limitations wording is correct. |
+| **Full compare over RESULTS.md and BRIDGE_REPORT.md** | Everything outside the primary table and sentences matches as before: validity, panel, secondary, mass, pre-exposure, random-schedule, mixed (K = 16, unchanged), clipping, discovery sensitivity, F1–F5 and the bridge (174/174). The only other flag is the obsolete label assertion discussed in the Re-check. The original compare's primary and sentence checks now read the K = 64 table; they are superseded by compare64. |
+
+**Wording.**
+
+- **Labels and terms.** The labels follow mechanically from the K = 64 intervals with δ = 3 pp. No banned terms appear ("confirmation" occurs only in "not an independent confirmation"). "Unresolved" is not turned into "rejected" or "no effect".
+- **Disclosure of the post-hoc completion.** The completion of K = 64 after the K = 16 results were known is disclosed as a deviation in §0 Sample, §5 item 17 and §6 items 4 and 8.
+
+**Issue.**
+
+- **S1. The step-3736 rows of the §3 secondary d_b/q_b tables are K = 16, but nothing says so.** They are unchanged from the fact-checked version (`across/secondary` is identical). The header reads "Secondary: d_b and q_b at all EVAL_STEPS (pp; across-pair mean and 95 % t-interval; no wording rule applies)" and gives no K. The same eight primary cells therefore appear with different, unlabelled values in §2 and §3. For example, d, C, bin 0 is −0.26 [−1.66, +1.14] in §2 (K = 64) but +1.15 [−0.77, +3.08] in §3 (K = 16).
+  - **Fix:** label the secondary tables "K = 16 protocol evaluation at every step, including 3736; the K = 64 endpoint primary cells are in §2".
+
+**Advisory, not counted.**
+
+- **"Completes the pre-registered protocol" (§0 Sample).** Under the protocol, these batches were to be skipped at the cut-off. "Completes the pre-registered set of endpoint batches, after the cut-off" would be more exact; the same sentence already calls it a deviation.
+- **Mixed K in the discovery comparison.** The comparison sets the K = 16 discovery value against the range of the new pairs at K = 64, which is narrower and less noisy, so "outside" becomes more likely. It is labelled "descriptive only" and follows PREREG §7 (discovery always K = 16).
+- **"327 differing values".** This mixes changed values and added fields; "305 changed values and 22 added K-dependent fields" would be unambiguous.
+
+**K = 64 verdict: FAIL.** One issue remains: S1, the unlabelled K = 16 step-3736 rows in the §3 secondary tables. All K = 64 numbers, labels, intervals, discovery positions, the K = 16 table, the extra-batch validity checks and the new prose otherwise match the independent recomputation.

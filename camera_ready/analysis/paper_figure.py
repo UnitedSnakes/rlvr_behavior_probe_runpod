@@ -3,7 +3,8 @@
 Rows: MaxRL/GRPO advantage-mass ratio; MaxRL - GRPO correctness contrast d_b (pp). Columns: bins 0 and (0,.25].
 Colors keep the paper's bin identity (Okabe-Ito); seeds are told apart by marker and line style (shared legend).
 Seed 42 (A40, discovery) is the paper's 20-snapshot trajectory (bundle export); seeds 43-45 are the box pairs at the
-four evaluated steps. Each seed is its own line; the across-seed mean +/- 95 % t-interval (n = 3) is drawn at the endpoint.
+four evaluated steps (K = 16). Each seed is its own line; the across-seed mean +/- 95 % t-interval (n = 3) is drawn at the
+endpoint for K = 16 (filled) and, when every pair has 64 endpoint responses, for the primary K = 64 version (open).
 """
 
 from __future__ import annotations
@@ -59,15 +60,20 @@ def main() -> None:
             if key == "d":
                 st = A["across"]["secondary"][f"d_C_{b}_100"]
                 lo, hi = st["ci95"]
-                ax.errorbar([3736 + 260], [st["mean"]], yerr=[[st["mean"] - lo], [hi - st["mean"]]], fmt="D",
+                ax.errorbar([3736 + 230], [st["mean"]], yerr=[[st["mean"] - lo], [hi - st["mean"]]], fmt="D",
                             color="#222222", ms=3.5, capsize=2.5, lw=0.9, zorder=4)
+                if A["endpoint_k_primary"] == 64:
+                    p64 = A["across"]["primary"][f"d_C_{b}"]
+                    lo, hi = p64["ci95"]
+                    ax.errorbar([3736 + 480], [p64["mean"]], yerr=[[p64["mean"] - lo], [hi - p64["mean"]]], fmt="D",
+                                color="#222222", mfc="white", ms=3.5, capsize=2.5, lw=0.9, zorder=4)
             if col == 0:
                 ax.set_ylabel(ylabel)
             if row == 0:
                 ax.set_title(f"$p_0$ bin {b}")
             if row == 1:
                 ax.set_xlabel("Optimizer step")
-            ax.set_xlim(0, 4250)
+            ax.set_xlim(0, 4450)
             ax.set_xticks([0, 934, 1681, 2428, 3736])
             ax.grid(axis="y", color="#E6E6E6", lw=0.5)
             ax.set_axisbelow(True)
@@ -77,8 +83,12 @@ def main() -> None:
                       mew=0.6, label=n.replace("seed", "seed ") + " (box)") for n in names]
     handles.append(Line2D([], [], color="#555555", lw=0.9, ls=(0, (4, 2)), label="seed 42 (A40, discovery)"))
     handles.append(Line2D([], [], color="#222222", marker="D", ls="none", ms=3.5,
-                          label="mean of seeds 43–45, 95% t-interval"))
-    handles = [handles[0], handles[3], handles[1], handles[4], handles[2]]  # column-major fill -> rows: box seeds / 42, mean
+                          label="mean, 95% t-int., K = 16"))
+    if A["endpoint_k_primary"] == 64:
+        handles.append(Line2D([], [], color="#222222", marker="D", mfc="white", ls="none", ms=3.5,
+                              label="mean, 95% t-int., K = 64 (primary)"))
+    order = [0, 3, 1, 4, 2, 5] if len(handles) == 6 else [0, 3, 1, 4, 2]  # column-major fill -> rows: box seeds / 42, means
+    handles = [handles[i] for i in order]
     fig.legend(handles=handles, loc="upper center", ncol=3, frameon=False, bbox_to_anchor=(0.5, 1.0),
                handlelength=2.6, columnspacing=1.4)
     fig.tight_layout(h_pad=0.8, w_pad=1.2, rect=(0, 0, 1, 0.9))

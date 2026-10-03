@@ -44,7 +44,7 @@ def primary_table(A: dict) -> str:
 def endpoint_table(A: dict) -> str:
     """Multi-seed analogue of paper Table 2: means across box pairs with t-intervals (n >= 3) or values."""
     names = A["across"]["pairs"]
-    lines = ["% Candidate multi-seed endpoint table (step 3736). Generated.",
+    lines = ["% Candidate multi-seed endpoint table (step 3736; d_b, q_b and Delta C at K = 16, the protocol evaluation). Generated.",
              "\\begin{tabular}{lrrrrr}", "\\toprule",
              "$p_0$ bin & $S_{\\mathrm M}/S_{\\mathrm G}$ & $\\Delta C_{\\mathrm G}$ & $\\Delta C_{\\mathrm M}$ & $d_b$ & $q_b$ \\\\",
              "\\midrule"]

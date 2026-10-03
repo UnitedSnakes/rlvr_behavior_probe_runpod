@@ -166,3 +166,62 @@ Checked 2026-10-03 (~17:00 UTC) by a fresh-context agent. Documents checked: `ca
 - W3: the extra-batch status statements are inconsistent.
 
 Every primary-cell number, wording label, bridge statistic, gate and verdict, mass, pre-exposure, panel and secondary number matches the independent recomputation.
+
+## Re-check (2026-10-03 ~17:40 UTC)
+
+**Scope.** This re-check covers the revised documents at `e455f7d` (fixes in `246579c`). Since the original check (`2f1e7df`), RESULTS.md changed only in the Validity paragraph, the seed-42 clipping line, §5 items 14–16 (renumbered, with new sub-headings) and §6 items 3, 4, 6 and 7. BRIDGE_REPORT.md, `results/analysis.json` and `results/bridge.json` are unchanged. My script was not edited.
+
+**Methods.**
+
+- **Comparison re-run.** I re-ran `recompute.py compare factcheck/fc_box.json factcheck/fc_laptop20.json RESULTS.md BRIDGE_REPORT.md …`. It checked 2,157 items, of which 2,156 match.
+  - **The one flagged item no longer applies.** It is my own label-specific assertion "as labelled (grad norm > 1)". The label now reads "share clipped (clip coefficient c < 1, the pre-registered definition; it includes logged norms equal to one) 78.0 %". The c < 1 check on the same number matches: 291/373 = 78.02 %, and 2 logged norms are exactly 1.0.
+- **Queue evidence.** I checked the new prose against `camera_ready/box/logs/queue.log` and `state.json` by parsing the files, and against the scheduling code in `camera_ready/box/queue_runner.py`.
+- **Extra batches on the box.** I ran one small read-only check of the staged extra-batch outputs in `/root/autodl-tmp/results_staging`:
+  - seeds 43 and 44 have `pi_100_b1–b3` for both arms; seed 45 has `pi_100_b1–b2` for both arms;
+  - each batch has 256/256 questions × 16 responses;
+  - every per-question seed equals S·100000 + i + 75000 + b·1,000,000.
+
+  Only the printed summary was pulled back.
+
+**Results for the original findings.**
+
+| Original finding | Revised text | Result |
+|---|---|---|
+| Mismatch 1: seed-42 clipping share labelled "grad norm > 1" | Labelled as the pre-registered c < 1, including logged norms equal to 1; 78.0 % | **Resolved**: 78.02 %, with 2 steps at exactly 1.0 |
+| Mismatch 2: §6 item 7 shares labelled "above 1.0" | c < 1: 77.5–83.8 % (GRPO 83.5–83.8, MaxRL 77.5–77.8); 6–14 steps per run exactly 1.0; strictly above 1.0: 77.3–83.6 % | **Resolved**: c < 1 values are 83.81/83.70/83.54 and 77.84/77.81/77.52; exactly-1.0 counts are 6/13/14/12/9/9; strict values are 83.65/83.32/83.30 and 77.49/77.49/77.28 |
+| Mismatch 3: evaluation durations | "35.0–38.3 min each by queue wall clock, including model loading" | **Resolved**: the 24 protocol "eval done" lines in queue.log are all ok and cover all 3 seeds × 2 arms × 4 steps, with wall 35.0–38.3 min (step 934: 37.3–38.3; others 35.0–36.3). This is consistent with my file-time measure (34.7–37.9), since queue times are polled and include model loading. |
+| W1: "replicated" used for reweighting | §6 item 3 now says "realized", with "replicated" reserved for the pre-exposure gain | **Resolved**. "replicated" now appears only for the pre-exposure gain (§0, §2, §6 item 2). |
+| W3: inconsistent extra-batch status | Validity paragraph and §5 item 16 | **Resolved**, except for one number (see below). queue.log and state.json show 16 extra jobs done, all `ok=True`: batches 1–3 for both arms of seeds 43 and 44, and batches 1–2 of seed 45. At 17:18:35 the queue logged "no time for 2 remaining extra batches; skipped". The two skipped jobs are seed 45 b3 for both arms; this follows from the queue's job order and `extra_done`. The staged outputs on the box agree. §0 line 5, the Validity paragraph and §5 item 16 are now mutually consistent. K = 16 is correct under the all-or-nothing rule, because seed 45 has only 48 endpoint responses per question. |
+
+**§5 item 16 timing statements, checked against queue.log.**
+
+- Round starts and ends:
+  - At 16:34 the running round (seed 44 b2/b3) ended at 16:42:34–16:43:15.
+  - Seed 45 b1/b2 ran 16:43:15 to 17:18:35.
+  - The skip came at 17:18:35.
+- The cut-off: in the code, `latest_start` = RESULTS_DUE − (1.5 + 3.0 + 2.0) h = 17:30 UTC, checked per round. This matches the item.
+- The training hours in the Validity table now equal the queue clock in `state.json` exactly: 17.0805/17.2140, 17.0970/17.2471, 17.1136/17.2136 h.
+
+**New prose in §6, checked against my recomputation.**
+
+| Claim | Result |
+|---|---|
+| Item 4, box re-evaluation, d for C in bin 0: −0.16 vs −4.71 pp | MATCH (−0.156 vs −4.712) |
+| Item 4, box re-evaluation, q for C in bin 0: +0.84 vs −3.37 pp | MATCH (+0.845 vs −3.369) |
+| Item 4, "descriptive only" caveat | Appropriate |
+| Item 6, "same core package versions … (flash-attn build toolchain and PyPI mirror differ; §5 items 8–9)" | Consistent with §5 items 8–9 |
+| §5 renumbering | Items 1–16 are now in order. The only remaining "12a"-like string is part of a SHA (`740312a…`). |
+
+**Wording.** I scanned the revised text again for banned or overreaching terms ("equivalent", "no effect" outside the operations heading, "not predictive", "per unit of advantage mass", "rejected", causal decomposition). There are no new issues. The added sentences in §5 item 16 and §6 items 4 and 7 stay descriptive. §5 item 15 (HF storage limit at 16:44, resumed 16:50) is operational and documented in PROGRESS.md only; I did not check it.
+
+**Remaining discrepancy.**
+
+- **R1. §5 item 16: "the queue skipped seed 45's batch 3 (projected end ≈ 17:54 UTC)".**
+  - **How the queue projects:** the committed queue code (`queue_runner.py`, extra-batch loop) projects a round's end as `now + max(eval_wall_s)`.
+  - **What it projected here:** at 17:18:35 the largest recorded wall was 2,300.6 s (38.3 min, the seed-45 MaxRL step-934 evaluation at 14:17:43). The queue's projected end was therefore 17:56:56 UTC, about **17:57**, not 17:54.
+  - **Effect:** none. Any of these estimates exceeds the 17:30 cut-off, so the skip and K = 16 are unaffected.
+  - **Fix:** write "≈ 17:57 UTC".
+
+**Outside the scope of this check (PROGRESS.md, not RESULTS.md).** The 17:18 entry says the 16 extra jobs took "35.0–35.7 min each"; queue.log shows 34.3–35.7 min. The same entry has the same "≈ 17:54" projection.
+
+**Re-check verdict: FAIL.** One remaining discrepancy (R1: the projected end in §5 item 16 should be ≈ 17:57 UTC, not ≈ 17:54) has no effect on any decision or result. All five original findings are resolved, and every number, label, interval, gate and verdict in RESULTS.md and BRIDGE_REPORT.md matches the independent recomputation.

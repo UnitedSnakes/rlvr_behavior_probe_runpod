@@ -87,6 +87,10 @@ def main(argv=None) -> int:
     ap.add_argument("--bridge", type=Path, required=True, help="bridge.json from camera_ready.analysis.bridge")
     ap.add_argument("--discovery-box-evals", type=Path, default=DATA / "bridge_box")
     ap.add_argument("--draws", type=int, default=3000)
+    ap.add_argument("--discovery-json", type=Path, default=None,
+                    help="use a precomputed discovery result (written with --write-discovery-json) instead of recomputing")
+    ap.add_argument("--write-discovery-json", type=Path, default=None,
+                    help="compute only the discovery pair and write it to this file, then exit")
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args(argv)
 
@@ -110,8 +114,15 @@ def main(argv=None) -> int:
     result["endpoint_k_primary"] = endpoint_k
     result["pairs"] = {pr.name: analyse_pair(pr, bins, banks, tokens, endpoint_k, args.draws) for pr in pairs}
 
-    disc = P.load_pair("seed42_a40", 42, args.discovery)
-    result["discovery"] = analyse_pair(disc, bins, {"a40": a40_bank}, tokens, 16, args.draws)
+    if args.discovery_json is not None:
+        result["discovery"] = json.loads(args.discovery_json.read_text())
+    else:
+        disc = P.load_pair("seed42_a40", 42, args.discovery)
+        result["discovery"] = analyse_pair(disc, bins, {"a40": a40_bank}, tokens, 16, args.draws)
+        if args.write_discovery_json is not None:
+            args.write_discovery_json.write_text(json.dumps(result["discovery"], indent=1, default=float))
+            print("discovery result written to", args.write_discovery_json)
+            return 0
 
     # discovery checkpoints re-evaluated on the box (sensitivity row under NOT PASSED)
     sens = {}

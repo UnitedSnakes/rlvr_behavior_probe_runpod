@@ -78,9 +78,10 @@ def main(argv=None) -> int:
     parser.add_argument("--bundle", type=Path, default=Path.home() / "Downloads/attrib_draft_v5_source")
     parser.add_argument("--pair-dir", type=Path, default=DATA / "seed42_a40")
     parser.add_argument("--bank", type=Path, default=DATA / "banks/a40_original")
+    parser.add_argument("--pcts", type=str, default=None, help="comma-separated subset of snapshots (default: all 20)")
     args = parser.parse_args(argv)
     ck = Checker()
-    pcts = sorted(core.PAPER_SCHEDULE)
+    pcts = sorted(core.PAPER_SCHEDULE) if args.pcts is None else sorted(int(x) for x in args.pcts.split(","))
 
     bank = core.load_p0_bank(args.bank)
     bins = core.frozen_bins(bank)
@@ -145,6 +146,8 @@ def main(argv=None) -> int:
     for arm, fname in (("grpo", "grpo_aggregate.csv"), ("maxrl", "maxrl_aggregate.csv")):
         for row in csv.DictReader(open(args.bundle / "data" / fname)):
             pct = int(row["snapshot_pct"])
+            if pct != 0 and pct not in pcts:
+                continue
             for m in core.METRICS:
                 value = init[m] if pct == 0 else snaps[arm][pct].panel_rate(m)
                 ck.exact(f"agg {arm} {pct} {m}", value, row[m])

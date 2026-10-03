@@ -374,7 +374,7 @@ Every item is logged with time and evidence in `PROGRESS.md`.
 
 **Outcome of the pre-registered extra-batch cut-off**
 
-16. *Endpoint K.* The primary cells use K = 16 for every pair. By the pre-registered all-or-nothing rule, K = 64 requires all 64 endpoint responses in every pair, and an extra-batch round starts only if it is projected to finish by RESULTS_DUE − 6.5 h (10-03 17:30 UTC). Final state: batches 1–3 for seeds 43 and 44 and batches 1–2 for seed 45 (all 16 jobs succeeded); at 17:18:35 UTC, when GPUs freed, the queue skipped seed 45's batch 3 (projected end ≈ 17:54 UTC). The main analysis had been run earlier, at 16:34 UTC, on the queue's projection: at that time all four GPUs were committed until ≈ 16:43 and then to seed 45's batches 1–2 until ≈ 17:19, so batch 3 could not start in time. The queue's skip at 17:18 confirms that projection; no result changes.
+16. *Endpoint K.* The primary cells use K = 16 for every pair. By the pre-registered all-or-nothing rule, K = 64 requires all 64 endpoint responses in every pair, and an extra-batch round starts only if it is projected to finish by RESULTS_DUE − 6.5 h (10-03 17:30 UTC). Final state: batches 1–3 for seeds 43 and 44 and batches 1–2 for seed 45 (all 16 jobs succeeded); at 17:18:35 UTC, when GPUs freed, the queue skipped seed 45's batch 3 (the queue's projection, now + longest recorded evaluation of 38.3 min, gave an end of ≈ 17:57 UTC). The main analysis had been run earlier, at 16:34 UTC, on the queue's projection: at that time all four GPUs were committed until ≈ 16:43 and then to seed 45's batches 1–2 until ≈ 17:19, so batch 3 could not start in time. The queue's skip at 17:18 confirms that projection; no result changes.
 
 **Operational issues (no effect on data)**
 

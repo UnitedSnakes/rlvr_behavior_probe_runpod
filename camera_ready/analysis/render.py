@@ -175,7 +175,9 @@ def results_tables(A: dict) -> str:
 def secondary_tables(A: dict) -> str:
     acr = A["across"]
     names = acr["pairs"]
-    L = ["### Secondary: d_b and q_b at all EVAL_STEPS (pp; across-pair mean and 95 % t-interval; no wording rule applies)\n"]
+    L = ["### Secondary: d_b and q_b at all EVAL_STEPS (pp; across-pair mean and 95 % t-interval; no wording rule applies)\n",
+         "K = 16 protocol evaluation at every step, including 3736; the K = "
+         f"{A['endpoint_k_primary']} endpoint primary cells are in §2.\n"]
     for m in ("C", "R", "T"):
         L.append(f"**{m}**\n")
         L.append("| Step | Stat | " + " | ".join(BINS) + " |")

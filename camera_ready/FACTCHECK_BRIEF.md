@@ -13,7 +13,23 @@ anything under `camera_ready/analysis/` or `analyses/`.** Write your own script
 - Paper definitions (for exact formulas): `~/Downloads/attrib_draft_v5_source/paper.tex`,
   §2–§4 and Appendices B–D.
 
-## Raw inputs
+## Where the raw data are (read this first)
+
+The laptop is on a metered phone hotspot: **do not copy large files to the laptop.** All raw inputs
+are on the GPU box (`ssh autodl-4080-4`, use `-o ConnectTimeout=20`; the gateway is sometimes flaky,
+retry). Run your recompute script ON THE BOX with `/root/autodl-tmp/envs/rlvr/bin/python` (numpy
+available), from a directory of your own such as `/root/autodl-tmp/factcheck/` (copy your script there
+with scp; it is small). Pull back only your small JSON/Markdown outputs. Do not touch anything under
+`/root/autodl-tmp/runs`, `/root/autodl-tmp/queue` or the GPUs. Box layout (`/root/autodl-tmp/analysis_data/`):
+
+- `banks/a40_original/rollouts_shard{0,1}of2.jsonl` — A40 π0 banks (frozen bins; A40 baselines).
+- `bridge_box/pi0_bank/rollouts_shard{0,1}of2.jsonl` — π0 banks regenerated on the box.
+- `bridge_box/{grpo,maxrl}_seed42/pi_XXX/snapshot_raw.jsonl` — seed-42 checkpoints re-evaluated on the box.
+- `seed42_a40/{grpo,maxrl}/{eval/pi_XXX,ledger}` — discovery pair (A40).
+- `seed4{3,4,5}/{grpo,maxrl}/{eval/pi_XXX, eval_extra/..., ledger, step_log.jsonl, *_run_manifest.json, camera_ready_integrity.json}` — box pairs.
+- Prompt token counts (frozen covariate): `camera_ready/analysis/prompt_token_counts.json` in the repo (read it as data; do not import the module).
+
+## Raw inputs (format)
 
 - Frozen bins and A40 baselines: `p0_train_k32_top_p1_canonical/rollouts_shard{0,1}of2.jsonl`
   (repo root of the main checkout; each record has `rollouts_A`, `rollouts_B` with

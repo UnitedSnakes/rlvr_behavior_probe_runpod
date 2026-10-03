@@ -4,3 +4,6 @@ __pycache__/
 *.pyc
 # Rows derived from the private project_2145 checkpoints (C1 fallback only) must never be committed.
 private_fallback/
+
+# The repo-root .gitignore excludes results*/; camera-ready lightweight summaries are meant to be tracked.
+!results/

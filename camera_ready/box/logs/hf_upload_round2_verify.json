@@ -1,5 +1,5 @@
 {
- "files": 399,
+ "files": 409,
  "bad": 0,
  "rows": [
   {
@@ -1421,7 +1421,7 @@
    "path": "seed45/SHA256SUMS",
    "status": "OK",
    "check": "git-blob-sha1",
-   "size": 9775
+   "size": 10940
   },
   {
    "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
@@ -1663,6 +1663,13 @@
   },
   {
    "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed45/grpo/eval_extra/pi_100_b3.log",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 30595
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
    "path": "seed45/grpo/eval/pi_100/camera_ready_eval_provenance.json",
    "status": "OK",
    "check": "git-blob-sha1",
@@ -1831,6 +1838,34 @@
   },
   {
    "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed45/grpo/eval_extra/pi_100_b3/camera_ready_eval_provenance.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 616
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed45/grpo/eval_extra/pi_100_b3/prompt_length_audit.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 79
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed45/grpo/eval_extra/pi_100_b3/snapshot_eval_manifest.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4257
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed45/grpo/eval_extra/pi_100_b3/snapshot_raw.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 40900768
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
    "path": "seed45/maxrl/eval/pi_100.log",
    "status": "OK",
    "check": "git-blob-sha1",
@@ -1884,6 +1919,13 @@
    "status": "OK",
    "check": "git-blob-sha1",
    "size": 30681
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed45/maxrl/eval_extra/pi_100_b3.log",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 30684
   },
   {
    "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
@@ -2052,6 +2094,34 @@
    "status": "OK",
    "check": "sha256",
    "size": 41524292
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed45/maxrl/eval_extra/pi_100_b3/camera_ready_eval_provenance.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 618
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed45/maxrl/eval_extra/pi_100_b3/prompt_length_audit.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 79
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed45/maxrl/eval_extra/pi_100_b3/snapshot_eval_manifest.json",
+   "status": "OK",
+   "check": "git-blob-sha1",
+   "size": 4261
+  },
+  {
+   "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",
+   "path": "seed45/maxrl/eval_extra/pi_100_b3/snapshot_raw.jsonl",
+   "status": "OK",
+   "check": "sha256",
+   "size": 41356532
   },
   {
    "repo": "HKReporter/rlvr-behavior-probe-camera-ready-2026-10",

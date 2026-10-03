@@ -130,3 +130,10 @@
 [2026-10-03T17:18:44Z] staged seed 44 to /root/autodl-tmp/results_staging/seed44
 [2026-10-03T17:18:48Z] staged seed 45 to /root/autodl-tmp/results_staging/seed45
 [2026-10-03T17:18:48Z] QUEUE FINISHED: GPUs idle
+[2026-10-03T20:06:43Z] remaining extras (Sam, after the pre-registered cut-off; hard stop 02:00Z): [{'kind': 'extra', 'seed': 45, 'arm': 'grpo', 'pct': 100, 'batch': 3}, {'kind': 'extra', 'seed': 45, 'arm': 'maxrl', 'pct': 100, 'batch': 3}]; projected end 20:45Z
+[2026-10-03T20:06:43Z] eval extra {'seed': 45, 'arm': 'grpo', 'pct': 100, 'batch': 3} on GPU 0
+[2026-10-03T20:06:43Z] eval extra {'seed': 45, 'arm': 'maxrl', 'pct': 100, 'batch': 3} on GPU 1
+[2026-10-03T20:41:43Z] eval done ok=True wall=35.0 min {'kind': 'extra', 'seed': 45, 'arm': 'grpo', 'pct': 100, 'batch': 3}
+[2026-10-03T20:42:03Z] eval done ok=True wall=35.3 min {'kind': 'extra', 'seed': 45, 'arm': 'maxrl', 'pct': 100, 'batch': 3}
+[2026-10-03T20:42:08Z] staged seed 45 to /root/autodl-tmp/results_staging/seed45
+[2026-10-03T20:42:08Z] REMAINING EXTRAS DONE: [('grpo', True), ('maxrl', True)]

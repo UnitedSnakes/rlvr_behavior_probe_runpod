@@ -256,3 +256,17 @@ def wording_sentences(A: dict) -> str:
                      f"{st['upper95_one_sided']:+.2f} pp (n = {st['n']}) — **{st['wording']}**.")
     L.append("\nThe eight intervals carry no multiplicity adjustment.\n")
     return "\n".join(L)
+
+
+def mixed_table(A: dict) -> str:
+    mx = A["across"].get("mixed_supplement_k16")
+    if not mx:
+        return "No mixed estimate (bridge not PASS).\n"
+    L = ["### Supplementary mixed estimate (bridge PASS only): A40 discovery pair pooled with the box pairs, K = 16\n",
+         "Labelled as mixing the discovery run with replications across hardware. Not the pre-registered main inference; "
+         "no wording rule is applied; no multiplicity adjustment.\n",
+         "| Cell | Values (box pairs…, seed 42 A40) | n | Mean | 95 % CI |", "|---|---|---:|---:|---|"]
+    for key, st in mx.items():
+        L.append(f"| {CELL_LABEL[key]} | " + ", ".join(f"{v:+.2f}" for v in st["values"]) + f" | {st['n']} | {st['mean']:+.2f} | {ci(st['ci95'])} |")
+    L.append("")
+    return "\n".join(L)

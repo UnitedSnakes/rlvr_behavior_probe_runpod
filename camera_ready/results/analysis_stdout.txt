@@ -1,0 +1,9 @@
+pairs=['seed43', 'seed44', 'seed45'] endpoint_K=16 verdict=PASS baseline=a40
+  d_C_0            values=['0.97', '2.00', '0.48'] mean=1.15 ci=[-0.77, 3.08] -> unresolved at this number of runs | discovery -4.71 (below)
+  q_C_0            values=['0.75', '1.78', '-0.88'] mean=0.55 ci=[-2.79, 3.89] -> unresolved at this number of runs | discovery -3.37 (below)
+  d_C_(0,.25]      values=['0.81', '1.23', '3.43'] mean=1.82 ci=[-1.66, 5.31] -> unresolved at this number of runs | discovery -0.44 (below)
+  q_C_(0,.25]      values=['0.59', '1.01', '2.06'] mean=1.22 ci=[-0.66, 3.10] -> unresolved at this number of runs | discovery 0.91 (inside)
+  d_R_0            values=['-1.12', '1.37', '0.39'] mean=0.21 ci=[-2.90, 3.32] -> unresolved at this number of runs | discovery -3.13 (below)
+  q_R_0            values=['-0.87', '1.49', '-0.78'] mean=-0.05 ci=[-3.38, 3.27] -> unresolved at this number of runs | discovery -1.64 (below)
+  d_R_(0,.25]      values=['0.13', '0.55', '3.15'] mean=1.28 ci=[-2.79, 5.34] -> unresolved at this number of runs | discovery -0.62 (below)
+  q_R_(0,.25]      values=['0.37', '0.67', '1.98'] mean=1.01 ci=[-1.11, 3.13] -> unresolved at this number of runs | discovery 0.87 (inside)

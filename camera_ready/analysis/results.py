@@ -39,6 +39,7 @@ def main(argv=None) -> int:
         "## 2. Main sample: primary cells\n",
         R.results_tables(A),
         R.wording_sentences(A),
+        R.mixed_table(A),
         "## 3. Secondary results\n",
         R.secondary_tables(A),
         R.panel_table(A),

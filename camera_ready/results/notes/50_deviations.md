@@ -22,6 +22,16 @@ Every item is logged with time and evidence in `PROGRESS.md`.
 12. The GRPO seed-42 execution commit is not recorded; inferred `c664e26`. Image and pod identity of the two seed-42 arms cannot be verified (`INVENTORY.md` §8).
 13. Seed-42 grad norms exist only for MaxRL at every 10th step; GRPO seed-42 training logs were not kept.
 
+12a. *Data movement (Sam, 10-03).* After seeds 43/44 were pulled in full, only small analysis outputs are pulled to the laptop (metered hotspot). The main analysis and the bridge statistics ran on the box with the committed code (commit `45d6130`); the discovery-pair results were computed on the laptop from the A40 data already there (`results/discovery_seed42.json`) and passed in. A box-side reproduction check (382 checks at the four EVAL_STEPS) gave the same numbers as the laptop.
+12b. *Endpoint K.* The primary cells use K = 16 for every pair: by the pre-registered all-or-nothing rule K = 64 requires all 64 endpoint responses in every pair, and the extra-batch rounds that could start before RESULTS_DUE − 6.5 h did not cover seed 45's third batch.
+12c. *Backups.* Private HF dataset and checkpoint repos (Sam-approved), uploaded from the box only; HF-side SHA-256 verification (`PROGRESS.md`).
+
+**Operational issues (no effect on data)**
+
+- The AutoDL SSH gateway was intermittent on 10-02/10-03 (minutes-long connect timeouts); the box-side queue was unaffected.
+- The laptop agent session restarted once (no check-ins 10-01 17:52–21:59 UTC) and later missed the end of the required evaluations (finished 10-03 14:56 UTC; analysis started 16:34 UTC) because a watcher timed out during an SSH outage. No decision depended on these gaps.
+- `camera_ready/results/` was initially not tracked (repo-root `.gitignore` rule `results*/`); fixed 10-03 08:20 UTC.
+
 **Unresolved alerts**
 
-*(none so far)*
+*(none)*

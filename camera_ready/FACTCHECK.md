@@ -296,3 +296,20 @@ Every primary-cell number, wording label, bridge statistic, gate and verdict, ma
 - **"327 differing values".** This mixes changed values and added fields; "305 changed values and 22 added K-dependent fields" would be unambiguous.
 
 **K = 64 verdict: FAIL.** One issue remains: S1, the unlabelled K = 16 step-3736 rows in the §3 secondary tables. All K = 64 numbers, labels, intervals, discovery positions, the K = 16 table, the extra-batch validity checks and the new prose otherwise match the independent recomputation.
+
+### K = 64 final confirmation (commit 976e073)
+
+- **Scope of the change.** `git diff a55cd8a 976e073 -- camera_ready/RESULTS.md` makes exactly four changes:
+  - the S1 line under the §3 secondary heading;
+  - "completes the pre-registered endpoint set after the cut-off" in §0 Sample;
+  - "305 changed values and 22 added fields, all K-dependent" in §5 item 17;
+  - nothing else.
+
+  `results/analysis.json` (still `15c73b82…`), `results/bridge.json`, BRIDGE_REPORT.md and `factcheck/` are unchanged. The other changed files are `render.py`, notes and PROGRESS.
+- **S1 resolved.** The §3 heading is now followed by "K = 16 protocol evaluation at every step, including 3736; the K = 64 endpoint primary cells are in §2." This covers the C, R and T sub-tables. Their values still match my K = 16 recomputation (secondary 720/720).
+- **Advisory items.** Both rewordings are accurate. 305 + 22 matches my JSON diff.
+- **Compare re-runs.**
+  - compare64: 248/248 MATCH.
+  - compare: 2,015/2,157. The 142 flags are the 103 primary-table and 38 sentence items, which now hold K = 64 values and are covered by compare64, plus the dismissed obsolete clipping-label assertion. Nothing else is flagged.
+
+**K = 64 final verdict: PASS.** No mismatches and no wording issues remain in RESULTS.md or BRIDGE_REPORT.md.
